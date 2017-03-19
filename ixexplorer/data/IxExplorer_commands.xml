@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IxExplorerCommands>
+	<Commands>
+		<Command name="arp" command="arp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>		
+		<Command name="atmHeader" command="atmHeader" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="streamQueue"/>
+		<Command name="atmHeaderCounterVci" command="atmHeaderCounter" getCommand="get atmVci" setCommand="set atmVci" uriIndices="" depCommand="atmHeader"/>
+		<Command name="atmHeaderCounterVciMask" command="atmHeaderCounter" getCommand="get atmVci" setCommand="set atmVci" uriIndices="" depCommand="atmHeader" configurationCommand="::IxExplorer::ConfigVpiVciMask"/>
+		<Command name="atmHeaderCounterVpi" command="atmHeaderCounter" getCommand="get atmVpi" setCommand="set atmVpi" uriIndices="" depCommand="atmHeader"/>
+		<Command name="atmHeaderCounterVpiMask" command="atmHeaderCounter" getCommand="get atmVpi" setCommand="set atmVpi" uriIndices="" depCommand="atmHeader" configurationCommand="::IxExplorer::ConfigVpiVciMask"/>
+		<Command name="atmPort" command="atmPort" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>		
+		<Command name="autoDetectInstrumentationPort" command="autoDetectInstrumentation" getCommand="getRx" setCommand="setRx" uriIndices="1 2 3" depCommand="port"/>		
+		<Command name="autoDetectInstrumentationStream" command="autoDetectInstrumentation" getCommand="getTx" setCommand="setTx" uriIndices="1 2 3 4" depCommand="stream"/>		
+		<Command name="autoDetectInstrumentation" command="autoDetectInstrumentation" getCommand="getRx" setCommand="setRx" uriIndices="1 2 3" depCommand="port"/>		
+		<Command name="capture" command="capture" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="card" command="card" getCommand="get" setCommand="set" uriIndices="1 2"/>
+		<Command name="chassis" command="chassis" getCommand="get" setCommand="" uriIndices="1"/>
+		<Command name="dataIntegrityPort" command="dataIntegrity" getCommand="getRx" setCommand="setRx" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="dataIntegrityStream" command="dataIntegrity" getCommand="getTx" setCommand="setTx" uriIndices="1 2 3 4" depCommand="stream"/>		
+		<Command name="dhcp" command="dhcp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>		
+		<Command name="dhcpOption" command="dhcp" getCommand="getOption" setCommand="setOption" uriIndices="5" depCommand="dhcp"/>		
+		<Command name="dhcpV4Properties" command="dhcpV4Properties" getCommand="" setCommand="" uriIndices="" depCommand="interfaceTableGetInterface"/>
+		<Command name="dhcpV6Properties" command="dhcpV6Properties" getCommand="" setCommand="" uriIndices="" depCommand="interfaceTableGetInterface"/>
+		<Command name="filter" command="filter" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="filterPallette" command="filterPallette" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="icmp" command="icmp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="igmp" command="igmp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="igmpGroupRecord" command="igmpGroupRecord" getCommand="" setCommand="" uriIndices="" depCommand="igmpGroupRecordRecord"/>
+		<Command name="igmpGroupRecordRecord" command="igmp" getCommand="getGroupRecord" setCommand="readOnly" uriIndices="5" depCommand="igmp"/>
+		<Command name="interfaceEntry" command="interfaceEntry" getCommand="" setCommand="" uriIndices="" depCommand="interfaceTableGetInterface"/>
+		<Command name="interfaceEntryIpV4" command="interfaceEntry" getCommand="getFirstItem addressTypeIpV4" setCommand="addItem addressTypeIpV4" uriIndices="" depCommand="interfaceTableGetInterface"/>
+		<Command name="interfaceEntryIpV6" command="interfaceEntry" getCommand="getFirstItem addressTypeIpV6" setCommand="addItem addressTypeIpV4" uriIndices="" depCommand="interfaceTableGetInterface"/>
+		<Command name="interfaceIpV4" command="interfaceIpV4" getCommand="" setCommand="" uriIndices="" depCommand="interfaceEntryIpV4"/>
+		<Command name="interfaceIpV6" command="interfaceIpV6" getCommand="" setCommand="" uriIndices="" depCommand="interfaceEntryIpV6"/>
+		<Command name="interfaceTableGetInterface" command="interfaceTable" getCommand="getInterface" setCommand="setInterface" uriIndices="4" depCommand="interfaceTableSelect"/>
+		<Command name="interfaceTableSelect" command="interfaceTable" getCommand="select" setCommand="" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="ip" command="ip" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="ipForProtocol" command="ip" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="ipV6ForProtocol"/>
+		<Command name="ipV6" command="ipV6" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="ipV6ForProtocol" command="ipV6" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="macMask" command="stream" getCommand="get" setCommand="set" uriIndices="1 2 3 4" configurationCommand="::IxExplorer::ConfigMacMask"/>
+		<Command name="mpls" command="mpls" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="mplsLabel" command="mplsLabel" getCommand="get" setCommand="set" uriIndices="5" depCommand="mpls"/>
+		<Command name="oamPort" command="oamPort" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="oamStatus" command="oamStatus" getCommand="get" setCommand="" uriIndices="1 2 3"/>
+		<Command name="oamStatusGetLocalStatus" command="oamStatus" getCommand="getLocalStatus" setCommand="" uriIndices="" depCommand="oamStatus"/>
+		<Command name="oamStatusGetRemoteStatus" command="oamStatus" getCommand="getRemoteStatus" setCommand="" uriIndices="" depCommand="oamStatus"/>
+		<Command name="packetGroupPort" command="packetGroup" getCommand="getRx" setCommand="setRx" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="packetGroupPortSignature" command="packetGroup" getCommand="getRx" setCommand="setRx" uriIndices="1 2 3" depCommand="port" configurationCommand="::IxExplorer::ConfigPortPacketGroupSignature"/>
+		<Command name="packetGroupStream" command="packetGroup" getCommand="getTx" setCommand="setTx" uriIndices="1 2 3 4" depCommand="port"/>
+		<Command name="port" command="port" getCommand="get" setCommand="set" uriIndices="1 2 3"/>
+		<Command name="portAutoNeg" command="port" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port" configurationCommand="::IxExplorer::ConfigAutoNeg"/>
+		<Command name="portReceiveMode" command="port" getCommand="get" setCommand="set" uriIndices="1 2 3" configurationCommand="::IxExplorer::ConfigReceiveMode"/>
+		<Command name="portSpeedDuplex" command="port" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port" configurationCommand="::IxExplorer::ConfigSpeedDuplex"/>
+		<Command name="protocol" command="protocol" getCommand="" setCommand="" uriIndices="" depCommand="stream"/>
+		<Command name="protocolForIPv4Application" command="protocol" getCommand="" setCommand="" uriIndices="" depCommand="ip" configurationCommand="::IxExplorer::ConfigIPv4Application"/>
+		<Command name="protocolForIPv6Application" command="protocol" getCommand="" setCommand="" uriIndices="" depCommand="ipV6" configurationCommand="::IxExplorer::ConfigIPv6Application"/>
+		<Command name="protocolForProtocol" command="protocol" getCommand="" setCommand="" uriIndices="" depCommand="ipForProtocol" configurationCommand="::IxExplorer::ConfigProtocol"/>
+		<Command name="protocolOffset" command="protocolOffset" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="protocolServer" command="protocolServer" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>
+		<Command name="sonet" command="sonet" getCommand="get" setCommand="set" uriIndices="1 2 3"/>
+		<Command name="stackedVlan" command="stackedVlan" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="stream" command="stream" getCommand="get" setCommand="set" uriIndices="1 2 3 4"/>
+		<Command name="streamQueue" command="stream" getCommand="getQueue" setCommand="setQueue" uriIndices="1 2 3 4 5" depCommand="port"/>
+		<Command name="splitPacketGroup" command="splitPacketGroup" getCommand="get" setCommand="set" uriIndices="1 2 3 4" depCommand="port"/>
+		<Command name="tcp" command="tcp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="udp" command="udp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="udpChecksum" command="udp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream" configurationCommand="::IxExplorer::ConfigUdpChecksum"/>
+		<Command name="udf" command="udf" getCommand="get" setCommand="set" uriIndices="5" depCommand="stream"/>
+		<Command name="udfMask" command="udf" getCommand="get" setCommand="set" uriIndices="5" depCommand="stream" configurationCommand="::IxExplorer::ConfigUdfMask"/>
+		<Command name="udfRangeList" command="udf" getCommand="getRange" setCommand="readOnly" uriIndices="5" depCommand="udf"/>
+		<Command name="vlan" command="vlan" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="vlanForStackedVlan" command="stackedVlan" getCommand="getVlan" setCommand="setVlan" uriIndices="5" depCommand="stackedVlan" configurationCommand="vlan"/>
+		<Command name="weightedRandomFramesize" command="weightedRandomFramesize" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="stream"/>
+		<Command name="weightedRandomFramesizeGausian" command="weightedRandomFramesize" getCommand="retrieveQuadGaussianCurve" setCommand="updateQuadGaussianCurve" uriIndices="5" depCommand="weightedRandomFramesize"/>
+		<Command name="xfp" command="xfp" getCommand="get" setCommand="set" uriIndices="1 2 3" depCommand="port"/>
+	</Commands>
+</IxExplorerCommands>

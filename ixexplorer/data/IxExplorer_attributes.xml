@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Chassis>
+	<Address command="chassis" attribute="ipAddress" type="string"/>
+	<Name command="chassis" attribute="hostName" type="string"/>
+	<ID command="chassis" attribute="id" type="string"/>
+	<Type command="chassis" attribute="type" type="numeric"/>
+	<Description command="chassis" attribute="typeName" type="string"/>
+	<Slot_Count command="chassis" attribute="maxCardCount" type="string"/>
+	<Card>
+		<Type command="card" attribute="type" type="numeric"/>
+		<Description command="card" attribute="typeName" type="string"/>
+		<Port_Count command="card" attribute="portCount" type="numeric"/>
+		<Clock>
+			<Source command="card" attribute="clockSelect" type="clockSource"/>
+			<Transmit_Clock_Deviation command="card" attribute="txFrequencyDeviation" type="numeric"/>			
+		</Clock>
+		<Port>
+			<Name command="port" attribute="name" type="string"/>			
+			<Type command="port" attribute="type" type="numeric"/>
+			<Description command="port" attribute="typeName" type="string"/>
+			<Owner command="port" attribute="owner" type="string"/>			
+			<Link_State command="port" attribute="linkState" type="portLinkState"/>			
+			<Port_Properties>
+				<Auto_Negotiation>
+					<Auto_Negotiate command="portAutoNeg" attribute="autonegotiate" type="boolean"/>
+					<Speed_And_Duplex command="portSpeedDuplex" attribute="speed duplex" type="autoNegotiateSpeedAndDuplex"/>
+					<Loopback command="port" attribute="loopback" type="portPropertiesLoopback"/>
+					<Simulate_Cable_Disconnect command="port" attribute="enableSimulateCableDisconnect" type="boolean"/>
+				</Auto_Negotiation>
+				<Transmit_Modes>
+					<Modes command="port" attribute="transmitMode" type="transmitModesModes"/>
+					<PHY_Modes command="port" attribute="phyMode" type="transmitModesPHYModes"/>
+				</Transmit_Modes>
+				<Status>
+				</Status>
+				<OAM>
+					<Enable command="oamPort" attribute="enable" type="boolean"/>
+					<Configuration>
+						<MAC_Address command="oamPort" attribute="macAddress" type="string"/>
+						<Loopback command="oamPort" attribute="enableLoopback" type="boolean"/>
+						<Link_Events command="oamPort" attribute="enableLinkEvents" type="boolean"/>
+						<Max_OAM_PDU_Size command="oamPort" attribute="maxOamPduSize" type="numeric"/>
+						<OUI command="oamPort" attribute="oui" type="string"/>
+						<Vendor_Specific_Information command="oamPort" attribute="vendorSpecificInformation" type="string"/>
+						<Idle_Timer command="oamPort" attribute="idleTimer" type="numeric"/>
+						<Optional_TLV_Enable command="oamPort" attribute="enableOptionalTlv" type="boolean"/>
+						<Optional_TLV_Type command="oamPort" attribute="optionalTlvType" type="numeric"/>
+						<Optional_TLV_Value command="oamPort" attribute="optionalTlvValue" type="string"/>
+					</Configuration>
+					<Status>
+						<Local>
+							<Discovery_Status command="oamStatusGetLocalStatus" attribute="discoveryStatus" type="string"/>
+							<MAC_Address command="oamStatusGetLocalStatus" attribute="sourceMacAddress" type="string"/>
+							<OAM_Version command="oamStatusGetLocalStatus" attribute="version" type="string"/>
+							<Information_Revision command="oamStatusGetLocalStatus" attribute="informationRevision" type="string"/>
+							<Multiplexer_Action command="oamStatusGetLocalStatus" attribute="multiplexerAction" type="string"/>
+							<Parser_Action command="oamStatusGetLocalStatus" attribute="parserAction" type="string"/>
+							<OAM_Mode command="oamStatusGetLocalStatus" attribute="mode" type="string"/>
+							<Unidirectional_Support command="oamStatusGetLocalStatus" attribute="unidirectionalSupport" type="string"/>
+							<Loopback_Support command="oamStatusGetLocalStatus" attribute="loopback" type="string"/>
+							<Link_Events_Support command="oamStatusGetLocalStatus" attribute="linkEvents" type="string"/>
+							<Variable_Retrieval_Support command="oamStatusGetLocalStatus" attribute="mibVars" type="string"/>
+							<Max_OAM_PDU_Size command="oamStatusGetLocalStatus" attribute="pduSize" type="string"/>
+							<OUI command="oamStatusGetLocalStatus" attribute="oui" type="string"/>
+							<Vendor_Specific_Information command="oamStatusGetLocalStatus" attribute="vendorSpecificInformation" type="string"/>
+						</Local>
+						<Remote>
+							<Discovery_Status command="oamStatusGetRemoteStatus" attribute="discoveryStatus" type="string"/>
+							<MAC_Address command="oamStatusGetRemoteStatus" attribute="sourceMacAddress" type="string"/>
+							<OAM_Version command="oamStatusGetRemoteStatus" attribute="version" type="string"/>
+							<Information_Revision command="oamStatusGetRemoteStatus" attribute="informationRevision" type="string"/>
+							<Multiplexer_Action command="oamStatusGetRemoteStatus" attribute="multiplexerAction" type="string"/>
+							<Parser_Action command="oamStatusGetRemoteStatus" attribute="parserAction" type="string"/>
+							<OAM_Mode command="oamStatusGetRemoteStatus" attribute="mode" type="string"/>
+							<Unidirectional_Support command="oamStatusGetRemoteStatus" attribute="unidirectionalSupport" type="string"/>
+							<Loopback_Support command="oamStatusGetRemoteStatus" attribute="loopback" type="string"/>
+							<Link_Events_Support command="oamStatusGetRemoteStatus" attribute="linkEvents" type="string"/>
+							<Variable_Retrieval_Support command="oamStatusGetRemoteStatus" attribute="mibVars" type="string"/>
+							<Max_OAM_PDU_Size command="oamStatusGetRemoteStatus" attribute="pduSize" type="string"/>
+							<OUI command="oamStatusGetRemoteStatus" attribute="oui" type="string"/>
+							<Vendor_Specific_Information command="oamStatusGetRemoteStatus" attribute="vendorSpecificInformation" type="string"/>
+						</Remote>
+					</Status>
+				</OAM>
+				<SONET>
+					<Simulate_Cable_Disconnect command="port" attribute="enableSimulateCableDisconnect" type="boolean"/>
+					<Interface_Type command="sonet" attribute="interfaceType" type="sonetInterfaceType"/>
+					<Path_Signal_Label_Transmit command="sonet" attribute="C2byteTransmit" type="numeric"/>
+					<Path_Signal_Label_Expected command="sonet" attribute="C2byteExpected" type="numeric"/>
+					<Operation command="sonet" attribute="operation" type="sonetOperation"/>
+					<Transmit_Clocking command="sonet" attribute="useRecoveredClock" type="sonetTransmitClocking"/>
+					<SPE_Scrambling command="sonet" attribute="dataScrambling" type="boolean"/>
+				</SONET>
+				<ATM>
+					<Interface_Type command="atmPort" attribute="interfaceType" type="atmInterfaceType"/>
+					<Coset_On command="atmPort" attribute="enableCoset" type="boolean"/>
+					<Filter_Cell command="atmPort" attribute="fillerCell" type="atmFilterCell"/>
+					<Packet_Decode_Mode command="atmPort" attribute="packetDecodeMode" type="atmPacketDecodeMode"/>
+					<Reassembly_Timeout command="atmPort" attribute="reassemblyTimeout" type="numeric"/>
+					<ATM_Pattern_Matching command="atmPort" attribute="enableAtmPatternMatching" type="boolean"/>
+					<TX_Stats_Mode command="atmPort" attribute="transmitStatsMode" type="atmTXStatsMode"/>
+					<Source_Location_ID command="atmPort" attribute="sourceLocationId" type="string"/>
+				</ATM>
+				<XFP>
+					<Monitor_XFP_Loss_Of_Signal command="xfp" attribute="enableMonitorLos" type="boolean"/>
+					<Monitor_XFP_Module_Ready_Signal command="xfp" attribute="enableMonitorModuleReadySignal" type="boolean"/>
+				</XFP>
+			</Port_Properties>
+			<Filter_Properties>
+				<User_Defined_Statistic_1>
+					<Enable_Filter command="filter" attribute="userDefinedStat1Enable" type="boolean"/>
+					<DA command="filter" attribute="userDefinedStat1DA" type="filterDASA"/>
+					<SA command="filter" attribute="userDefinedStat1SA" type="filterDASA"/>
+					<Pattern command="filter" attribute="userDefinedStat1Pattern" type="filterPattern"/>					
+					<Errors command="filter" attribute="userDefinedStat1Error" type="filterErrors"/>					
+					<Enable_Size command="filter" attribute="userDefinedStat1FrameSizeEnable" type="boolean"/>
+					<From_Size command="filter" attribute="userDefinedStat1FrameSizeFrom" type="numeric"/>
+					<To_Size command="filter" attribute="userDefinedStat1FrameSizeTo" type="numeric"/>
+				</User_Defined_Statistic_1>
+				<User_Defined_Statistic_2>
+					<Enable_Filter command="filter" attribute="userDefinedStat2Enable" type="boolean"/>
+					<DA command="filter" attribute="userDefinedStat2DA" type="filterDASA"/>
+					<SA command="filter" attribute="userDefinedStat2SA" type="filterDASA"/>
+					<Pattern command="filter" attribute="userDefinedStat2Pattern" type="filterPattern"/>					
+					<Errors command="filter" attribute="userDefinedStat2Error" type="filterErrors"/>					
+					<Enable_Size command="filter" attribute="userDefinedStat2FrameSizeEnable" type="boolean"/>
+					<From_Size command="filter" attribute="userDefinedStat2FrameSizeFrom" type="numeric"/>
+					<To_Size command="filter" attribute="userDefinedStat2FrameSizeTo" type="numeric"/>
+				</User_Defined_Statistic_2>
+				<Capture_Trigger>
+					<Enable_Filter command="filter" attribute="captureTriggerEnable" type="boolean"/>
+					<DA command="filter" attribute="captureTriggerDA" type="filterDASA"/>
+					<SA command="filter" attribute="captureTriggerSA" type="filterDASA"/>
+					<Pattern command="filter" attribute="captureTriggerPattern" type="filterPattern"/>					
+					<Errors command="filter" attribute="captureTriggerError" type="filterErrors"/>					
+					<Enable_Size command="filter" attribute="captureTriggerFrameSizeEnable" type="boolean"/>
+					<From_Size command="filter" attribute="captureTriggerFrameSizeFrom" type="numeric"/>
+					<To_Size command="filter" attribute="captureTriggerFrameSizeTo" type="numeric"/>
+				</Capture_Trigger>
+				<Capture_Filter>
+					<Enable_Filter command="filter" attribute="captureFilterEnable" type="boolean"/>
+					<DA command="filter" attribute="captureFilterDA" type="filterDASA"/>
+					<SA command="filter" attribute="captureFilterSA" type="filterDASA"/>
+					<Pattern command="filter" attribute="captureFilterPattern" type="filterPattern"/>					
+					<Errors command="filter" attribute="captureFilterError" type="filterErrors"/>					
+					<Enable_Size command="filter" attribute="captureFilterFrameSizeEnable" type="boolean"/>
+					<From_Size command="filter" attribute="captureFilterFrameSizeFrom" type="numeric"/>
+					<To_Size command="filter" attribute="captureFilterFrameSizeTo" type="numeric"/>
+				</Capture_Filter>
+				<User_Defined_Statistic_5>
+					<Enable_Filter command="filter" attribute="asyncTrigger1Enable" type="boolean"/>
+					<DA command="filter" attribute="asyncTrigger1DA" type="filterDASA"/>
+					<SA command="filter" attribute="asyncTrigger1SA" type="filterDASA"/>
+					<Pattern command="filter" attribute="asyncTrigger1Pattern" type="filterPattern"/>					
+					<Errors command="filter" attribute="asyncTrigger1Error" type="filterErrors"/>					
+					<Enable_Size command="filter" attribute="asyncTrigger1FrameSizeEnable" type="boolean"/>
+					<From_Size command="filter" attribute="asyncTrigger1FrameSizeFrom" type="numeric"/>
+					<To_Size command="filter" attribute="asyncTrigger1FrameSizeTo" type="numeric"/>
+				</User_Defined_Statistic_5>
+				<User_Defined_Statistic_6>
+					<Enable_Filter command="filter" attribute="asyncTrigger2Enable" type="boolean"/>
+					<DA command="filter" attribute="asyncTrigger2DA" type="filterDASA"/>
+					<SA command="filter" attribute="asyncTrigger2SA" type="filterDASA"/>
+					<Pattern command="filter" attribute="asyncTrigger2Pattern" type="filterPattern"/>					
+					<Errors command="filter" attribute="asyncTrigger2Error" type="filterErrors"/>					
+					<Enable_Size command="filter" attribute="asyncTrigger2FrameSizeEnable" type="boolean"/>
+					<From_Size command="filter" attribute="asyncTrigger2FrameSizeFrom" type="numeric"/>
+					<To_Size command="filter" attribute="asyncTrigger2FrameSizeTo" type="numeric"/>
+				</User_Defined_Statistic_6>
+				<DASA>
+					<DA1_Address command="filterPallette" attribute="DA1" type="string"/> 
+					<DA1_Mask command="filterPallette" attribute="DAMask1" type="string"/> 
+					<SA1_Address command="filterPallette" attribute="SA1" type="string"/> 
+					<SA1_Mask command="filterPallette" attribute="SAMask1" type="string"/> 
+					<DA2_Address command="filterPallette" attribute="DA2" type="string"/> 
+					<DA2_Mask command="filterPallette" attribute="DAMask2" type="string"/> 
+					<SA2_Address command="filterPallette" attribute="SA2" type="string"/> 
+					<SA2_Mask command="filterPallette" attribute="SAMask2" type="string"/> 
+				</DASA>
+				<Pattern_1>
+					<Offset command="filterPallette" attribute="patternOffset1" type="numeric"/> 
+					<Offset_Type command="filterPallette" attribute="patternOffsetType1" type="filterOffsetType"/> 
+					<Pattern command="filterPallette" attribute="pattern1" type="string"/> 
+					<Mask command="filterPallette" attribute="patternMask1" type="string"/> 
+				</Pattern_1>
+				<Pattern_2>
+					<Offset command="filterPallette" attribute="patternOffset2" type="numeric"/> 
+					<Offset_Type command="filterPallette" attribute="patternOffsetType2" type="filterOffsetType"/> 
+					<Pattern command="filterPallette" attribute="pattern2" type="string"/> 
+					<Mask command="filterPallette" attribute="patternMask2" type="string"/> 
+				</Pattern_2>
+			</Filter_Properties>
+			<Receive_Mode>
+				<Enable_Capture command="portReceiveMode" attribute="portCapture" type="boolean"/> 
+				<Enable_Echo command="portReceiveMode" attribute="portRxModeEcho" type="boolean"/> 
+				<Enable_Packet_Groups command="portReceiveMode" attribute="portPacketGroup" type="boolean"/> 
+				<Enable_Wide_Packet_Groups command="portReceiveMode" attribute="portRxModeWidePacketGroup" type="boolean"/> 
+				<Enable_Sequence_Checking command="portReceiveMode" attribute="portRxSequenceChecking" type="boolean"/> 
+				<Enable_Data_Integrity command="portReceiveMode" attribute="portRxDataIntegrity" type="boolean"/> 
+				<Enable_PRBS command="portReceiveMode" attribute="portRxModePrbs" type="boolean"/> 
+				<Enable_Rate_Monitoring command="portReceiveMode" attribute="portRxModeRateMonitoring" type="boolean"/> 
+				<Enable_Per_PGID_Checksum_Error_Stats command="portReceiveMode" attribute="portRxModePerFlowErrorStats" type="boolean"/> 
+				<Enable_First_Time_Stamp command="portReceiveMode" attribute="portRxFirstTimeStamp" type="boolean"/> 
+				<Enable_ISL_Encapsulation command="portReceiveMode" attribute="portRxModeIsl" type="boolean"/>
+				<Automatic_Instrumentation>
+					<Enable command="port" attribute="enableAutoDetectInstrumentation" type="boolean"/> 	
+					<Start_Scan_At command="autoDetectInstrumentation" attribute="startOfScan" type="numeric"/> 	
+					<Signature command="autoDetectInstrumentation" attribute="signature" type="string"/> 	
+					<Enable_Mask command="autoDetectInstrumentation" attribute="enableSignatureMask" type="boolean"/> 	
+					<Mask command="autoDetectInstrumentation" attribute="signature" type="string"/> 	
+					<Enable_Misdirected_Packet_Mask command="autoDetectInstrumentation" attribute="enableMisdirectedPacketMask" type="boolean"/> 	
+					<Misdirected_Packet_Mask command="autoDetectInstrumentation" attribute="misdirectedPacketMask" type="string"/> 	
+				</Automatic_Instrumentation>
+				<Capture>
+					<Slize_Size command="capture" attribute="sliceSize" type="numeric"/>
+					<Capture_Mode command="capture" attribute="captureMode" type="captureMode"/>
+					<Continuous_Capture command="capture" attribute="continuousFilter" type="captureContinuousCapture"/>
+					<Before_Trigger command="capture" attribute="beforeTriggerFilter" type="captureBeforeTrigger"/>
+					<After_Trigger command="capture" attribute="afterTriggerFilter" type="captureAfterTrigger"/>
+					<Trigger_Position command="capture" attribute="triggerPosition" type="numeric"/>
+				</Capture>
+				<Wide_Packet_Groups>
+					<Signature command="packetGroupPortSignature" attribute="ignoreSignature" type="boolean"/>  
+					<Signature_Offset command="packetGroupPort" attribute="signatureOffset" type="numeric"/>
+					<Signature_Value command="packetGroupPort" attribute="signature" type="string"/>
+					<Wide_Bin_Mode command="packetGroupPort" attribute="enable128kBinMode" type="boolean"/>
+					<PGID_Mode command="packetGroupPort" attribute="groupIdMode" type="widePacketGroupsPGIDMode"/>
+					<PGID_Offset command="packetGroupPort" attribute="groupIdOffset" type="numeric"/>
+					<PGID_Mask_Enable command="packetGroupPort" attribute="enableGroupIdMask" type="boolean"/>
+					<PGID_Mask command="packetGroupPort" attribute="groupIdMask" type="numeric"/>
+					<Split>
+						<Offset_From command="splitPacketGroup" attribute="groupIdOffsetBaseType" type="splitOffsetFrom"/>
+						<Byte_Offset command="splitPacketGroup" attribute="groupIdOffset" type="numeric"/>
+						<Width command="splitPacketGroup" attribute="groupIdWidth" type="numeric"/>
+						<Mask command="splitPacketGroup" attribute="groupIdMask" type="string"/>
+					</Split>
+				</Wide_Packet_Groups>
+				<Latency_Jitter>
+					<Measurement_Mode command="packetGroupPort" attribute="measurementMode" type="latencyJitterMeasurementMode"/>
+					<Delay_Variation command="packetGroupPort" attribute="delayVariationMode" type="latencyJitterDelayVariation"/>
+					<Measurement_Method command="packetGroupPort" attribute="latencyControl" type="latencyJitterMeasurementMethod"/>
+					<Time_Stamp_Lst_Bit command="packetGroupPort" attribute="enableLastBitTimeStamp" type="boolean"/>
+				</Latency_Jitter>
+				<Sequence_Checking>
+					<Signature command="packetGroupPortSignature" attribute="ignoreSignature" type="boolean"/>  
+					<Signature_Offset command="packetGroupPort" attribute="signatureOffset" type="numeric"/>
+					<Signature_Value command="packetGroupPort" attribute="signature" type="string"/>
+					<Wide_Bin_Mode command="packetGroupPort" attribute="enable128kBinMode" type="boolean"/>
+					<PGID_Offset command="packetGroupPort" attribute="groupIdOffset" type="numeric"/>
+					<PGID_Mask_Enable command="packetGroupPort" attribute="enableGroupIdMask" type="boolean"/>
+					<PGID_Mask command="packetGroupPort" attribute="groupIdMask" type="numeric"/>
+					<Sequence_Number_Offset command="packetGroupPort" attribute="sequenceNumberOffset" type="numeric"/>
+					<Mode command="packetGroupPort" attribute="sequenceCheckingMode" type="sequenceCheckingMode"/>
+					<Error_Threshold command="packetGroupPort" attribute="sequenceErrorThreshold" type="numeric"/>
+					<Switched_Path_Mode command="packetGroupPort" attribute="multiSwitchedPathMode" type="sequenceCheckingSwitchedPathMode"/>
+				</Sequence_Checking>
+				<Data_Integrity>
+					<Signature_Offset command="dataIntegrityPort" attribute="signatureOffset" type="numeric"/>
+					<Signature_Value command="dataIntegrityPort" attribute="signature" type="string"/>
+					<Account_For_Timestamps command="dataIntegrityPort" attribute="enableTimeStamp" type="boolean"/> 	
+				</Data_Integrity>
+			</Receive_Mode>
+			<Queue>
+				<Stream ref="/Chassis/Card/Port/Stream"/>
+			</Queue>
+			<Stream>
+				<Name command="stream" attribute="name" type="string"/>
+				<Enabled command="stream" attribute="enable" type="boolean"/>
+				<Frame_Data>
+					<Preamble_Size command="stream" attribute="preambleSize" type="numeric"/>						
+					<Data_Pattern command="stream" attribute="dataPattern" type="frameDataDataPattern"/>						
+					<Pattern command="stream" attribute="pattern" type="string"/>
+					<Frame_Size>
+						<Type command="stream" attribute="frameSizeType" type="frameSizeType"/>
+						<Size command="stream" attribute="framesize" type="numeric"/>
+						<Step command="stream" attribute="frameSizeStep" type="numeric"/>
+						<Min command="stream" attribute="frameSizeMIN" type="numeric"/>
+						<Max command="stream" attribute="frameSizeMAX" type="numeric"/>
+						<Weighted_Random_Frame_Size>
+							<Random_Mode command="weightedRandomFramesize" attribute="randomType" type="weightedRandomFrameSizeRandomMode"/>
+							<Pair_List command="weightedRandomFramesize" attribute="randomType" type="string"/>
+							<Center command="weightedRandomFramesizeGausian" attribute="center" type="numeric"/>
+							<Width_At_Half command="weightedRandomFramesizeGausian" attribute="widthAtHalf" type="numeric"/>
+							<Weight command="weightedRandomFramesizeGausian" attribute="weight" type="numeric"/>
+						</Weighted_Random_Frame_Size>
+					</Frame_Size>
+					<Instrumentation>
+						<Automatic command="autoDetectInstrumentationStream" attribute="enableTxAutomaticInstrumentation" type="boolean"/>
+						<Signature_Value command="autoDetectInstrumentationStream" attribute="signature" type="string"/>
+						<Insert_Time_Stamp command="stream" attribute="enableTimestamp" type="boolean"/>
+						<Insert_Packet_Groups command="packetGroupStream" attribute="insertSignature" type="boolean"/>
+						<Insert_Sequence_Checking command="packetGroupStream" attribute="insertSequenceSignature" type="boolean"/>
+						<Insert_Data_Integrity command="dataIntegrityStream" attribute="insertSignature" type="boolean"/>
+						<Insert_PRBS command="autoDetectInstrumentationStream" attribute="enablePRBS" type="boolean"/>
+						<Packet_Group_Sequence_Checking>
+							<Signature_Offset command="packetGroupStream" attribute="signatureOffset" type="numeric"/>
+							<Signature_Value command="packetGroupStream" attribute="signature" type="string"/>
+							<Group_Id_Offset command="packetGroupStream" attribute="groupIdOffset" type="numeric"/>
+							<Sequence_Number_Offset command="packetGroupStream" attribute="sequenceNumberOffset" type="numeric"/>
+							<Allocate_UDF_For_The_Sequence_Number command="packetGroupStream" attribute="allocateUdf" type="boolean"/>
+							<Enable_Packet_Group_ID command="packetGroupStream" attribute="enableInsertPgid" type="boolean"/>
+							<Group_ID command="packetGroupStream" attribute="groupId" type="numeric"/>
+						</Packet_Group_Sequence_Checking>
+						<Data_Integrity>
+							<Signature_Offset command="dataIntegrityStream" attribute="signatureOffset" type="numeric"/>
+							<Signature_Value command="dataIntegrityStream" attribute="signature" type="string"/>
+						</Data_Integrity>
+					</Instrumentation>
+					<Force_Errors command="stream" attribute="fcs" type="frameDataForceErrors"/>
+					<DASA>
+						<DA_Mode command="stream" attribute="daRepeatCounter" type="dasaDAMode"/>
+						<DA_Value command="stream" attribute="da" type="string"/>
+						<DA_Count command="stream" attribute="numDA" type="numeric"/>
+						<DA_Step command="stream" attribute="daStep" type="numeric"/>
+						<DA_Mask command="macMask" attribute="daMaskValue daMaskSelect" type="string"/>
+						<SA_Mode command="stream" attribute="saRepeatCounter" type="dasaSAMode"/>
+						<SA_Value command="stream" attribute="sa" type="string"/>
+						<SA_Count command="stream" attribute="numSA" type="numeric"/>
+						<SA_Step command="stream" attribute="saStep" type="numeric"/>
+						<SA_Mask command="macMask" attribute="saMaskValue saMaskSelect" type="string"/>
+						<Enable_Source_Interface command="stream" attribute="enableSourceInterface" type="boolean"/>
+						<Interface_Description command="stream" attribute="sourceInterfaceDescription" type="string"/>
+					</DASA>
+					<ATM>
+						<Auto command="atmHeader" attribute="enableAutoVpiVciSelection" type="boolean"/>					
+						<ATM_Header command="atmHeader" attribute="header" type="string"/>					
+						<Generic_Flow_Control command="atmHeader" attribute="genericFlowControl" type="boolean"/>
+						<Cell_Loss_Priority command="atmHeader" attribute="cellLossPriority" type="boolean"/>					
+						<Insert_HEC_Errors command="atmHeader" attribute="hecErrors" type="atmInsertHECErrors"/>
+						<VPI>
+							<Value command="atmHeader" attribute="vpi" type="numeric"/>
+							<Counter_Mode command="atmHeaderCounterVpi" attribute="type" type="vpivciCounterMode"/>
+							<Counter>
+								<Mode command="atmHeaderCounterVpi" attribute="mode" type="vpivciCounterModeMode"/>
+								<Repeat_Count command="atmHeaderCounterVpi" attribute="repeatCount" type="numeric"/>
+								<Step command="atmHeaderCounterVpi" attribute="step" type="numeric"/>
+							</Counter>
+							<Random>
+								<Mask command="atmHeaderCounterVpiMask" attribute="" type="string"/>
+							</Random>
+							<Table>
+								<Mask command="atmHeaderCounterVpiMask" attribute="dataItemList" type="string"/>
+							</Table>
+						</VPI>
+						<VCI>
+							<Value command="atmHeader" attribute="vci" type="numeric"/>
+							<Counter_Mode command="atmHeaderCounterVci" attribute="type" type="vpivciCounterMode"/>
+							<Counter>
+								<Mode command="atmHeaderCounterVci" attribute="mode" type="vpivciCounterModeMode"/>
+								<Repeat_Count command="atmHeaderCounterVci" attribute="repeatCount" type="numeric"/>
+								<Step command="atmHeaderCounterVci" attribute="step" type="numeric"/>
+							</Counter>
+							<Random>
+								<Mask command="atmHeaderCounterVciMask" attribute="" type="string"/>
+							</Random>
+							<Table>
+								<Mask command="atmHeaderCounterVciMask" attribute="dataItemList" type="string"/>
+							</Table>
+						</VCI>
+						<Encapsulation command="atmHeader" attribute="encapsulation" type="atmEncapsulation"/>											
+						<CL command="atmHeader" attribute="enableCL" type="boolean"/>											
+						<Length command="atmHeader" attribute="cpcsLength" type="numeric"/>											
+						<Force_AAL5_Errors command="atmHeader" attribute="aal5Error" type="atmForceAAL5Errors"/>											
+					</ATM>
+					<Protocols>
+						<VLAN_s command="protocol" attribute="enable802dot1qTag" type="protocolsVlans"/>					
+						<Data_Link_Layer command="protocol" attribute="ethernetType" type="protocolsDataLinkLayer"/>
+						<Ether_Type command="stream" attribute="frameType" type="string"/>
+						<Protocol_Offset command="protocolOffset" attribute="offset" type="numeric"/>
+						<Protocol_User_Defined command="protocolOffset" attribute="userDefinedTag" type="string"/>
+						<Vlan>
+							<Vlan_ID command="vlan" attribute="vlanID" type="numeric"/>
+							<User_Priority command="vlan" attribute="userPriority" type="numeric"/>
+							<CFI command="vlan" attribute="cfi" type="vlanCFI"/>
+							<Vlan_ID_Count_Mode command="vlan" attribute="mode" type="vlanVlanIDCountMode"/>
+							<Repeat_Count command="vlan" attribute="repeat" type="numeric"/>
+							<Step command="vlan" attribute="step" type="numeric"/>
+							<Tag_Protocol_ID command="vlan" attribute="protocolTagId" type="vlanTagProtocolID"/>
+						</Vlan>
+						<Stacked_Vlan>
+							<Vlan_ID command="vlanForStackedVlan" attribute="vlanID" type="numeric"/>
+							<User_Priority command="vlanForStackedVlan" attribute="userPriority" type="numeric"/>
+							<CFI command="vlanForStackedVlan" attribute="cfi" type="stackedVlanCFI"/>
+							<Vlan_ID_Count_Mode command="vlanForStackedVlan" attribute="mode" type="stackedVlanOptions"/>
+							<Repeat_Count command="vlanForStackedVlan" attribute="repeat" type="numeric"/>
+							<Step command="vlanForStackedVlan" attribute="step" type="numeric"/>
+							<Tag_Protocol_ID command="vlanForStackedVlan" attribute="protocolTagId" type="stackedVlanStackedVlan"/>
+						</Stacked_Vlan>
+						<MPLS>
+							<Type command="mpls" attribute="type" type="mplsType"/>
+							<Label command="mplsLabel" attribute="label" type="numeric"/>
+							<Experimental_Use command="mplsLabel" attribute="experimentalUse" type="numeric"/>
+							<Bottom_Of_Stack command="mplsLabel" attribute="bottomOfStack" type="boolean"/>
+							<Time_To_live command="mplsLabel" attribute="timeToLive" type="numeric"/>
+						</MPLS>
+						<Protocol command="protocolForProtocol" attribute="" type="protocolsProtocol"/>
+						<IPv4Application command="protocolForIPv4Application" attribute="" type="protocolsApplication"/>
+						<IPv6Application command="protocolForIPv6Application" attribute="" type="protocolsApplication"/>
+						<IPv4>
+							<Header_Length_Override command="ip" attribute="enableHeaderLengthOverride" type="boolean"/>
+							<Header_Length command="ip" attribute="headerLength" type="numeric"/>
+							<QoS_Mode command="ip" attribute="qosMode" type="ipv4QoSMode"/>
+							<TOS>
+								<Precedence command="ip" attribute="precedence" type="tosPrecedence"/>
+								<Delay command="ip" attribute="delay" type="tosDelay"/>
+								<Throughput command="ip" attribute="throughput" type="tosThroughput"/>
+								<Reliability command="ip" attribute="reliability" type="tosReliability"/>
+								<Cost command="ip" attribute="cost" type="tosCost"/>
+								<Reserved command="ip" attribute="reserved" type="tosReserved"/>
+							</TOS>
+							<DSCP>
+								<Mode command="ip" attribute="dscpMode" type="dscpMode"/>
+								<Class_Selector command="ip" attribute="classSelector" type="dscpClassSelector"/>
+								<Assured_Forwarding_Class command="ip" attribute="assuredForwardingClass" type="dscpAssuredForwardingClass"/>
+								<Assured_Forwarding_Precedence command="ip" attribute="assuredForwardingPrecedence" type="dscpAssuredForwardingPrecedence"/>
+								<Value command="ip" attribute="dscpValue" type="numeric"/>
+							</DSCP>
+							<Length_Override command="ip" attribute="lengthOverride" type="boolean"/>
+							<Length command="ip" attribute="totalLength" type="numeric"/>
+							<Identifier command="ip" attribute="identifier" type="numeric"/>
+							<Fragment>
+								<May command="ip" attribute="fragment" type="fragmentMay"/>
+								<Last command="ip" attribute="lastFragment" type="fragmentLast"/>
+								<Offset command="ip" attribute="fragmentOffset" type="numeric"/>	
+							</Fragment>
+							<Time_To_live command="ip" attribute="ttl" type="numeric"/>
+							<Valid_Checksum command="ip" attribute="useValidChecksum" type="ipv4ValidChecksum"/>
+							<Checksum command="ip" attribute="checksum" type="string"/>
+							<Options_And_Padding command="ip" attribute="options" type="string"/>
+							<Dest>
+								<Address command="ip" attribute="destIpAddr" type="string"/>
+								<Mode command="ip" attribute="destIpAddrMode" type="ipv4AddressMode"/>
+								<Repeat command="ip" attribute="destIpAddrRepeatCount" type="numeric"/>
+								<Class command="ip" attribute="destClass" type="ipv4AddressClass"/>
+								<Mask command="ip" attribute="destIpMask" type="string"/>
+							</Dest>
+							<Source>
+								<Address command="ip" attribute="sourceIpAddr" type="string"/>
+								<Mode command="ip" attribute="sourceIpAddrMode" type="ipv4AddressMode"/>
+								<Repeat command="ip" attribute="sourceIpAddrRepeatCount" type="numeric"/>
+								<Class command="ip" attribute="sourceClass" type="ipv4AddressClass"/>
+								<Mask command="ip" attribute="sourceIpMask" type="string"/>
+							</Source>
+						</IPv4>
+						<IPv6>
+							<Traffic_Class command="ipV6" attribute="trafficClass" type="numeric"/>
+							<Flow_Label command="ipV6" attribute="flowLabel" type="numeric"/>
+							<Payload_Length command="ipV6" attribute="payloadLength" type="numeric"/>
+							<Hop_Limit command="ipV6" attribute="hopLimit" type="numeric"/>
+							<Dest>
+								<Addres command="ipV6" attribute="destAddr" type="string"/>
+								<Network_Mask command="ipV6" attribute="destMask" type="numeric"/>
+								<Increment_Mode command="ipV6" attribute="destAddrMode" type="ipv6AddressMode"/>
+								<Repeat_Count command="ipV6" attribute="destAddrRepeatCount" type="numeric"/>
+								<Step_Size command="ipV6" attribute="destStepSize" type="numeric"/>
+							</Dest>
+							<Source>
+								<Addres command="ipV6" attribute="sourceAddr" type="string"/>
+								<Network_Mask command="ipV6" attribute="sourceMask" type="numeric"/>
+								<Increment_Mode command="ipV6" attribute="sourceAddrMode" type="ipv6AddressMode"/>
+								<Repeat_Count command="ipV6" attribute="sourceAddrRepeatCount" type="numeric"/>
+								<Step_Size command="ipV6" attribute="sourceStepSize" type="numeric"/>
+							</Source>
+						</IPv6>
+						<ARP>
+							<Hardware_Type command="arp" attribute="hardwareType" type="arpHardwareType"/>
+							<Protocol_Type command="arp" attribute="protocolType" type="string"/>
+							<Hardware_Address_Length command="arp" attribute="hardwareAddrLength" type="numeric"/>
+							<Protocol_Address_Length command="arp" attribute="protocolAddrLength" type="numeric"/>
+							<Operation command="arp" attribute="operation" type="arpOperation"/>
+							<Sender_Hardware>
+								<Address command="arp" attribute="sourceHardwareAddr" type="string"/>
+								<Mode command="arp" attribute="sourceHardwareAddrMode" type="arpAddressMode"/>
+								<Repeat_Count command="arp" attribute="sourceHardwareAddrRepeatCount" type="numeric"/>
+							</Sender_Hardware>
+							<Sender_Protocol>
+								<Address command="arp" attribute="sourceProtocolAddr" type="string"/>
+								<Mode command="arp" attribute="sourceProtocolAddrMode" type="arpAddressMode"/>
+								<Repeat_Count command="arp" attribute="sourceProtocolAddrRepeatCount" type="numeric"/>
+							</Sender_Protocol>
+							<Target_Hardware>
+								<Address command="arp" attribute="destHardwareAddr" type="string"/>
+								<Mode command="arp" attribute="destHardwareAddrMode" type="arpAddressMode"/>
+								<Repeat_Count command="arp" attribute="destHardwareAddrRepeatCount" type="numeric"/>
+							</Target_Hardware>
+							<Target_Protocol>
+								<Address command="arp" attribute="destProtocolAddr" type="string"/>
+								<Mode command="arp" attribute="destProtocolAddrMode" type="arpAddressMode"/>
+								<Repeat_Count command="arp" attribute="destProtocolAddrRepeatCount" type="numeric"/>
+							</Target_Protocol>
+						</ARP>
+						<TCP>
+							<Source_Port command="tcp" attribute="sourcePort" type="numeric"/>
+							<Destination_Port command="tcp" attribute="destPort" type="numeric"/>
+							<Sequence_Number command="tcp" attribute="sequenceNumber" type="numeric"/>
+							<Acknowledgement_Number command="tcp" attribute="acknowledgementNumber" type="numeric"/>
+							<Header_Length command="tcp" attribute="offset" type="numeric"/>
+							<Window command="tcp" attribute="window" type="numeric"/>
+							<Checksum_Mode command="tcp" attribute="useValidChecksum" type="tcpChecksumMode"/>
+							<Checksum command="tcp" attribute="checksum" type="string"/>
+							<Urgent_Pointer command="tcp" attribute="urgentPointer" type="numeric"/>
+							<Flags>
+								<Urgent_Pointer_Valid command="tcp" attribute="urgentPointerValid" type="boolean"/>
+								<Acknowledge_Valid command="tcp" attribute="acknowledgeValid" type="boolean"/>
+								<Push_Function command="tcp" attribute="pushFunctionValid" type="boolean"/>
+								<Reset_Connection command="tcp" attribute="resetConnection" type="boolean"/>
+								<Synchronize_Sequence command="tcp" attribute="synchronize" type="boolean"/>
+								<No_More_Data_From_Sender command="tcp" attribute="finished" type="boolean"/>
+							</Flags>
+						</TCP>
+						<ICMP>
+							<Type command="icmp" attribute="type" type="numeric"/>
+							<Code command="icmp" attribute="code" type="numeric"/>
+							<Checksum command="icmp" attribute="checksum" type="numeric"/>
+							<ID command="icmp" attribute="id" type="numeric"/>
+							<Sequence command="icmp" attribute="sequence" type="numeric"/>
+						</ICMP>
+						<IGMP>
+							<Version command="igmp" attribute="version" type="igmpVersion"/>
+							<Type command="igmp" attribute="type" type="igmpType"/>
+							<Valid_Checksum command="igmp" attribute="useValidChecksum" type="boolean"/>							
+							<Max_Responce command="igmp" attribute="maxResponseTime" type="numeric"/>							
+							<Group command="igmp" attribute="groupIpAddress" type="string"/>							
+							<Mode command="igmp" attribute="mode" type="igmpMode"/>
+							<Repeat_Count command="igmp" attribute="repeatCount" type="numeric"/>
+							<Version3>
+								<Membership_Query>
+									<QQIC command="igmp" attribute="qqic" type="numeric"/>
+									<QRV command="igmp" attribute="qrv" type="numeric"/>
+									<Enable_S command="igmp" attribute="enableS" type="boolean"/>
+									<Source_IP command="igmp" attribute="sourceIpAddressList" type="string"/>
+								</Membership_Query>
+								<Membership_Report>
+									<Type command="igmpGroupRecord" attribute="type" type="numeric"/>
+									<Multicast_Address command="igmpGroupRecord" attribute="multicastAddress" type="string"/>
+									<Source_Address command="igmpGroupRecord" attribute="sourceIpAddressList" type="string"/>
+								</Membership_Report>
+							</Version3>
+						</IGMP>
+						<UDP>
+							<Source_Port command="udp" attribute="sourcePort" type="numeric"/>
+							<Destination_Port command="udp" attribute="destPort" type="numeric"/>
+							<Length_Override command="udp" attribute="lengthOverride" type="boolean"/>
+							<Length command="udp" attribute="length" type="numeric"/>
+							<Checksum_Mode command="udpChecksum" attribute="checksumMode" type="udpChecksumMode"/>
+							<Checksum command="udp" attribute="checksum" type="string"/>							
+						</UDP>
+						<DHCP>
+							<Op_Code command="dhcp" attribute="opCode" type="dhcpOpCode"/>
+							<Hardware_Type command="dhcp" attribute="hwType" type="dhcpHardwareType"/>
+							<Hardware_Address_Length command="dhcp" attribute="hwLen" type="numeric"/> 
+							<Hops command="dhcp" attribute="hops" type="numeric"/> 
+							<Transaction_ID command="dhcp" attribute="transactionID" type="numeric"/> 
+							<Seconds command="dhcp" attribute="seconds" type="numeric"/> 
+							<Flags command="dhcp" attribute="flags" type="dhcpFlags"/>
+							<Option command="dhcpOption" attribute="optionData" type="string"/>
+							<Client_IP_Address command="dhcp" attribute="clientIpAddr" type="string"/>
+							<Your_IP_Address command="dhcp" attribute="yourIpAddr" type="string"/>
+							<Server_IP_Address command="dhcp" attribute="serverIpAddr" type="string"/>
+							<Relay_Agent_IP_Address command="dhcp" attribute="relayAgentIpAddr" type="string"/>
+							<Client_Hardware_Address command="dhcp" attribute="clientHwAddr" type="string"/>
+							<Server_Host_Name command="dhcp" attribute="serverHostName" type="string"/>
+							<Boot_File_Name command="dhcp" attribute="bootFileName" type="string"/>
+						</DHCP>
+					</Protocols>
+					<UDF>
+						<Enable command="udf" attribute="enable" type="boolean"/>
+						<Byte_Offset command="udf" attribute="offset" type="numeric"/>
+						<Bit_Offset command="udf" attribute="bitOffset" type="numeric"/>
+						<Mode command="udf" attribute="counterMode" type="udfMode"/>
+						<Type command="udf" attribute="udfSize" type="numeric"/>
+						<Chain_From command="udf" attribute="chainFrom" type="udfChainFrom"/>
+						<Cascade_Type command="udf" attribute="cascadeType" type="udfCascadeType"/>
+						<Counter>
+							<Repeat_Count command="udf" attribute="repeat" type="numeric"/>
+							<Continuously_Counting command="udf" attribute="continuousCount" type="boolean"/>
+							<Init command="udf" attribute="initval" type="string"/> 
+							<Mode command="udf" attribute="updown" type="udfCunterMode"/>
+							<Step command="udf" attribute="step" type="numeric"/> 							
+						</Counter>
+						<Random>
+							<Bit_Mask command="udfMask" attribute="" type="string"/> 							
+						</Random>
+						<Value_List>
+							<Data command="udf" attribute="valueList" type="string"/>
+						</Value_List>
+						<Range_List>
+							<Init_Value command="udfRangeList" attribute="initval" type="string"/> 
+							<Repeat_Count command="udfRangeList" attribute="repeat" type="numeric"/>
+							<Step command="udfRangeList" attribute="step" type="numeric"/> 							
+						</Range_List>
+						<Nested_Counter>
+							<Initial_Value command="udf" attribute="initval" type="string"/> 
+							<Repeat_Value command="udf" attribute="innerRepeat" type="numeric"/>
+							<Inner_Increment_Value_By command="udf" attribute="innerStep" type="numeric"/>
+							<Loop command="udf" attribute="innerLoop" type="numeric"/>
+							<Outer_Increment_Value_By command="udf" attribute="step" type="numeric"/>
+							<Repeat_Outer_Loop_Continuously command="udf" attribute="continuousCount" type="boolean"/>
+							<Repeat_Outer_Loop command="udf" attribute="repeat" type="numeric"/>
+						</Nested_Counter>
+						<IPv4>
+							<Initial_Value command="udf" attribute="initval" type="string"/> 
+							<Repeat_Value command="udf" attribute="innerRepeat" type="numeric"/>
+							<Increment_By command="udf" attribute="innerStep" type="numeric"/>
+							<Repeat_Loop_Continuously command="udf" attribute="continuousCount" type="boolean"/>
+							<Repeat_Times command="udf" attribute="repeat" type="numeric"/>
+							<Skip_All_Zeroes_And_Ones command="udf" attribute="enableSkipZerosAndOnes" type="boolean"/>
+							<Masked_Bits command="udf" attribute="skipMaskBits" type="numeric"/>
+						</IPv4>
+					</UDF>
+				</Frame_Data>
+				<Stream_Control>
+					<Mode command="stream" attribute="dma" type="streamControlMode"/>
+					<Return_To_ID command="stream" attribute="returnToId" type="numeric"/>						
+					<Loop_Count command="stream" attribute="loopCount" type="numeric"/>						
+					<Packets_Per_Burst command="stream" attribute="numFrames" type="numeric"/>						
+					<Bursts_Per_Stream command="stream" attribute="numBursts" type="numeric"/>
+					<Rate_Mode command="stream" attribute="rateMode" type="streamControlRateMode"/>
+					<Percent_Max_Rate command="stream" attribute="percentPacketRate" type="numeric"/>
+					<Packets_Per_Second command="stream" attribute="fpsRate" type="numeric"/>
+					<Bit_Rate command="stream" attribute="bpsRate" type="numeric"/>
+					<Inter_Packet_Gap command="stream" attribute="ifg" type="numeric"/>
+					<Gap_Units command="stream" attribute="gapUnit" type="streamControlGapUnits"/>
+					<Enforce_Min command="stream" attribute="enforceMinGap" type="numeric"/>
+					<Enable_Inter_Burst_Gap command="stream" attribute="enableIbg" type="boolean"/>
+					<Inter_Burst_Gap command="stream" attribute="ibg" type="numeric"/>
+					<Enable_Inter_Stream_Gap command="stream" attribute="enableIsg" type="boolean"/>
+					<Inter_Stream_Gap command="stream" attribute="isg" type="numeric"/>
+				</Stream_Control>				
+			</Stream>
+		</Port>
+	</Card>
+	<IxRouter>
+		<Protocol_Management>
+			<Enable_ARP command="protocolServer" attribute="enableArpResponse" type="boolean"/>
+			<Enable_PING command="protocolServer" attribute="enablePingResponse" type="boolean"/>
+			<Protocol_Interfaces>
+				<Description command="interfaceEntry" attribute="description" type="string"/>
+				<Enable command="interfaceEntry" attribute="enable" type="boolean"/>
+				<MAC>
+					<MAC_Address command="interfaceEntry" attribute="macAddress" type="string"/>
+					<MTU command="interfaceEntry" attribute="mtu" type="numeric"/>
+				</MAC>
+				<IPv4>
+					<IPv4_Address command="interfaceIpV4" attribute="ipAddress" type="string"/>
+					<IPv4_Maask_Width command="interfaceIpV4" attribute="maskWidth" type="numeric"/>
+					<IPv4_Gateway command="interfaceIpV4" attribute="gatewayIpAddress" type="string"/>
+				</IPv4>
+				<IPv6>
+					<IPv6_Address command="interfaceIpV6" attribute="ipAddress" type="string"/>
+					<IPv6_Maask_Width command="interfaceIpV6" attribute="maskWidth" type="numeric"/>
+					<IPv6_Gateway command="interfaceEntry" attribute="ipV6Gateway" type="string"/>
+				</IPv6>
+				<DHCPv4>
+					<DHCP_Retry_Count command="dhcpV4Properties" attribute="retryCount" type="numeric"/>				
+					<DHCP_Client_ID command="dhcpV4Properties" attribute="clientId" type="string"/>				
+					<DHCP_Server_ID command="dhcpV4Properties" attribute="serverId" type="string"/>				
+					<DHCP_Vendor_ID command="dhcpV4Properties" attribute="vendorId" type="string"/>				
+					<DHCP_Renew_Timer command="dhcpV4Properties" attribute="renewTimer" type="numeric"/>				
+				</DHCPv4>
+				<DHCPv6>
+					<DHCPv6_IA_ID command="dhcpV6Properties" attribute="iaID" type="numeric"/>				
+					<DHCPv6_IA_Type command="dhcpV6Properties" attribute="iaType" type="dhcpV6DHCPv6IaType"/>				
+					<DHCPv6_Renew_Timer command="dhcpV6Properties" attribute="renewTimer" type="numeric"/>				
+				</DHCPv6>
+				<VLAN>
+					<Vlan_Enable command="interfaceEntry" attribute="enableVlan" type="boolean"/>
+					<Vlan_ID command="interfaceEntry" attribute="vlanId" type="string"/>
+					<Vlan_Priority command="interfaceEntry" attribute="vlanPriority" type="string"/>
+					<Vlan_TPID command="interfaceEntry" attribute="vlanTPID" type="string"/>
+				</VLAN>
+			</Protocol_Interfaces>
+		</Protocol_Management> 
+	</IxRouter>
+</Chassis>

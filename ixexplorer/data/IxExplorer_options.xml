@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IxExplorerOptions>
+	<Options>
+		<arpAddressMode>
+			<Option name="arpIdle" value="0"/>
+			<Option name="arpIncrement" value="1"/>
+			<Option name="arpDecrement" value="2"/>
+			<Option name="arpContinuousIncrement" value="3"/>
+			<Option name="arpContinuousDecrement" value="4"/>
+		</arpAddressMode>									
+		<arpHardwareType>
+			<Option name="hwTypeEthernet" value="1"/>
+			<Option name="hwTypeAmateur" value="3"/>
+			<Option name="hwTypeProteon" value="4"/>
+			<Option name="hwTypeChaos" value="5"/>
+			<Option name="hwTypeIEEE" value="6"/>
+			<Option name="hwTypeARCNET" value="7"/>
+			<Option name="hwTypeHyperchannel" value="8"/>
+			<Option name="hwTypeLocalTalk" value="11"/>
+		</arpHardwareType>
+		<arpOperation>
+			<Option name="unknown" value="0"/>
+			<Option name="arpRequest" value="1"/>
+			<Option name="arpReply" value="2"/>
+			<Option name="rarpRequest" value="3"/>
+			<Option name="rarpReply" value="4"/>
+		</arpOperation>									
+		<atmEncapsulation>
+			<Option name="atmEncapsulationVccMuxIPV4Routed" value="101"/>
+			<Option name="atmEncapsulationVccMuxBridgedEthernetFCS" value="102"/>
+			<Option name="atmEncapsulationVccMuxBridgedEthernetNoFCS" value="103"/>
+			<Option name="atmEncapsulationVccMuxIPV6Routed" value="104"/>
+			<Option name="atmEncapsulationVccMuxMPLSRouted" value="105"/>
+			<Option name="atmEncapsulationLLCRoutedCLIP" value="106"/>
+			<Option name="atmEncapsulationLLCBridgedEthernetFCS" value="107"/>
+			<Option name="atmEncapsulationLLCBridgedEthernetNoFCS" value="108"/>
+			<Option name="atmEncapsulationLLCPPPoA" value="109"/>
+			<Option name="atmEncapsulationVccMuxPPPoA" value="110"/>
+			<Option name="atmEncapsulationLLCNLPIDRouted" value="111"/>
+		</atmEncapsulation>
+		<atmForceAAL5Errors>
+			<Option name="aal5NoError" value="0"/>
+			<Option name="aal5BadCrc" value="1"/>
+		</atmForceAAL5Errors>
+		<atmInsertHECErrors>
+			<Option name="None" value="0"/>
+			<Option name="1_bits" value="1"/>
+			<Option name="2_bits" value="2"/>
+			<Option name="3_bits" value="3"/>
+			<Option name="4_bits" value="4"/>
+			<Option name="5_bits" value="5"/>
+			<Option name="6_bits" value="6"/>
+			<Option name="7_bits" value="7"/>
+			<Option name="8_bits" value="8"/>
+		</atmInsertHECErrors>
+		<atmFilterCell>
+			<Option name="atmIdleCell" value="0"/>
+			<Option name="atmUnassignedCell" value="1"/>
+		</atmFilterCell>
+		<atmInterfaceType>
+			<Option name="atmInterfaceUni" value="0"/>
+			<Option name="atmInterfaceNni" value="1"/>
+		</atmInterfaceType>
+		<atmPacketDecodeMode>
+			<Option name="atmDecodeFrame" value="0"/>
+			<Option name="atmDecodeCell" value="1"/>
+		</atmPacketDecodeMode>
+		<atmTXStatsMode>
+			<Option name="atmPerVPIVCIStats" value="0"/>
+			<Option name="atmDecodeCell" value="1"/>
+		</atmTXStatsMode>
+		<autoNegotiateSpeedAndDuplex>
+			<Options>
+				<Option name="10_half" value="0"/>
+				<Option name="10_full" value="1"/>
+				<Option name="100_half" value="2"/>
+				<Option name="100_full" value="3"/>
+			</Options>
+		</autoNegotiateSpeedAndDuplex>
+		<captureAfterTrigger>
+			<Option name="captureAfterTriggerAll" value="0"/>
+			<Option name="captureAfterTriggerFilter" value="1"/>
+			<Option name="captureAfterTriggerConditionFilter" value="2"/>
+		</captureAfterTrigger>
+		<captureBeforeTrigger>
+			<Option name="captureBeforeTriggerAll" value="0"/>
+			<Option name="captureBeforeTriggerNone" value="1"/>
+			<Option name="captureBeforeTriggerFilter" value="2"/>
+		</captureBeforeTrigger>
+		<captureContinuousCapture>
+			<Option name="captureContinuousAll" value="0"/>
+			<Option name="captureContinuousFilter" value="1"/>
+		</captureContinuousCapture>
+		<captureMode>
+			<Option name="captureContinuousMode" value="0"/>
+			<Option name="captureTriggerMode" value="1"/>
+		</captureMode>
+		<clockSource>
+			<Option name="cardClockInternal" value="0"/>
+			<Option name="cardClockExternal" value="1"/>
+		</clockSource>
+		<dasaDAMode>
+			<Option name="increment" value="0"/>
+			<Option name="contIncrement" value="1"/>
+			<Option name="decrement" value="2"/>
+			<Option name="contDecrement" value="3"/>
+			<Option name="idle" value="4"/>
+			<Option name="ctrRandom" value="5"/>
+			<Option name="daArp" value="6"/>
+			<Option name="contJitterTestPattern" value="7"/>
+			<Option name="contRandomTestPattern" value="8"/>
+		</dasaDAMode>
+		<dasaSAMode>
+			<Option name="increment" value="0"/>
+			<Option name="contIncrement" value="1"/>
+			<Option name="decrement" value="2"/>
+			<Option name="contDecrement" value="3"/>
+			<Option name="idle" value="4"/>
+			<Option name="ctrRandom" value="5"/>
+			<Option name="cpeMacAddress" value="6"/>
+			<Option name="contJitterTestPattern" value="7"/>
+			<Option name="contRandomTestPattern" value="8"/>
+		</dasaSAMode>
+		<dhcpFlags>
+			<Option name="dhcpNoBroadcast" value="0"/>
+			<Option name="dhcpBroadcast" value="32768"/>
+			<Option name="unknown" value="3"/>
+		</dhcpFlags>									
+		<dhcpHardwareType>
+			<Option name="dhcpEthernet10Mb" value="1"/>
+			<Option name="dhcpEthernet3Mb" value="2"/>
+			<Option name="dhcpAmateur" value="3"/>
+			<Option name="dhcpProteon" value="4"/>
+			<Option name="dhcpChaos" value="5"/>
+			<Option name="dhcpIEEE" value="6"/>
+			<Option name="dhcpARCNET" value="7"/>
+			<Option name="dhcpHyperchannel" value="8"/>
+			<Option name="dhcpLanstar" value="9"/>
+			<Option name="dhcpAutonet" value="10"/>
+			<Option name="dhcpLocalTalk" value="11"/>
+			<Option name="dhcpLocalNet" value="12"/>
+			<Option name="dhcpUltraLink" value="13"/>
+			<Option name="dhcpSMDS" value="14"/>
+			<Option name="dhcpFrameRelay" value="15"/>
+			<Option name="dhcpATM1" value="16"/>
+			<Option name="dhcpHDLC" value="17"/>
+			<Option name="dhcpFibreChannel" value="18"/>
+			<Option name="dhcpATM2" value="19"/>
+			<Option name="dhcpSerialLine" value="20"/>
+			<Option name="dhcpATM3" value="21"/>
+			<Option name="unknown" value="22"/>
+		</dhcpHardwareType>									
+		<dhcpOpCode>
+			<Option name="dhcpBootRequest" value="1"/>
+			<Option name="dhcpBootReply" value="2"/>
+			<Option name="unknown" value="3"/>
+		</dhcpOpCode>									
+		<dhcpV6DHCPv6IaType>
+			<Option name="dhcpV6IaTypeTemporary" value="0"/>
+			<Option name="dhcpV6IaTypePermanent" value="1"/>
+			<Option name="dhcpV6IaTypePrefixDelegation" value="2"/>
+		</dhcpV6DHCPv6IaType>									
+		<dscpAssuredForwardingClass>
+			<Option name="ipV4DscpClass1" value="0"/>
+			<Option name="ipV4DscpClass2" value="1"/>
+			<Option name="ipV4DscpClass3" value="2"/>
+			<Option name="ipV4DscpClass4" value="3"/>
+			<Option name="ipV4DscpClass5" value="4"/>
+			<Option name="ipV4DscpClass6" value="5"/>
+			<Option name="ipV4DscpClass7" value="6"/>
+		</dscpAssuredForwardingClass>
+		<dscpAssuredForwardingPrecedence>
+			<Option name="ipV4DscpPrecedenceLowDrop" value="0"/>
+			<Option name="ipV4DscpPrecedenceMediumDrop" value="1"/>
+			<Option name="ipV4DscpPrecedenceHighDrop" value="2"/>
+		</dscpAssuredForwardingPrecedence>		
+		<dscpClassSelector>
+			<Option name="ipV4DscpClass1" value="0"/>
+			<Option name="ipV4DscpClass2" value="1"/>
+			<Option name="ipV4DscpClass3" value="2"/>
+			<Option name="ipV4DscpClass4" value="3"/>
+			<Option name="ipV4DscpClass5" value="4"/>
+			<Option name="ipV4DscpClass6" value="5"/>
+			<Option name="ipV4DscpClass7" value="6"/>
+		</dscpClassSelector>		
+		<dscpMode>
+			<Option name="ipV4DscpDefault" value="0"/>
+			<Option name="ipV4DscpClassSelector" value="1"/>
+			<Option name="ipV4DscpAssuredForwarding" value="2"/>
+			<Option name="ipV4DscpExpeditedForwarding" value="3"/>
+			<Option name="ipV4DscpCustom" value="4"/>
+		</dscpMode>		
+		<filterDASA>
+			<Option name="anyAddr" value="0"/>
+			<Option name="addr1" value="1"/>
+			<Option name="notAddr1" value="2"/>
+			<Option name="addr2" value="3"/>
+			<Option name="notAddr2" value="4"/>
+		</filterDASA>
+		<filterPattern>
+			<Option name="anyPattern" value="0"/>
+			<Option name="pattern1" value="1"/>
+			<Option name="notPattern1" value="2"/>
+			<Option name="pattern2" value="3"/>
+			<Option name="notPattern2" value="4"/>
+			<Option name="pattern1AndPattern2" value="5"/>
+		</filterPattern>
+		<filterErrors>
+			<Option name="errAnyFrame" value="0"/>
+			<Option name="errGoodFrame" value="1"/>
+			<Option name="errBadCRC" value="2"/>
+			<Option name="errBadFrame" value="3"/>
+			<Option name="errAnySequenceError" value="4"/>
+			<Option name="errSmallSequenceError" value="5"/>
+			<Option name="errBigSequenceError" value="6"/>
+			<Option name="errReverseSequenceError" value="7"/>
+			<Option name="errDataIntegrityError" value="8"/>
+			<Option name="errAnyIpTcpUdpChecksumError" value="13"/>
+		</filterErrors>
+		<filterOffsetType>
+			<Option name="filterPalletteOffsetStartOfFrame" value="0"/>
+			<Option name="filterPalletteOffsetStartOfIp" value="1"/>
+			<Option name="filterPalletteOffsetStartOfProtocol" value="2"/>
+			<Option name="filterPalletteOffsetStartOfSonet" value="3"/>
+		</filterOffsetType>
+		<fragmentLast>
+			<Option name="last" value="0"/>
+			<Option name="more" value="1"/>
+		</fragmentLast>		
+		<fragmentMay>
+			<Option name="may" value="0"/>
+			<Option name="dont" value="1"/>
+		</fragmentMay>		
+		<frameDataDataPattern>
+			<Option name="dataPatternRandom" value="-1"/>
+			<Option name="allOnes" value="0"/>
+			<Option name="allZeroes" value="1"/>
+			<Option name="xAAAA" value="2"/>
+			<Option name="x5555" value="3"/>
+			<Option name="x7777" value="4"/>
+			<Option name="xDDDD" value="5"/>
+			<Option name="xF0F0" value="6"/>
+			<Option name="x0F0F" value="7"/>
+			<Option name="xFF00FF00" value="8"/>
+			<Option name="x00FF00FF" value="9"/>
+			<Option name="xFFFF0000" value="10"/>
+			<Option name="x0000FFFF" value="11"/>
+			<Option name="x00010203" value="12"/>
+			<Option name="x00010002" value="13"/>
+			<Option name="xFFFEFDFC" value="14"/>
+			<Option name="xFFFFFFFE" value="15"/>
+			<Option name="x7E7E7E7E" value="16"/>
+			<Option name="x4747476B" value="17"/>
+			<Option name="userpattern" value="18"/>
+		</frameDataDataPattern>
+		<frameDataForceErrors>
+			<Option name="streamErrorGood" value="0"/>
+			<Option name="streamErrorAlignment" value="1"/>
+			<Option name="streamErrorDribble" value="2"/>
+			<Option name="streamErrorBadCRC" value="3"/>
+			<Option name="streamErrorNoCRC" value="4"/>
+		</frameDataForceErrors>						
+		<frameSizeType>
+			<Option name="sizeFixed" value="0"/>
+			<Option name="sizeRandom" value="1"/>
+			<Option name="sizeIncr" value="2"/>
+			<Option name="sizeAuto" value="3"/>
+		</frameSizeType>
+		<igmpMode>
+			<Option name="igmpIdle" value="0"/>
+			<Option name="igmpIncrement" value="1"/>
+			<Option name="igmpDecrement" value="2"/>
+			<Option name="igmpContIncrement" value="3"/>
+			<Option name="igmpContDecrement" value="4"/>
+		</igmpMode>		
+		<igmpType>
+			<Option name="membershipQuery" value="17"/>
+			<Option name="membershipReport1" value="18"/>
+			<Option name="dvmrpMessage" value="19"/>
+			<Option name="membershipReport2" value="22"/>
+			<Option name="leaveGroup" value="23"/>
+			<Option name="membershipReport3" value="34"/>
+		</igmpType>		
+		<igmpVersion>
+			<Option name="unknown" value="0"/>
+			<Option name="igmpVersion1" value="1"/>
+			<Option name="igmpVersion2" value="2"/>
+			<Option name="igmpVersion3" value="3"/>
+		</igmpVersion>		
+		<ipv4AddressMode>
+			<Option name="ipIdle" value="0"/>
+			<Option name="ipIncrHost" value="1"/>
+			<Option name="ipDecrHost" value="2"/>
+			<Option name="ipContIncrHost" value="3"/>
+			<Option name="ipContDecrHost" value="4"/>
+			<Option name="ipIncrNetwork" value="5"/>
+			<Option name="ipDecrNetwork" value="6"/>
+			<Option name="ipContIncrNetwork" value="7"/>
+			<Option name="ipContDecrNetwork" value="8"/>
+			<Option name="ipRandom" value="9"/>
+		</ipv4AddressMode>
+		<ipv4AddressClass>
+			<Option name="classA" value="0"/>
+			<Option name="classB" value="1"/>
+			<Option name="classC" value="2"/>
+			<Option name="classD" value="3"/>
+			<Option name="noClass" value="4"/>
+		</ipv4AddressClass>
+		<ipv4QoSMode>
+			<Option name="ipV4ConfigTos" value="0"/>
+			<Option name="ipV4ConfigDscp" value="1"/>
+		</ipv4QoSMode>
+		<ipv4ValidChecksum>
+			<Option name="valid" value="1"/>
+			<Option name="invalid" value="0"/>
+			<Option name="override" value="2"/>
+		</ipv4ValidChecksum>
+		<ipv6AddressMode>
+			<Option name="ipV6Idle" value="0"/>
+			<Option name="ipV6IncrHost" value="1"/>
+			<Option name="ipV6DecrHost" value="2"/>
+			<Option name="ipV6IncrNetwork" value="3"/>
+			<Option name="ipV6DecrNetwork" value="4"/>
+			<Option name="ipV6IncrInterfaceId" value="5"/>
+			<Option name="ipV6DecrInterfaceId" value="6"/>
+			<Option name="ipV6IncrGlobalUnicastTopLevelAggrId" value="7"/>
+			<Option name="ipV6DecrGlobalUnicastTopLevelAggrId" value="8"/>
+			<Option name="ipV6IncrGlobalUnicastNextLevelAggrId" value="9"/>
+			<Option name="ipV6DecrGlobalUnicastNextLevelAggrId" value="10"/>
+			<Option name="ipV6IncrGlobalUnicastSiteLevelAggrId" value="11"/>
+			<Option name="ipV6DecrGlobalUnicastSiteLevelAggrId" value="12"/>
+			<Option name="ipV6IncrSiteLocalUnicastSubnetId" value="13"/>
+			<Option name="ipV6DecrSiteLocalUnicastSubnetId" value="14"/>
+			<Option name="ipV6IncrMulticastGroupId" value="15"/>
+			<Option name="ipV6DecrMulticastGroupId" value="16"/>
+		</ipv6AddressMode>											
+		<latencyJitterDelayVariation>
+			<Option name="delayVariationWithSequenceErrors" value="0"/>
+			<Option name="delayVariationWithLatencyMinMax" value="1"/>
+			<Option name="delayVariationWithLatencyAvg" value="2"/>
+		</latencyJitterDelayVariation>
+		<latencyJitterMeasurementMethod>
+			<Option name="cutThrough" value="1"/>
+			<Option name="storeAndForward" value="3"/>
+			<Option name="storeAndForwardPreamble" value="5"/>
+			<Option name="interArrivalJitter" value="7"/>
+			<Option name="firstInLastOut" value="8"/>
+			<Option name="lastInLastOut" value="9"/>
+		</latencyJitterMeasurementMethod>
+		<latencyJitterMeasurementMode>
+			<Option name="packetGroupModeLatency" value="0"/>
+			<Option name="packetGroupModeInterArrivalTime" value="1"/>
+			<Option name="packetGroupModeDelayVariation" value="2"/>
+		</latencyJitterMeasurementMode>
+		<mplsType>
+			<Option name="mplsUnicast" value="0"/>
+			<Option name="mplsMulticast" value="1"/>
+		</mplsType>
+		<portLinkState>
+			<Option name="linkDown" value="0"/>
+			<Option name="linkUp" value="1"/>
+			<Option name="linkLoopback" value="2"/>
+		</portLinkState>
+		<portPropertiesLoopback>
+			<Option name="portNormal" value="0"/>
+			<Option name="portLoopback" value="1"/>
+			<Option name="portLineLoopback" value="2"/>
+		</portPropertiesLoopback>
+		<protocolsApplication>
+			<Option name="None" value="0"/>
+			<Option name="tcp" value="6"/>
+			<Option name="icmp" value="1"/>
+			<Option name="icmpV6" value="58"/>
+			<Option name="igmp" value="2"/>
+			<Option name="ipV4ProtocolOspf" value="89"/>
+			<Option name="udp" value="17"/>
+			<Option name="Rip" value="11"/>
+			<Option name="Dhcp" value="13"/>
+			<Option name="ipV4ProtocolGre" value="47"/>
+		</protocolsApplication>
+		<protocolsDataLinkLayer>
+			<Option name="noType" value="0"/>
+			<Option name="ethernetII" value="1"/>
+			<Option name="ieee8023snap" value="2"/>
+			<Option name="ieee8023" value="3"/>
+			<Option name="ieee8022" value="15"/>
+			<Option name="protocolOffsetType" value="53"/>
+		</protocolsDataLinkLayer>
+		<protocolsProtocol>
+			<Option name="mac" value="0"/>
+			<Option name="ipV4" value="4"/>
+			<Option name="ipV4/ipV6" value="431"/>
+			<Option name="ipV6" value="31"/>
+			<Option name="ipV6/ipV4" value="314"/>
+			<Option name="ipx" value="7"/>
+			<Option name="Arp" value="100"/>
+			<Option name="pauseControl" value="12"/>
+			<Option name="fcoe" value="68"/>
+		</protocolsProtocol>			
+		<protocolsVlans>
+			<Option name="vlanNone" value="0"/>
+			<Option name="vlanSingle" value="1"/>
+			<Option name="vlanStacked" value="2"/>
+		</protocolsVlans>			
+		<sequenceCheckingSwitchedPathMode>
+			<Option name="seqSwitchedPathPGID" value="0"/>
+			<Option name="seqSwitchedPathDuplication" value="1"/>
+		</sequenceCheckingSwitchedPathMode>
+		<sequenceCheckingMode>
+			<Option name="seqThreshold" value="0"/>
+			<Option name="seqMultiSwitchedPath" value="1"/>
+		</sequenceCheckingMode>
+		<sonetInterfaceType>
+			<Option name="oc3" value="0"/>
+			<Option name="oc12" value="1"/>
+			<Option name="oc48" value="2"/>
+			<Option name="stm1c" value="3"/>
+			<Option name="stm4c" value="4"/>
+			<Option name="stm16c" value="5"/>
+			<Option name="oc192" value="6"/>
+			<Option name="stm64c" value="7"/>
+			<Option name="ethOverSonet" value="8"/>
+			<Option name="ethOverSdh" value="9"/>
+		</sonetInterfaceType>
+		<sonetOperation>
+			<Option name="sonetNormal" value="0"/>
+			<Option name="sonetLoopback" value="1"/>
+			<Option name="sonetLineLoopback" value="2"/>
+			<Option name="sonetFramerParallelDiagnosticLoopback" value="3"/>
+			<Option name="sonetFramerDiagnosticLoopback" value="4"/>
+			<Option name="sonetFecDiagnosticLoopback" value="5"/>
+			<Option name="sonetFecLineLoopback" value="6"/>
+		</sonetOperation>
+		<sonetTransmitClocking>
+			<Option name="sonetNoClock" value="0"/>
+			<Option name="sonetRecoveredClock" value="1"/>
+			<Option name="sonetExternalClock" value="2"/>
+		</sonetTransmitClocking>
+		<splitOffsetFrom>
+			<Option name="splitPgidStartOfFrame" value="0"/>
+			<Option name="splitPgidOffsetFromSignature" value="1"/>
+		</splitOffsetFrom>
+		<stackedVlanCFI>
+			<Option name="resetCFI" value="0"/>
+			<Option name="setCFI" value="1"/>
+		</stackedVlanCFI>
+		<stackedVlanOptions>
+			<Option name="vIdle" value="0"/>
+			<Option name="vIncrement" value="1"/>
+			<Option name="vDecrement" value="2"/>
+			<Option name="vContIncrement" value="3"/>
+			<Option name="vContDecrement" value="4"/>
+			<Option name="vCtrRandom" value="5"/>
+			<Option name="vNestedIncrement" value="100"/>
+			<Option name="vNestedDecrement" value="101"/>
+		</stackedVlanOptions>
+		<stackedVlanStackedVlan>
+			<Option name="vlanProtocolTag8100" value="33024"/>
+			<Option name="vlanProtocolTag88a8" value="34984"/>
+			<Option name="vlanProtocolTag9100" value="37120"/>
+			<Option name="vlanProtocolTag9200" value="37376"/>
+		</stackedVlanStackedVlan>
+		<streamControlGapUnits>
+			<Option name="gapNanoSeconds" value="0"/>
+			<Option name="gapMicroSeconds" value="1"/>
+			<Option name="gapMilliSeconds" value="2"/>
+			<Option name="gapSeconds" value="3"/>
+			<Option name="gapClockTicks" value="4"/>
+			<Option name="gapBytes" value="5"/>
+		</streamControlGapUnits>		
+		<streamControlMode>
+			<Option name="contPacket" value="0"/>
+			<Option name="contBurst" value="1"/>
+			<Option name="stopStream" value="2"/>
+			<Option name="advance" value="3"/>
+			<Option name="gotoFirst" value="4"/>
+			<Option name="firstLoopCount" value="5"/>
+		</streamControlMode>
+		<streamControlRateMode>
+			<Option name="streamRateModeGap" value="0"/>
+			<Option name="streamRateModePercentRate" value="1"/>
+			<Option name="streamRateModeFps" value="2"/>
+			<Option name="streamRateModeBps" value="3"/>
+		</streamControlRateMode>		
+		<tcpChecksumMode>
+			<Option name="tcpValidChecksum" value="1"/>
+			<Option name="tcpInvalidChecksum" value="0"/>
+			<Option name="tcpOverrideChecksum" value="2"/>
+		</tcpChecksumMode>		
+		<tosCost>
+			<Option name="normalCost" value="0"/>
+			<Option name="lowCost" value="1"/>
+		</tosCost>		
+		<tosDelay>
+			<Option name="NormalDelay" value="0"/>
+			<Option name="LowDelay" value="1"/>
+		</tosDelay>
+		<tosReliability>
+			<Option name="normalReliability" value="0"/>
+			<Option name="highReliability" value="1"/>
+		</tosReliability>
+		<tosReserved>
+			<Option name="0" value="0"/>
+			<Option name="1" value="1"/>
+		</tosReserved>		
+		<tosThroughput>
+			<Option name="normalThruput" value="0"/>
+			<Option name="highThruput" value="1"/>
+		</tosThroughput>		
+		<tosPrecedence>
+			<Option name="routine" value="0"/>
+			<Option name="priority" value="1"/>
+			<Option name="immediate" value="2"/>
+			<Option name="flash" value="3"/>
+			<Option name="flashOverride" value="4"/>
+			<Option name="criticEcp" value="5"/>
+			<Option name="internetControl" value="6"/>
+			<Option name="networkControl" value="7"/>
+		</tosPrecedence>
+		<transmitModesPHYModes>
+			<Option name="portPhyModeCopper" value="0"/>
+			<Option name="portPhyModeFiber" value="1"/>
+		</transmitModesPHYModes>
+		<transmitModesModes>
+			<Option name="portTxPacketStreams" value="0"/>
+			<Option name="portTxModeAdvancedScheduler" value="4"/>
+			<Option name="portTxModeEcho" value="7"/>
+		</transmitModesModes>
+		<udfChainFrom>
+			<Option name="udfNone" value="0"/>
+			<Option name="udf1" value="1"/>
+			<Option name="udf2" value="2"/>
+			<Option name="udf3" value="3"/>
+			<Option name="udf4" value="4"/>
+			<Option name="udfI5" value="5"/>
+		</udfChainFrom>									
+		<udfCunterMode>
+			<Option name="dddd" value="0"/>
+			<Option name="dddu" value="1"/>
+			<Option name="ddud" value="2"/>
+			<Option name="dduu" value="3"/>
+			<Option name="dudd" value="4"/>
+			<Option name="dudu" value="5"/>
+			<Option name="duud" value="6"/>
+			<Option name="duuu" value="7"/>
+			<Option name="uddd" value="8"/>
+			<Option name="uddu" value="8"/>
+			<Option name="udud" value="10"/>
+			<Option name="uduu" value="11"/>
+			<Option name="uudd" value="12"/>
+			<Option name="uudu" value="13"/>
+			<Option name="uuud" value="14"/>
+			<Option name="uuuu" value="15"/>
+		</udfCunterMode>
+		<udfCascadeType>
+			<Option name="udfCascadeNone" value="0"/>
+			<Option name="udfCascadeFromPrevious" value="1"/>
+			<Option name="udfCascadeFromSelf" value="2"/>
+		</udfCascadeType>									
+		<udfMode>
+			<Option name="udfCounterMode" value="0"/>
+			<Option name="udfRandomMode" value="1"/>
+			<Option name="udfValueListMode" value="2"/>
+			<Option name="udfNestedCounterMode" value="3"/>
+			<Option name="udfRangeListMode" value="4"/>
+			<Option name="udfIPv4Mode" value="5"/>
+		</udfMode>
+		<udpChecksumMode>
+			<Option name="validChecksum" value="0"/>
+			<Option name="invalidChecksum" value="1"/>
+			<Option name="overrideChecksum" value="2"/>
+		</udpChecksumMode>									
+		<vlanCFI>
+			<Option name="resetCFI" value="0"/>
+			<Option name="setCFI" value="1"/>
+		</vlanCFI>
+		<vlanTagProtocolID>
+			<Option name="vlanProtocolTag8100" value="33024"/>
+			<Option name="vlanProtocolTag88a8" value="34984"/>
+			<Option name="vlanProtocolTag9100" value="37120"/>
+			<Option name="vlanProtocolTag9200" value="37376"/>
+		</vlanTagProtocolID>
+		<vlanVlanIDCountMode>
+			<Option name="vIdle" value="0"/>
+			<Option name="vIncrement" value="1"/>
+			<Option name="vDecrement" value="2"/>
+			<Option name="vContIncrement" value="3"/>
+			<Option name="vContDecrement" value="4"/>
+			<Option name="vCtrRandom" value="5"/>
+			<Option name="vNestedIncrement" value="100"/>
+			<Option name="vNestedDecrement" value="101"/>
+		</vlanVlanIDCountMode>
+		<vpivciCounterMode>
+			<Option name="atmIdle" value="0"/>
+			<Option name="atmCounter" value="1"/>
+			<Option name="atmRandom" value="2"/>
+			<Option name="atmTableMode" value="3"/>
+		</vpivciCounterMode>
+		<vpivciCounterModeMode>
+			<Option name="atmIncrement" value="0"/>
+			<Option name="atmContinuousIncrement" value="1"/>
+			<Option name="atmDecrement" value="2"/>
+			<Option name="atmContinuousDecrement" value="3"/>
+		</vpivciCounterModeMode>
+		<weightedRandomFrameSizeRandomMode>
+			<Option name="randomUniform" value="0"/>
+			<Option name="randomWeightedPair" value="1"/>
+			<Option name="randomQuadGaussian" value="3"/>
+			<Option name="randomCisco" value="4"/>
+			<Option name="randomIMIX" value="5"/>
+			<Option name="randomTolly" value="7"/>
+			<Option name="randomRPRTrimodal" value="8"/>
+			<Option name="randomRPRQuadmodal" value="9"/>
+		</weightedRandomFrameSizeRandomMode>
+		<widePacketGroupsPGIDMode>
+			<Option name="packetGroupCustom" value="0"/>
+			<Option name="packetGroupDscp" value="1"/>
+			<Option name="packetGroupIpV6TrafficClass" value="2"/>
+			<Option name="packetGroupMplsExp" value="3"/>
+			<Option name="packetGroupSplit" value="4"/>
+		</widePacketGroupsPGIDMode>
+	</Options>
+</IxExplorerOptions>
