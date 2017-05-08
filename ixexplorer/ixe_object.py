@@ -1,7 +1,7 @@
 
 from trafficgenerator.tgn_object import TgnObject
 
-from pyixia.ixapi import _MetaIxTclApi, TclMember, FLAG_RDONLY
+from ixexplorer.api.ixapi import _MetaIxTclApi, TclMember, FLAG_RDONLY
 
 
 attributes_xml = ''

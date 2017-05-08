@@ -8,7 +8,8 @@ from os import path
 
 from trafficgenerator.test.test_tgn import TgnTest
 
-from ixexplorer.ixe_app import IxeApp, PortGroup
+from ixexplorer.ixe_app import IxeApp
+from ixexplorer.pyixia import PortGroup
 
 
 class IxExplorerTestBase(TgnTest):
