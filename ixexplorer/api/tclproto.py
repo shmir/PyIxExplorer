@@ -20,11 +20,7 @@
 
 import sys
 import socket
-import logging
 import paramiko
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler(sys.stdout))
 
 
 class TclError(Exception):
@@ -41,7 +37,8 @@ class TclError(Exception):
 
 class TclClient:
 
-    def __init__(self, host, port=4555, rsa_id=None):
+    def __init__(self, logger, host, port=4555, rsa_id=None):
+        self.logger = logger
         self.host = host
         self.port = port
         self.rsa_id = rsa_id
@@ -54,14 +51,14 @@ class TclClient:
 
         string += '\r\n'
         data = string % args
-        log.debug('sending %s (%s)', data.rstrip(), data.encode('hex'))
+        self.logger.debug('sending %s (%s)', data.rstrip(), data.encode('hex'))
         self.fd.send(data)
 
         # reply format is
         #  [<io output>\r]<result><tcl return code>\r\n
         # where tcl_return code is exactly one byte
         data = self.fd.recv(self.buffersize)
-        log.debug('received %s (%s)', data.rstrip(), data.encode('hex'))
+        self.logger.debug('received %s (%s)', data.rstrip(), data.encode('hex'))
         # print 'data=(%s) (%s)' % (data, data.encode('hex'))
         assert data[-2:] == '\r\n'
 
@@ -78,19 +75,19 @@ class TclClient:
             assert not io_output
             raise TclError(result)
 
-        log.debug('result=%s io_output=%s', result, io_output)
+        self.logger.debug('result=%s io_output=%s', result, io_output)
         return result, io_output
 
     def ssh_call(self, string, *args):
         data = 'puts [{}]\n\r'.format(string % args)
-        log.debug('sending %s (%s)', data.rstrip(), data.encode('hex'))
+        self.logger.debug('sending %s (%s)', data.rstrip(), data.encode('hex'))
         self.stdin.write(data)
         self.stdin.flush()
         l = len(self.stdout.channel.in_buffer)
         while not l:
             l = len(self.stdout.channel.in_buffer)
         data = self.stdout.read(l)
-        log.debug('received %s (%s)', data.rstrip(), data.encode('hex'))
+        self.logger.debug('received %s (%s)', data.rstrip(), data.encode('hex'))
         return data
 
     def call(self, string, *args):
@@ -104,7 +101,7 @@ class TclClient:
         return rsp[0].split('.')
 
     def connect(self):
-        log.debug('Opening connection to %s:%d', self.host, self.port)
+        self.logger.debug('Opening connection to %s:%d', self.host, self.port)
 
         if self.port == 8022:
             self.windows_server = False
@@ -123,7 +120,7 @@ class TclClient:
         self.call('package req IxTclHal')
 
     def close(self):
-        log.debug('Closing connection')
+        self.logger.debug('Closing connection')
         self.fd.close()
         self.fd = None
 

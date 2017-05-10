@@ -3,7 +3,8 @@
 import logging
 import sys
 
-from ixexplorer.pyixia import Ixia, Port
+from ixexplorer.pyixia import Port
+from ixexplorer.ixe_app import IxeApp
 
 host = '192.168.42.174'
 # For Linux servers use 8022
@@ -22,12 +23,11 @@ def link_state_str(link_state):
 
 def main():
     logging.basicConfig()
-    if len(sys.argv) == 2 and sys.argv[1] == '-v':
-        logging.getLogger().setLevel(logging.INFO)
-    if len(sys.argv) == 2 and sys.argv[1] == '-d':
-        logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().addHandler(logging.FileHandler('c:/temp/ixeooapi.log'))
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-    i = Ixia(host, tcp_port, rsa_id)
+    i = IxeApp(logging.getLogger(), host, tcp_port, rsa_id)
     i.connect()
     i.discover()
 

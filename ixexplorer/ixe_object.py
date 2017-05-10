@@ -12,9 +12,7 @@ class IxeObject(TgnObject):
     __metaclass__ = _MetaIxTclApi
 
     def __init__(self, **data):
-        __tcl_command__ = 'portGroup'
-        __tcl_members__ = []
-        super(IxeObject, self).__init__(**data)
+        pass
 
     def _create(self):
         pass

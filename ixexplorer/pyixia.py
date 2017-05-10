@@ -14,15 +14,11 @@
 # License along with this module; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-import logging
 import re
 
-from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import _MetaIxTclApi, TclMember, FLAG_RDONLY
-from ixexplorer.api.ixapi import IxTclHalApi, IxTclHalError
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler())
+from ixexplorer.api.ixapi import IxTclHalError
+from ixexplorer.ixe_object import IxeObject
 
 
 class PortGroup(object):
@@ -187,7 +183,7 @@ class Port(object):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
 
 
-class Card(object):
+class Card(IxeObject):
     __metaclass__ = _MetaIxTclApi
     __tcl_command__ = 'card'
     __tcl_members__ = [
@@ -222,7 +218,7 @@ class Card(object):
         for pid in xrange(self.port_count):
             pid += 1
             port = Port(self._api, self, pid)
-            log.info('Adding port %s', port)
+            self.logger.info('Adding port %s', port)
             self.ports.append(port)
 
     def _card_id(self):
@@ -241,7 +237,7 @@ class Card(object):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
 
 
-class Chassis(object):
+class Chassis(IxeObject):
     __metaclass__ = _MetaIxTclApi
     __tcl_command__ = 'chassis'
     __tcl_members__ = [
@@ -328,7 +324,7 @@ class Chassis(object):
         self._ix_del()
 
     def discover(self):
-        log.info('Discover chassis %d (%s)', self.id, self.type_name)
+        self.logger.info('Discover chassis %d (%s)', self.id, self.type_name)
         for cid in xrange(self.max_card_count):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
@@ -336,7 +332,7 @@ class Chassis(object):
             cid += 1
             try:
                 card = Card(self._api, self, cid)
-                log.info('Adding card %s (%s)', card, card.type_name)
+                self.logger.info('Adding card %s (%s)', card, card.type_name)
                 card.discover()
                 self.cards.append(card)
             except IxTclHalError:
@@ -373,27 +369,3 @@ class Session(object):
 
     def logout(self):
         self._api.call_rc('session logout')
-
-
-class Ixia(object):
-    """This class supports only one chassis atm."""
-    def __init__(self, host, port=4555, rsa_id=None):
-        self.host = host
-        self._tcl = TclClient(host, port, rsa_id)
-        self._api = IxTclHalApi(self._tcl)
-        self.chassis = Chassis(self._api, host)
-        self.session = Session(self._api)
-
-    def connect(self):
-        self._tcl.connect()
-        self.chassis.connect()
-
-    def disconnect(self):
-        self.chassis.disconnect()
-        self._tcl.close()
-
-    def new_port_group(self, id=None):
-        return PortGroup(self._api, id)
-
-    def discover(self):
-        return self.chassis.discover()
