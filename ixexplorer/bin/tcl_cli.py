@@ -5,18 +5,24 @@ from optparse import OptionParser
 
 from ixexplorer.api.tclproto import TclClient, TclError
 
+rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.20-EA/TclScripts/lib/ixTcl1.0/id_rsa'
+
 
 def main():
     usage = 'usage: %prog [options] <host>'
     parser = OptionParser(usage=usage)
     parser.add_option('-a', action='store_true', dest='autoconnect', help='autoconnect to chassis')
-    parser.add_option('-v', action='store_true', dest='verbose', help='be more verbose')
+    parser.add_option('-v', action='store_false', dest='verbose', help='be more verbose')
+    parser.add_option('-p', dest='port', help='TCP port number', type=int, default=4555)
+    parser.add_option('-r', dest='rsa_id', help='RSA ID file', default=rsa_id)
 
     (options, args) = parser.parse_args()
 
     logging.basicConfig()
     if options.verbose:
-        logging.getLogger('pyixia.tclproto').setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
 
     if len(args) < 1:
         print parser.format_help()
@@ -24,7 +30,7 @@ def main():
 
     host = args[0]
 
-    tcl = TclClient(host)
+    tcl = TclClient(logging.getLogger('ixexplorer.api'), host, options.port, options.rsa_id)
     tcl.connect()
     if options.autoconnect:
         print tcl.connect()
@@ -34,14 +40,18 @@ def main():
 
     print "Enter command to send. Quit with 'q'."
     try:
+        io = None
         while True:
             cmd = raw_input('=> ')
             if cmd == 'q':
                 break
             if len(cmd) > 0:
                 try:
-                    (res, io) = tcl.call(cmd)
-                    print res
+                    if options.port == 8022:
+                        res = tcl.call(cmd)
+                    else:
+                        (res, io) = tcl.call(cmd)
+                    print res.strip()
                     if io is not None:
                         print io
                 except TclError, e:

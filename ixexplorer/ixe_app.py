@@ -33,7 +33,7 @@ class IxeApp(TrafficGenerator):
         self._tcl.close()
 
     def new_port_group(self, id=None):
-        return PortGroup(self._api, id)
+        return PortGroup(id)
 
     def discover(self):
         return self.chassis.discover()

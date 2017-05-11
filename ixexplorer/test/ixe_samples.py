@@ -12,6 +12,12 @@ tcp_port = 8022
 # Required only for Linux servers
 rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.20-EA/TclScripts/lib/ixTcl1.0/id_rsa'
 
+vModule = '10.10.10.3'
+mac = '00:00:00:00:00:00'
+
+ixia = None
+
+
 def link_state_str(link_state):
     prefix = 'LINK_STATE_'
     for attr in dir(Port):
@@ -21,36 +27,76 @@ def link_state_str(link_state):
                 return attr[len(prefix):]
     return link_state
 
-def main():
+
+def connect():
+    global ixia
+
     logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().addHandler(logging.FileHandler('c:/temp/ixeooapi.log'))
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-    i = IxeApp(logging.getLogger(), host, tcp_port, rsa_id)
-    i.connect()
-    i.discover()
+    ixia = IxeApp(logging.getLogger(), host, tcp_port, rsa_id)
+    ixia.connect()
 
-    print i.chassis.type_name
+
+def disconnect():
+    ixia.disconnect()
+
+
+def discover():
+    connect()
+
+    ixia.discover()
+
+    print ixia.chassis.type_name
     print ''
 
     print '%-4s | %-32s | %-10s | %s' % ('Card', 'Type', 'HW Version', 'Serial Number')
     print '-----+----------------------------------+------------+--------------'
-    for card in i.chassis.cards:
+    for card in ixia.chassis.cards:
         if card is not None:
             print '%-4s | %-32s | %-10s | %-s' % (card, card.type_name, card.hw_version, card.serial_number)
-    print ''
 
+    print ''
     print '%-8s | %-8s | %-10s | %-s' % ('Port', 'Owner', 'Link State', 'Speeds')
     print '---------+----------+------------+-------------------------------'
-    for card in i.chassis.cards:
+    for card in ixia.chassis.cards:
         if card is None:
             continue
         for port in card.ports:
             print '%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.link_state),
                                                  port.supported_speeds())
 
-    i.disconnect()
+    disconnect()
+
+
+def build_ixvm():
+
+    connect()
+
+    card = ixia.chassis.add_vm_card(vModule, 2)
+    card.add_vm_port(1, 'eth1', mac)
+    card.add_vm_port(2, 'eth2', mac)
+
+    disconnect()
+
+
+def take_ownership():
+
+    connect()
+
+    ixia.discover()
+    ixia.session.login('ixe_samples')
+    pg = ixia.new_port_group()
+    pg.create()
+    pg.add_port(ixia.chassis.cards[0].ports[0])
+    pg.add_port(ixia.chassis.cards[0].ports[1])
+    pg.take_ownership()
+    pg.destroy()
+
+    disconnect()
+
 
 if __name__ == '__main__':
-    main()
+    take_ownership()

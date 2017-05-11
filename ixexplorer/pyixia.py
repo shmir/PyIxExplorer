@@ -21,7 +21,7 @@ from ixexplorer.api.ixapi import IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 
 
-class PortGroup(object):
+class PortGroup(IxeObject):
     START_TRANSMIT = 7
     STOP_TRANSMIT = 8
     START_CAPTURE = 9
@@ -35,7 +35,6 @@ class PortGroup(object):
     CLEAR_OWNERSHIP = 42
     CLEAR_OWNERSHIP_FORCED = 43
 
-    __metaclass__ = _MetaIxTclApi
     __tcl_command__ = 'portGroup'
     __tcl_members__ = [
             TclMember('lastTimeStamp', type=int, flags=FLAG_RDONLY),
@@ -43,8 +42,7 @@ class PortGroup(object):
 
     next_free_id = 1
 
-    def __init__(self, api, id=None):
-        self._api = api
+    def __init__(self, id=None):
         if id is None:
             self.id = self.next_free_id
             self.next_free_id += 1
@@ -106,9 +104,9 @@ class PortGroup(object):
             self._set_command(self.CLEAR_OWNERSHIP_FORCED)
 
 
-class Statistics(object):
+class Statistics(IxeObject):
     """Per port statistics."""
-    __metaclass__ = _MetaIxTclApi
+
     __tcl_command__ = 'stat'
     __tcl_members__ = [
             TclMember('bytesReceived', type=int, flags=FLAG_RDONLY),
@@ -125,8 +123,7 @@ class Statistics(object):
         self._api.call('stat set %s %d %d %d', member.name, *self.port._port_id())
 
 
-class Port(object):
-    __metaclass__ = _MetaIxTclApi
+class Port(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
             TclMember('name'),
@@ -184,7 +181,6 @@ class Port(object):
 
 
 class Card(IxeObject):
-    __metaclass__ = _MetaIxTclApi
     __tcl_command__ = 'card'
     __tcl_members__ = [
             TclMember('cardOperationMode', type=int, flags=FLAG_RDONLY),
@@ -238,7 +234,6 @@ class Card(IxeObject):
 
 
 class Chassis(IxeObject):
-    __metaclass__ = _MetaIxTclApi
     __tcl_command__ = 'chassis'
     __tcl_members__ = [
             TclMember('baseIpAddress'),
@@ -347,8 +342,7 @@ class Chassis(IxeObject):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
 
 
-class Session(object):
-    __metaclass__ = _MetaIxTclApi
+class Session(IxeObject):
     __tcl_command__ = 'session'
     __tcl_members__ = [
             TclMember('userName', flags=FLAG_RDONLY),
