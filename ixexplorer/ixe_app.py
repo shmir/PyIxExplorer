@@ -1,10 +1,10 @@
 
 import logging
 
+from trafficgenerator.trafficgenerator import TrafficGenerator
+
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi
-
-from trafficgenerator.trafficgenerator import TrafficGenerator
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.pyixia import Session, Chassis, PortGroup
 

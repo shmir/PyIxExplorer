@@ -16,7 +16,7 @@
 
 import re
 
-from ixexplorer.api.ixapi import _MetaIxTclApi, TclMember, FLAG_RDONLY
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
 from ixexplorer.api.ixapi import IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 
@@ -238,7 +238,7 @@ class Chassis(IxeObject):
     __tcl_members__ = [
             TclMember('baseIpAddress'),
             TclMember('cableLength', type=int),
-            TclMember('hostname', flags=FLAG_RDONLY),
+            TclMember('hostName', flags=FLAG_RDONLY),
             TclMember('id', type=int),
             TclMember('ipAddress', flags=FLAG_RDONLY),
             TclMember('ixServerVersion', flags=FLAG_RDONLY),

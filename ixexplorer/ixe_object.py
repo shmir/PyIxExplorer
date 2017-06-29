@@ -19,4 +19,6 @@ class IxeObject(TgnObject):
 
 
 class IxeStream(IxeObject):
-    pass
+    __tcl_command__ = 'stream'
+    __tcl_members__ = [
+    ]
