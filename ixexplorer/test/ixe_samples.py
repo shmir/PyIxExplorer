@@ -2,6 +2,8 @@
 
 import logging
 import sys
+from os import path
+from configparser import SafeConfigParser
 
 from ixexplorer.pyixia import Port
 from ixexplorer.ixe_app import IxeApp
@@ -11,6 +13,7 @@ host = '192.168.42.61'
 tcp_port = 4555
 # Required only for Linux servers
 rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.20-EA/TclScripts/lib/ixTcl1.0/id_rsa'
+rsa_id = '/opt/ixia/ixos-api/8.20.0.10/lib/ixTcl1.0/id_rsa'
 
 vModule = '10.10.10.3'
 mac = '00:00:00:00:00:00'
@@ -31,9 +34,13 @@ def link_state_str(link_state):
 def connect():
     global ixia
 
+    config_file = path.join(path.dirname(__file__), 'IxExplorer.ini')
+    config = SafeConfigParser(allow_no_value=True)
+    config.read(config_file)
+
     logging.basicConfig()
-    logging.getLogger().setLevel(logging.INFO)
-    logging.getLogger().addHandler(logging.FileHandler('c:/temp/ixeooapi.log'))
+    logging.getLogger().setLevel(config.get('Logging', 'level'))
+    logging.getLogger().addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = IxeApp(logging.getLogger(), host, tcp_port, rsa_id)
@@ -49,27 +56,27 @@ def discover():
 
     ixia.discover()
 
-    print '%-7s | %-32s | %-10s' % ('Chassis', 'Type', 'Version')
-    print '--------+----------------------------------+--------------'
-    print '%-7s | %-32s | %-10s' % (ixia.chassis.id, ixia.chassis.type_name, ixia.chassis.ix_server_version)
-    print ixia.chassis.id
-    print ''
+    print ('%-7s | %-32s | %-10s' % ('Chassis', 'Type', 'Version'))
+    print ('--------+----------------------------------+--------------')
+    print ('%-7s | %-32s | %-10s' % (ixia.chassis.id, ixia.chassis.type_name, ixia.chassis.ix_server_version))
+    print (ixia.chassis.id)
+    print ('')
 
-    print '%-4s | %-32s | %-10s | %s' % ('Card', 'Type', 'HW Version', 'Serial Number')
-    print '-----+----------------------------------+------------+--------------'
+    print ('%-4s | %-32s | %-10s | %s' % ('Card', 'Type', 'HW Version', 'Serial Number'))
+    print ('-----+----------------------------------+------------+--------------')
     for card in ixia.chassis.cards:
         if card is not None:
-            print '%-4s | %-32s | %-10s | %-s' % (card, card.type_name, card.hw_version, card.serial_number)
+            print('%-4s | %-32s | %-10s | %-s' % (card, card.type_name, card.hw_version, card.serial_number))
 
-    print ''
-    print '%-8s | %-8s | %-10s | %-s' % ('Port', 'Owner', 'Link State', 'Speeds')
-    print '---------+----------+------------+-------------------------------'
+    print ('')
+    print ('%-8s | %-8s | %-10s | %-s' % ('Port', 'Owner', 'Link State', 'Speeds'))
+    print ('---------+----------+------------+-------------------------------')
     for card in ixia.chassis.cards:
         if card is None:
             continue
         for port in card.ports:
-            print '%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.link_state),
-                                                 port.supported_speeds())
+            print ('%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.link_state),
+                                                  port.supported_speeds()))
 
     disconnect()
 

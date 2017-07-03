@@ -18,7 +18,6 @@
 # Protocol parser for IXIA's underlying TclServer
 #
 
-import sys
 import socket
 import paramiko
 
@@ -50,21 +49,21 @@ class TclClient:
             raise RuntimeError('TclClient is not connected')
 
         string += '\r\n'
-        data = string % args
-        self.logger.debug('sending %s (%s)', data.rstrip(), data.encode('hex'))
-        self.fd.send(data)
+        command = string % args
+        self.logger.debug('sending %s', command.rstrip())
+        self.fd.send(command.encode('utf-8'))
 
         # reply format is
         #  [<io output>\r]<result><tcl return code>\r\n
         # where tcl_return code is exactly one byte
-        data = self.fd.recv(self.buffersize)
-        self.logger.debug('received %s (%s)', data.rstrip(), data.encode('hex'))
+        reply = str(self.fd.recv(self.buffersize).decode('utf-8'))
+        self.logger.debug('received %s', reply.rstrip())
         # print 'data=(%s) (%s)' % (data, data.encode('hex'))
-        assert data[-2:] == '\r\n'
+        assert reply[-2:] == '\r\n'
 
-        tcl_result = int(data[-3])
+        tcl_result = int(reply[-3])
 
-        data = data[:-3].rsplit('\r', 1)
+        data = reply[:-3].rsplit('\r', 1)
         if len(data) == 2:
             io_output, result = data
         else:
@@ -79,16 +78,16 @@ class TclClient:
         return result, io_output
 
     def ssh_call(self, string, *args):
-        data = 'puts [{}]\n\r'.format(string % args)
-        self.logger.debug('sending %s (%s)', data.rstrip(), data.encode('hex'))
-        self.stdin.write(data)
+        command = 'puts [{}]\n\r'.format(string % args)
+        self.logger.debug('sending %s', command.rstrip())
+        self.stdin.write(command)
         self.stdin.flush()
         l = len(self.stdout.channel.in_buffer)
         while not l:
             l = len(self.stdout.channel.in_buffer)
-        data = self.stdout.read(l)
-        self.logger.debug('received %s (%s)', data.rstrip(), data.encode('hex'))
-        return data
+        ret_value = str(self.stdout.read(l).decode("utf-8").rstrip())
+        self.logger.debug('received %s', ret_value)
+        return ret_value
 
     def call(self, string, *args):
         if self.windows_server:

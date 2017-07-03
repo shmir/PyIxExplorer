@@ -211,7 +211,7 @@ class Card(IxeObject):
         self._api.call_rc('card set %d %d', *self._card_id())
 
     def discover(self):
-        for pid in xrange(self.port_count):
+        for pid in range(self.port_count):
             pid += 1
             port = Port(self._api, self, pid)
             self.logger.info('Adding port %s', port)
@@ -320,7 +320,7 @@ class Chassis(IxeObject):
 
     def discover(self):
         self.logger.info('Discover chassis %d (%s)', self.id, self.type_name)
-        for cid in xrange(self.max_card_count):
+        for cid in range(self.max_card_count):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
