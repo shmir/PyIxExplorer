@@ -19,6 +19,7 @@ import re
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
 from ixexplorer.api.ixapi import IxTclHalError
 from ixexplorer.ixe_object import IxeObject
+from argh.compat import OrderedDict
 
 
 class PortGroup(IxeObject):
@@ -110,6 +111,7 @@ class Statistics(IxeObject):
     __tcl_command__ = 'stat'
     __tcl_members__ = [
             TclMember('bytesReceived', type=int, flags=FLAG_RDONLY),
+            TclMember('bytesSent', type=int, flags=FLAG_RDONLY),
     ]
 
     def __init__(self, api, port):
@@ -136,7 +138,7 @@ class Port(IxeObject):
             TclMember('transmitMode'),
     ]
 
-    __tcl_commands__ = ['getFeature']
+    __tcl_commands__ = ['export', 'getFeature', 'setFactoryDefaults']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -167,8 +169,7 @@ class Port(IxeObject):
         self._api.call_rc('port set %d %d %d', *self._port_id())
 
     def _ix_command(self, command, *args):
-        port_id = self._port_id()
-        return self._api.call('port {} {} {} {} {}'.format(command, port_id[0], port_id[1], port_id[2], *args))
+        return self._api.call(('port {} {} {} {}' + len(args) * ' {}').format(command, *(self._port_id() + args)))
 
     def _port_id(self):
         return self.card._card_id() + (self.id,)
@@ -178,6 +179,25 @@ class Port(IxeObject):
 
     def supported_speeds(self):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
+
+    def reserve(self, force=False):
+        if not force:
+            self._api.call_rc('ixPortTakeOwnership {} {} {}'.format(*self._port_id()))
+        else:
+            self._api.call_rc('ixPortTakeOwnership {} {} {} force'.format(*self._port_id()))
+
+    def release(self):
+        self._api.call_rc('ixPortClearOwnership {} {} {}'.format(*self._port_id()))
+
+    def load_config(self, config_file_name):
+        """ Load configuration file from prt or str.
+
+        Configuration file type is extracted from the file suffix - prt or str.
+
+        :param config_file_name: full path to the configuration file.
+        :todo: add support for str files.
+        """
+        self._api.call_rc('port import {} {} {} {}'.format(config_file_name, *self._port_id()))
 
 
 class Card(IxeObject):
@@ -340,6 +360,16 @@ class Chassis(IxeObject):
 
     def remove_vm_card(self, card):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
+
+    def get_ports(self):
+        """
+        :return: dictionary {name: object} of all ports.
+        """
+
+        ports = OrderedDict()
+        for c in filter(None, self.cards):
+            ports.update({str(p): p for p in c.ports})
+        return ports
 
 
 class Session(IxeObject):

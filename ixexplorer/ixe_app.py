@@ -1,7 +1,8 @@
 
 import logging
 
-from trafficgenerator.trafficgenerator import TrafficGenerator
+from trafficgenerator.tgn_utils import ApiType, TgnError
+from trafficgenerator.tgn_app import TgnApp
 
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi
@@ -11,12 +12,29 @@ from ixexplorer.pyixia import Session, Chassis, PortGroup
 log = logging.getLogger(__name__)
 
 
-class IxeApp(TrafficGenerator):
-    """ This class supports only one chassis atm. """
-    def __init__(self, logger, host, port=4555, rsa_id=None):
-        self.host = host
-        self._tcl = TclClient(logger, host, port, rsa_id)
-        self.api = IxTclHalApi(self._tcl)
+def init_ixe(api, logger, host, port=4555, rsa_id=None):
+    """ Create STC object.
+
+    :param api: socket/tcl
+    :type api: trafficgenerator.tgn_utils.ApiType
+    :param logger: python logger object
+    :param host: chassis IP address
+    :param port: Tcl server port
+    :param rsa_id: full path to RSA ID file for Linux based IxVM
+    :return: IXE object
+    """
+
+    if api == ApiType.tcl:
+        raise TgnError('Tcl API not supported in this version.')
+
+    return IxeApp(logger, IxTclHalApi(TclClient(logger, host, port, rsa_id)), host)
+
+
+class IxeApp(TgnApp):
+    """ This version supports only one chassis. """
+
+    def __init__(self, logger, api_wrapper, host):
+        super(self.__class__, self).__init__(logger, api_wrapper)
         IxeObject.api = self.api
         IxeObject._api = self.api
         self.chassis = Chassis(self.api, host)
@@ -25,12 +43,12 @@ class IxeApp(TrafficGenerator):
         IxeObject.logger = logger
 
     def connect(self):
-        self._tcl.connect()
+        self.api._tcl_handler.connect()
         self.chassis.connect()
 
     def disconnect(self):
         self.chassis.disconnect()
-        self._tcl.close()
+        self.api._tcl_handler.close()
 
     def new_port_group(self, id=None):
         return PortGroup(id)
