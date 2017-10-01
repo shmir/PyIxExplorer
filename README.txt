@@ -6,6 +6,20 @@ IXE - IxExplorer
 
 This package implements Python OO API for Ixia IxExplorer traffic generator.
 
+Todo:
+Short term:
+- Add port statistics counters
+- Stream (packet group) statistics
+- Start/Stop/Retrieve capture
+
+Longer term:
+- Local Tcl
+- Get/Set attribute
+- Fully adjust to other TG packages
+	- remove id/port_id/stream_id etc and replace with obj_name()/obj_ref()/obj_parent() etc.
+- Support UTG
+- Load from remote machine on socket API (copy to shared location)?
+
 Installation:
 stable - pip instsll ixeooapi
 testing - pip install ixeooapi -r --extra-index-url https://testpypi.python.org/pypi

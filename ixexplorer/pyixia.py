@@ -14,10 +14,10 @@
 # License along with this module; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
+from os import path
 import re
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
-from ixexplorer.api.ixapi import IxTclHalError
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 from argh.compat import OrderedDict
 
@@ -138,7 +138,7 @@ class Port(IxeObject):
             TclMember('transmitMode'),
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'setFactoryDefaults']
+    __tcl_commands__ = ['export', 'getFeature', 'reset', 'setFactoryDefaults']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -197,7 +197,15 @@ class Port(IxeObject):
         :param config_file_name: full path to the configuration file.
         :todo: add support for str files.
         """
-        self._api.call_rc('port import {} {} {} {}'.format(config_file_name, *self._port_id()))
+
+        ext = path.splitext(config_file_name)[-1].lower()
+        if ext == '.prt':
+            self._api.call_rc('port import {} {} {} {}'.format(config_file_name, *self._port_id()))
+        elif ext == '.str':
+            self.reset()
+            self._api.call_rc('stream import {} {} {} {}'.format(config_file_name, *self._port_id()))
+        else:
+            raise ValueError('Configuration file type {} not supported.'.format(ext))
 
 
 class Card(IxeObject):
