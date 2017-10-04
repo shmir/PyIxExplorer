@@ -121,11 +121,11 @@ class _MetaIxTclApi(type):
 
             def fget(self, cmd=command, m=m):
                 self._ix_get(m)
-                val = self._api.call('%s cget -%s' % (cmd, m.name))
+                val = self.api.call('%s cget -%s' % (cmd, m.name))
                 return m.type(val.strip() if type(val) is str else val[0])
 
             def fset(self, value, cmd=command, m=m):
-                self._api.call('%s config -%s %s' % (cmd, m.name, value))
+                self.api.call('%s config -%s %s' % (cmd, m.name, value))
                 self._ix_set(m)
 
             attrname = m.attrname
@@ -148,9 +148,15 @@ class _MetaIxTclApi(type):
         t = type.__new__(cls, clsname, clsbases, clsdict)
 
         for c in commands:
-            def f(self, *args, **kwargs):
-                rc = self._ix_command(c, *args, **kwargs)
-                return rc if type(rc) is str else rc[0]
-            setattr(t, translate_ix_member_name(c), f)
+            cls._add_f(t, c)
 
         return t
+
+    @classmethod
+    def _add_f(cls, t, c):
+        def f(self, *args, **kwargs):
+            rc = self._ix_command(c, *args, **kwargs)
+            return rc if type(rc) is str else rc[0]
+        f.__doc__ = translate_ix_member_name(c)
+        f.__name__ = translate_ix_member_name(c)
+        setattr(t, translate_ix_member_name(c), f)

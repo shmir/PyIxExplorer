@@ -5,9 +5,9 @@ from trafficgenerator.tgn_utils import ApiType, TgnError
 from trafficgenerator.tgn_app import TgnApp
 
 from ixexplorer.api.tclproto import TclClient
-from ixexplorer.api.ixapi import IxTclHalApi
+from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.pyixia import Session, Chassis, PortGroup
+from ixexplorer.ixe_hw import Chassis, PortGroup
 
 log = logging.getLogger(__name__)
 
@@ -36,11 +36,9 @@ class IxeApp(TgnApp):
     def __init__(self, logger, api_wrapper, host):
         super(self.__class__, self).__init__(logger, api_wrapper)
         IxeObject.api = self.api
-        IxeObject._api = self.api
-        self.chassis = Chassis(self.api, host)
-        self.session = Session(self.api)
-        IxeObject.api = self.api
         IxeObject.logger = logger
+        self.chassis = Chassis(host)
+        self.session = Session()
 
     def connect(self):
         self.api._tcl_handler.connect()
@@ -55,3 +53,22 @@ class IxeApp(TgnApp):
 
     def discover(self):
         return self.chassis.discover()
+
+
+class Session(IxeObject):
+    __tcl_command__ = 'session'
+    __tcl_members__ = [
+            TclMember('userName', flags=FLAG_RDONLY),
+            TclMember('captureBufferSegmentSize', type=int),
+    ]
+
+    __tcl_commands__ = ['login', 'logout']
+
+    def __init__(self):
+        super(self.__class__, self).__init__(objRef='', parent=None)
+
+    def _ix_get(self, member):
+        self._api.call_rc('session get')
+
+    def _ix_set(self, member):
+        self._api.call_rc('session set')

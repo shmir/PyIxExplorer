@@ -41,32 +41,24 @@ class PortGroup(IxeObject):
             TclMember('lastTimeStamp', type=int, flags=FLAG_RDONLY),
     ]
 
+    __tcl_commands__ = ['create', 'destroy']
+
     next_free_id = 1
 
-    def __init__(self, id=None):
-        if id is None:
-            self.id = self.next_free_id
-            self.next_free_id += 1
-        else:
-            self.id = id
-
-    def _ix_get(self):
-        pass
-
-    def create(self):
-        self._api.call_rc('portGroup create %s', self.id)
-
-    def destroy(self):
-        self._api.call_rc('portGroup destroy %s', self.id)
+    def __init__(self, pg_id=None):
+        if not pg_id:
+            pg_id = PortGroup.next_free_id
+            PortGroup.next_free_id += 1
+        super(self.__class__, self).__init__(objRef=pg_id, parent=None)
 
     def add_port(self, port):
-        self._api.call_rc('portGroup add %s %d %d %d', self.id, *port._port_id())
+        self._ix_command('add', port.obj_ref())
 
     def del_port(self, port):
-        self._api.call_rc('portGroup del %s %d %d %d', self.id, *port._port_id())
+        self._ix_command('del', port.obj_ref())
 
     def _set_command(self, cmd):
-        self._api.call_rc('portGroup setCommand %s %d', self.id, cmd)
+        self.api.call_rc('portGroup setCommand {} {}'.format(self.obj_ref(), cmd))
 
     def start_transmit(self):
         self._set_command(self.START_TRANSMIT)
@@ -114,15 +106,14 @@ class Statistics(IxeObject):
             TclMember('bytesSent', type=int, flags=FLAG_RDONLY),
     ]
 
-    def __init__(self, api, port):
-        self._api = api
-        self.port = port
+    def __init__(self, parent):
+        super(self.__class__, self).__init__(objRef=parent.obj_ref(), parent=parent)
 
     def _ix_get(self, member):
-        self._api.call('stat get %s %d %d %d', member.name, *self.port._port_id())
+        self.api.call('stat get {} {}'.format(member.name, self.obj_ref()))
 
     def _ix_set(self, member):
-        self._api.call('stat set %s %d %d %d', member.name, *self.port._port_id())
+        self.api.call('stat set {} {}'.format(member.name, self.obj_ref()))
 
 
 class Port(IxeObject):
@@ -138,7 +129,7 @@ class Port(IxeObject):
             TclMember('transmitMode'),
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'reset', 'setFactoryDefaults']
+    __tcl_commands__ = ['export', 'getFeature', 'reset', 'setFactoryDefaults', 'write']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -156,11 +147,9 @@ class Port(IxeObject):
     LINK_STATE_LOSS_OF_FRAME = 24
     LINK_STATE_LOSS_OF_SIGNAL = 25
 
-    def __init__(self, tcl, parent, id):
-        self.card = parent
-        self.id = id
-        self._api = tcl
-        self.stats = Statistics(tcl, self)
+    def __init__(self, parent, port_id):
+        super(self.__class__, self).__init__(objRef=parent.obj_ref() + ' ' + str(port_id), parent=parent)
+        self.stats = Statistics(self)
 
     def _ix_get(self, member):
         self._api.call_rc('port get %d %d %d', *self._port_id())
@@ -168,26 +157,17 @@ class Port(IxeObject):
     def _ix_set(self, member):
         self._api.call_rc('port set %d %d %d', *self._port_id())
 
-    def _ix_command(self, command, *args):
-        return self._api.call(('port {} {} {} {}' + len(args) * ' {}').format(command, *(self._port_id() + args)))
-
-    def _port_id(self):
-        return self.card._card_id() + (self.id,)
-
-    def __str__(self):
-        return '%d/%d/%d' % self._port_id()
-
     def supported_speeds(self):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
 
     def reserve(self, force=False):
         if not force:
-            self._api.call_rc('ixPortTakeOwnership {} {} {}'.format(*self._port_id()))
+            self.api.call_rc('ixPortTakeOwnership {}'.format(self.obj_ref()))
         else:
-            self._api.call_rc('ixPortTakeOwnership {} {} {} force'.format(*self._port_id()))
+            self.api.call_rc('ixPortTakeOwnership {} force'.format(self.obj_ref()))
 
     def release(self):
-        self._api.call_rc('ixPortClearOwnership {} {} {}'.format(*self._port_id()))
+        self.api.call_rc('ixPortClearOwnership {}'.format(self.obj_ref()))
 
     def load_config(self, config_file_name):
         """ Load configuration file from prt or str.
@@ -200,12 +180,13 @@ class Port(IxeObject):
 
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
-            self._api.call_rc('port import {} {} {} {}'.format(config_file_name, *self._port_id()))
+            self.api.call_rc('port import {} {}'.format(config_file_name, self.obj_ref()))
         elif ext == '.str':
             self.reset()
-            self._api.call_rc('stream import {} {} {} {}'.format(config_file_name, *self._port_id()))
+            self.api.call_rc('stream import {} {}'.format(config_file_name, self.obj_ref()))
         else:
             raise ValueError('Configuration file type {} not supported.'.format(ext))
+        self.write()
 
 
 class Card(IxeObject):
@@ -226,30 +207,22 @@ class Card(IxeObject):
 
     TYPE_NONE = 0
 
-    def __init__(self, api, parent, id):
-        self.chassis = parent
-        self.id = id
+    def __init__(self, parent, chassis_id, card_id):
+        super(self.__class__, self).__init__(objRef=str(chassis_id) + ' ' + str(card_id), parent=parent)
         self.ports = []
-        self._api = api
 
     def _ix_get(self, member):
-        self._api.call_rc('card get %d %d', *self._card_id())
+        self.api.call_rc('card get {}'.format(self.obj_ref()))
 
     def _ix_set(self, member):
-        self._api.call_rc('card set %d %d', *self._card_id())
+        self.api.call_rc('card set {}'.format(self.obj_ref()))
 
     def discover(self):
         for pid in range(self.port_count):
             pid += 1
-            port = Port(self._api, self, pid)
+            port = Port(self, pid)
             self.logger.info('Adding port %s', port)
             self.ports.append(port)
-
-    def _card_id(self):
-        return (self.chassis._chassis_id(), self.id)
-
-    def __str__(self):
-        return '%d/%d' % self._card_id()
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -278,6 +251,8 @@ class Chassis(IxeObject):
             TclMember('type', type=int, flags=FLAG_RDONLY),
             TclMember('typeName', flags=FLAG_RDONLY),
     ]
+
+    __tcl_commands__ = ['add']
 
     TYPE_1600 = 2
     TYPE_200 = 3
@@ -319,42 +294,33 @@ class Chassis(IxeObject):
     OS_WIN2000 = 3
     OS_WINXP = 4
 
-    def __init__(self, api, host):
-        self.host = host
+    def __init__(self, host, chassis_id=1):
+        super(self.__class__, self).__init__(objRef=host, parent=None, name=host)
+        self.chassis_id = chassis_id
         self.cards = []
-        self._api = api
-
-    def _chassis_id(self):
-        return self.id
-
-    def _ix_add(self):
-        self._api.call_rc('chassis add %s', self.host)
-
-    def _ix_del(self):
-        self._api.call_rc('chassis del %s', self.host)
 
     def _ix_get(self, member):
-        self._api.call_rc('chassis get %s', self.host)
+        self.api.call_rc('chassis get %s', self.obj_ref())
 
     def _ix_set(self, member):
-        self._api.call_rc('chassis set %s', self.host)
+        self.api.call_rc('chassis set %s', self.obj_ref())
 
-    def connect(self, chassis_id=1):
-        self._ix_add()
-        self.id = chassis_id
+    def connect(self):
+        self.add()
+        self.id = self.chassis_id
 
     def disconnect(self):
-        self._ix_del()
+        self._ix_command('del')
 
     def discover(self):
-        self.logger.info('Discover chassis %d (%s)', self.id, self.type_name)
+        self.logger.info('Discover chassis {}'.format(self.obj_name()))
         for cid in range(self.max_card_count):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
             cid += 1
             try:
-                card = Card(self._api, self, cid)
+                card = Card(self, self.chassis_id, cid)
                 self.logger.info('Adding card %s (%s)', card, card.type_name)
                 card.discover()
                 self.cards.append(card)
@@ -378,26 +344,3 @@ class Chassis(IxeObject):
         for c in filter(None, self.cards):
             ports.update({str(p): p for p in c.ports})
         return ports
-
-
-class Session(IxeObject):
-    __tcl_command__ = 'session'
-    __tcl_members__ = [
-            TclMember('userName', flags=FLAG_RDONLY),
-            TclMember('captureBufferSegmentSize', type=int),
-    ]
-
-    def __init__(self, api):
-        self._api = api
-
-    def _ix_get(self, member):
-        self._api.call_rc('session get')
-
-    def _ix_set(self, member):
-        self._api.call_rc('session set')
-
-    def login(self, username):
-        self._api.call_rc('session login %s', username)
-
-    def logout(self):
-        self._api.call_rc('session logout')
