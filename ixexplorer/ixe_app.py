@@ -48,9 +48,6 @@ class IxeApp(TgnApp):
         self.chassis.disconnect()
         self.api._tcl_handler.close()
 
-    def new_port_group(self, id=None):
-        return PortGroup(id)
-
     def discover(self):
         return self.chassis.discover()
 
@@ -66,9 +63,3 @@ class Session(IxeObject):
 
     def __init__(self):
         super(self.__class__, self).__init__(objRef='', parent=None)
-
-    def _ix_get(self, member):
-        self._api.call_rc('session get')
-
-    def _ix_set(self, member):
-        self._api.call_rc('session set')

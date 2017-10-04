@@ -42,7 +42,7 @@ class IxExplorerTestBase(TgnTest):
         cfg2 = path.join(path.dirname(__file__), 'c:/configs/test_config_2.str').replace('\\', '/')
         self.ixia.chassis.get_ports()['1/1/2'].load_config(cfg2)
 
-        pg = self.ixia.new_port_group()
+        pg = PortGroup()
         pg.create()
         pg.add_port(self.ixia.chassis.get_ports()['1/1/1'])
         pg.add_port(self.ixia.chassis.get_ports()['1/1/2'])

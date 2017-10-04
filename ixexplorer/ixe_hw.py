@@ -151,12 +151,6 @@ class Port(IxeObject):
         super(self.__class__, self).__init__(objRef=parent.obj_ref() + ' ' + str(port_id), parent=parent)
         self.stats = Statistics(self)
 
-    def _ix_get(self, member):
-        self._api.call_rc('port get %d %d %d', *self._port_id())
-
-    def _ix_set(self, member):
-        self._api.call_rc('port set %d %d %d', *self._port_id())
-
     def supported_speeds(self):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
 
@@ -209,20 +203,11 @@ class Card(IxeObject):
 
     def __init__(self, parent, chassis_id, card_id):
         super(self.__class__, self).__init__(objRef=str(chassis_id) + ' ' + str(card_id), parent=parent)
-        self.ports = []
-
-    def _ix_get(self, member):
-        self.api.call_rc('card get {}'.format(self.obj_ref()))
-
-    def _ix_set(self, member):
-        self.api.call_rc('card set {}'.format(self.obj_ref()))
 
     def discover(self):
-        for pid in range(self.port_count):
-            pid += 1
-            port = Port(self, pid)
-            self.logger.info('Adding port %s', port)
-            self.ports.append(port)
+        self.logger.info('Discover card {}'.format(self.obj_name()))
+        for pid in range(1, self.port_count + 1):
+            Port(self, pid)
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -297,13 +282,6 @@ class Chassis(IxeObject):
     def __init__(self, host, chassis_id=1):
         super(self.__class__, self).__init__(objRef=host, parent=None, name=host)
         self.chassis_id = chassis_id
-        self.cards = []
-
-    def _ix_get(self, member):
-        self.api.call_rc('chassis get %s', self.obj_ref())
-
-    def _ix_set(self, member):
-        self.api.call_rc('chassis set %s', self.obj_ref())
 
     def connect(self):
         self.add()
@@ -314,19 +292,14 @@ class Chassis(IxeObject):
 
     def discover(self):
         self.logger.info('Discover chassis {}'.format(self.obj_name()))
-        for cid in range(self.max_card_count):
+        for cid in range(1, self.max_card_count + 1):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
-            cid += 1
             try:
-                card = Card(self, self.chassis_id, cid)
-                self.logger.info('Adding card %s (%s)', card, card.type_name)
-                card.discover()
-                self.cards.append(card)
+                Card(self, self.chassis_id, cid).discover()
             except IxTclHalError:
-                # keep in sync with card ids
-                self.cards.append(None)
+                pass
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
         self._api.call_rc('chassis addVirtualCard {} {} {} {}'.format(self.host, card_ip, card_id, keep_alive))
@@ -341,6 +314,6 @@ class Chassis(IxeObject):
         """
 
         ports = OrderedDict()
-        for c in filter(None, self.cards):
-            ports.update({str(p): p for p in c.ports})
+        for c in self.get_objects_by_type('card'):
+            ports.update({str(p): p for p in c.get_objects_by_type('port')})
         return ports

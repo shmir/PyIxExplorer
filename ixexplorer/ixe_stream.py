@@ -10,23 +10,10 @@ class Stream(IxeObject):
 
     __tcl_commands__ = ['export']
 
-    def __init__(self, tcl, parent, id):
-        self.port = parent
-        self.id = id
-        self._api = tcl
+    next_free_id = 1
 
-    def _ix_get(self, member):
-        self._api.call_rc('stream get {} {} {} {}'.format(*self._stream_id()))
-
-    def _ix_set(self, member):
-        self._api.call_rc('stream set {} {} {} {}'.format(*self._stream_id()))
-
-    def _ix_command(self, command, *args):
-        return self._api.call(('stream {} {} {} {} {}' + len(args) * ' {}').
-                              format(command, *(self._stream_id() + args)))
-
-    def _stream_id(self):
-        return self.port._port_id() + (self.id,)
-
-    def __str__(self):
-        return '%d/%d/%d/%d' % self._stream_id()
+    def __init__(self, parent, stream_id=None):
+        if not stream_id:
+            stream_id = Stream.next_free_id
+            Stream.next_free_id += 1
+        super(self.__class__, self).__init__(objRef=stream_id, parent=parent)
