@@ -37,8 +37,9 @@ class IxeApp(TgnApp):
         super(self.__class__, self).__init__(logger, api_wrapper)
         IxeObject.api = self.api
         IxeObject.logger = logger
-        self.chassis = Chassis(host)
         self.session = Session()
+        IxeObject.session = self.session
+        self.chassis = Chassis(host)
 
     def connect(self):
         self.api._tcl_handler.connect()

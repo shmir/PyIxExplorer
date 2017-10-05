@@ -8,6 +8,8 @@ from ixexplorer.api.ixapi import _MetaIxTclApi
 
 class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
 
+    session = None
+
     def __init__(self, **data):
         data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
         super(IxeObject, self).__init__(objType=self.__tcl_command__, **data)

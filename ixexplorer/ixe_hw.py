@@ -49,7 +49,7 @@ class PortGroup(IxeObject):
         if not pg_id:
             pg_id = PortGroup.next_free_id
             PortGroup.next_free_id += 1
-        super(self.__class__, self).__init__(uri=pg_id, parent=None)
+        super(self.__class__, self).__init__(uri=pg_id, parent=IxeObject.session)
 
     def add_port(self, port):
         self._ix_command('add', port.uri)
@@ -288,7 +288,7 @@ class Chassis(IxeObject):
     OS_WINXP = 4
 
     def __init__(self, host, chassis_id=1):
-        super(self.__class__, self).__init__(uri=host, parent=None, name=host)
+        super(self.__class__, self).__init__(uri=host, parent=IxeObject.session, name=host)
         self.chassis_id = chassis_id
 
     def connect(self):
