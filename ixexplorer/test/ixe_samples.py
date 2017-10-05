@@ -5,9 +5,12 @@ import sys
 from os import path
 from configparser import SafeConfigParser
 
-from ixexplorer.pyixia import Port
-from ixexplorer.ixe_app import IxeApp
+from trafficgenerator.tgn_utils import ApiType
+from ixexplorer.ixe_hw import Port, PortGroup
+from ixexplorer.ixe_app import init_ixe
 
+# API type = tcl or socket. Default is tcl with DEBUG log messages (see bellow) because it gives best visibility.
+api = ApiType.socket
 host = '192.168.42.61'
 # For Linux servers use 8022
 tcp_port = 4555
@@ -43,7 +46,7 @@ def connect():
     logging.getLogger().addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-    ixia = IxeApp(logging.getLogger(), host, tcp_port, rsa_id)
+    ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
     ixia.connect()
 
 
@@ -64,17 +67,17 @@ def discover():
 
     print ('%-4s | %-32s | %-10s | %s' % ('Card', 'Type', 'HW Version', 'Serial Number'))
     print ('-----+----------------------------------+------------+--------------')
-    for card in ixia.chassis.cards:
+    for card in ixia.chassis.cards.values():
         if card is not None:
             print('%-4s | %-32s | %-10s | %-s' % (card, card.type_name, card.hw_version, card.serial_number))
 
     print ('')
     print ('%-8s | %-8s | %-10s | %-s' % ('Port', 'Owner', 'Link State', 'Speeds'))
     print ('---------+----------+------------+-------------------------------')
-    for card in ixia.chassis.cards:
+    for card in ixia.chassis.cards.values():
         if card is None:
             continue
-        for port in card.ports:
+        for port in card.ports.values():
             print ('%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.link_state),
                                                   port.supported_speeds()))
 
@@ -98,10 +101,10 @@ def take_ownership():
 
     ixia.discover()
     ixia.session.login('ixe_samples')
-    pg = ixia.new_port_group()
+    pg = PortGroup()
     pg.create()
-    pg.add_port(ixia.chassis.cards[0].ports[0])
-    pg.add_port(ixia.chassis.cards[0].ports[1])
+    pg.add_port(ixia.chassis.ports.values()[0])
+    pg.add_port(ixia.chassis.ports.values()[1])
     pg.take_ownership()
     pg.destroy()
 
@@ -109,4 +112,4 @@ def take_ownership():
 
 
 if __name__ == '__main__':
-    discover()
+    take_ownership()

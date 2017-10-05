@@ -16,7 +16,9 @@ Longer term:
 - Local Tcl
 - Get/Set attribute
 - Fully adjust to other TG packages
-	- remove id/port_id/stream_id etc and replace with obj_name()/obj_ref()/obj_parent() etc.
+	- make session root object, chassis and port group under
+	- change obj_ref to type + object id
+	- create uri attribute and use it instead of obj_ref
 - Support UTG
 - Load from remote machine on socket API (copy to shared location)?
 

@@ -218,6 +218,14 @@ class Card(IxeObject):
     def remove_vm_port(self, card):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
 
+    def get_ports(self):
+        """
+        :return: dictionary {name: object} of all ports.
+        """
+
+        return {str(p): p for p in self.get_objects_by_type('port')}
+    ports = property(get_ports)
+
 
 class Chassis(IxeObject):
     __tcl_command__ = 'chassis'
@@ -297,9 +305,10 @@ class Chassis(IxeObject):
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
             try:
-                Card(self, self.chassis_id, cid).discover()
+                card = Card(self, self.chassis_id, cid)
+                card.discover()
             except IxTclHalError:
-                pass
+                card.__del__()
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
         self._api.call_rc('chassis addVirtualCard {} {} {} {}'.format(self.host, card_ip, card_id, keep_alive))
@@ -308,12 +317,21 @@ class Chassis(IxeObject):
     def remove_vm_card(self, card):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
 
+    def get_cards(self):
+        """
+        :return: dictionary {name: object} of all cards.
+        """
+
+        return {str(c): c for c in self.get_objects_by_type('card')}
+    cards = property(get_cards)
+
     def get_ports(self):
         """
         :return: dictionary {name: object} of all ports.
         """
 
         ports = OrderedDict()
-        for c in self.get_objects_by_type('card'):
-            ports.update({str(p): p for p in c.get_objects_by_type('port')})
+        for c in self.cards.values():
+            ports.update(c.ports)
         return ports
+    ports = property(get_ports)

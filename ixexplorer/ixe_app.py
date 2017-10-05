@@ -7,7 +7,7 @@ from trafficgenerator.tgn_app import TgnApp
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_hw import Chassis, PortGroup
+from ixexplorer.ixe_hw import Chassis
 
 log = logging.getLogger(__name__)
 
