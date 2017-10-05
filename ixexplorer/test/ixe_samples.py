@@ -112,4 +112,4 @@ def take_ownership():
 
 
 if __name__ == '__main__':
-    take_ownership()
+    discover()

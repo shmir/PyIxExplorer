@@ -9,18 +9,26 @@ from ixexplorer.api.ixapi import _MetaIxTclApi
 class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
 
     def __init__(self, **data):
+        data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
         super(IxeObject, self).__init__(objType=self.__tcl_command__, **data)
-        self._data['name'] = self._data['name'].replace(' ', '/')
+        self._data['name'] = self.uri.replace(' ', '/')
 
     def _create(self):
         pass
 
+    def obj_uri(self):
+        """
+        :return: object URI.
+        """
+        return str(self._data['uri'])
+    uri = property(obj_uri)
+
     def _ix_command(self, command, *args, **kwargs):
         return self.api.call(('{} {} {}' + len(args) * ' {}').
-                             format(self.__tcl_command__, command, self.obj_ref(), *args))
+                             format(self.__tcl_command__, command, self.uri, *args))
 
     def _ix_get(self, member):
-        self.api.call_rc('{} get {}'.format(self.__tcl_command__, self.obj_ref()))
+        self.api.call_rc('{} get {}'.format(self.__tcl_command__, self.uri))
 
     def _ix_set(self, member):
-        self.api.call_rc('{} set {}'.format(self.__tcl_command__, self.obj_ref()))
+        self.api.call_rc('{} set {}'.format(self.__tcl_command__, self.uri))

@@ -16,4 +16,4 @@ class Stream(IxeObject):
         if not stream_id:
             stream_id = Stream.next_free_id
             Stream.next_free_id += 1
-        super(self.__class__, self).__init__(objRef=stream_id, parent=parent)
+        super(self.__class__, self).__init__(uri=parent.uri + ' ' + str(stream_id), parent=parent)

@@ -62,4 +62,4 @@ class Session(IxeObject):
     __tcl_commands__ = ['login', 'logout']
 
     def __init__(self):
-        super(self.__class__, self).__init__(objRef='', parent=None)
+        super(self.__class__, self).__init__(uri='', parent=None)

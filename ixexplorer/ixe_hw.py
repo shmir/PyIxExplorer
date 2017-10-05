@@ -49,16 +49,16 @@ class PortGroup(IxeObject):
         if not pg_id:
             pg_id = PortGroup.next_free_id
             PortGroup.next_free_id += 1
-        super(self.__class__, self).__init__(objRef=pg_id, parent=None)
+        super(self.__class__, self).__init__(uri=pg_id, parent=None)
 
     def add_port(self, port):
-        self._ix_command('add', port.obj_ref())
+        self._ix_command('add', port.uri)
 
     def del_port(self, port):
-        self._ix_command('del', port.obj_ref())
+        self._ix_command('del', port.uri)
 
     def _set_command(self, cmd):
-        self.api.call_rc('portGroup setCommand {} {}'.format(self.obj_ref(), cmd))
+        self.api.call_rc('portGroup setCommand {} {}'.format(self.uri, cmd))
 
     def start_transmit(self):
         self._set_command(self.START_TRANSMIT)
@@ -107,13 +107,13 @@ class Statistics(IxeObject):
     ]
 
     def __init__(self, parent):
-        super(self.__class__, self).__init__(objRef=parent.obj_ref(), parent=parent)
+        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
 
     def _ix_get(self, member):
-        self.api.call('stat get {} {}'.format(member.name, self.obj_ref()))
+        self.api.call('stat get {} {}'.format(member.name, self.uri))
 
     def _ix_set(self, member):
-        self.api.call('stat set {} {}'.format(member.name, self.obj_ref()))
+        self.api.call('stat set {} {}'.format(member.name, self.uri))
 
 
 class Port(IxeObject):
@@ -148,7 +148,7 @@ class Port(IxeObject):
     LINK_STATE_LOSS_OF_SIGNAL = 25
 
     def __init__(self, parent, port_id):
-        super(self.__class__, self).__init__(objRef=parent.obj_ref() + ' ' + str(port_id), parent=parent)
+        super(self.__class__, self).__init__(uri=parent.uri + ' ' + str(port_id), parent=parent)
         self.stats = Statistics(self)
 
     def supported_speeds(self):
@@ -156,12 +156,12 @@ class Port(IxeObject):
 
     def reserve(self, force=False):
         if not force:
-            self.api.call_rc('ixPortTakeOwnership {}'.format(self.obj_ref()))
+            self.api.call_rc('ixPortTakeOwnership {}'.format(self.uri))
         else:
-            self.api.call_rc('ixPortTakeOwnership {} force'.format(self.obj_ref()))
+            self.api.call_rc('ixPortTakeOwnership {} force'.format(self.uri))
 
     def release(self):
-        self.api.call_rc('ixPortClearOwnership {}'.format(self.obj_ref()))
+        self.api.call_rc('ixPortClearOwnership {}'.format(self.uri))
 
     def load_config(self, config_file_name):
         """ Load configuration file from prt or str.
@@ -174,10 +174,10 @@ class Port(IxeObject):
 
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
-            self.api.call_rc('port import {} {}'.format(config_file_name, self.obj_ref()))
+            self.api.call_rc('port import {} {}'.format(config_file_name, self.uri))
         elif ext == '.str':
             self.reset()
-            self.api.call_rc('stream import {} {}'.format(config_file_name, self.obj_ref()))
+            self.api.call_rc('stream import {} {}'.format(config_file_name, self.uri))
         else:
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
@@ -202,7 +202,7 @@ class Card(IxeObject):
     TYPE_NONE = 0
 
     def __init__(self, parent, chassis_id, card_id):
-        super(self.__class__, self).__init__(objRef=str(chassis_id) + ' ' + str(card_id), parent=parent)
+        super(self.__class__, self).__init__(uri=str(chassis_id) + ' ' + str(card_id), parent=parent)
 
     def discover(self):
         self.logger.info('Discover card {}'.format(self.obj_name()))
@@ -288,7 +288,7 @@ class Chassis(IxeObject):
     OS_WINXP = 4
 
     def __init__(self, host, chassis_id=1):
-        super(self.__class__, self).__init__(objRef=host, parent=None, name=host)
+        super(self.__class__, self).__init__(uri=host, parent=None, name=host)
         self.chassis_id = chassis_id
 
     def connect(self):
@@ -304,11 +304,11 @@ class Chassis(IxeObject):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
+            card = Card(self, self.chassis_id, cid)
             try:
-                card = Card(self, self.chassis_id, cid)
                 card.discover()
             except IxTclHalError:
-                card.__del__()
+                card.del_object_from_parent()
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
         self._api.call_rc('chassis addVirtualCard {} {} {} {}'.format(self.host, card_ip, card_id, keep_alive))
