@@ -1,15 +1,12 @@
 
-import logging
-
 from trafficgenerator.tgn_utils import ApiType, TgnError
 from trafficgenerator.tgn_app import TgnApp
 
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_hw import Chassis
-
-log = logging.getLogger(__name__)
+from ixexplorer.ixe_hw import Chassis, Port
+from ixexplorer.ixe_stream import Stream
 
 
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
@@ -64,3 +61,15 @@ class Session(IxeObject):
 
     def __init__(self):
         super(self.__class__, self).__init__(uri='', parent=None)
+        self.ports = []
+
+    def reserve_ports(self, *ports_uri):
+        """ Reserve ports forcefully and reset factory defaults. """
+        for port_uri in ports_uri:
+            port = Port(parent=self, uri=port_uri)
+            port.reserve(force=True)
+            port.set_factory_defaults()
+            Stream(parent=port, stream_id=1).remove()
+            port.write()
+            port.clear_stats()
+            self.ports.append(port)

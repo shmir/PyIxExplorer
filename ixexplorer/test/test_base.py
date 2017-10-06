@@ -14,12 +14,12 @@ from ixexplorer.ixe_app import init_ixe
 from ixexplorer.ixe_hw import PortGroup
 
 
-class IxExplorerTestBase(TgnTest):
+class IxeTestBase(TgnTest):
 
     TgnTest.config_file = path.join(path.dirname(__file__), 'IxExplorer.ini')
 
     def setUp(self):
-        super(IxExplorerTestBase, self).setUp()
+        super(IxeTestBase, self).setUp()
         self.ixia = init_ixe(ApiType[self.config.get('IXE', 'api')], self.logger,
                              host=self.config.get('IXE', 'server'))
         self.ixia.connect()
@@ -27,7 +27,7 @@ class IxExplorerTestBase(TgnTest):
         self.ixia.discover()
 
     def tearDown(self):
-        super(IxExplorerTestBase, self).tearDown()
+        super(IxeTestBase, self).tearDown()
 
     def testHelloWorld(self):
         pass
@@ -58,10 +58,3 @@ class IxExplorerTestBase(TgnTest):
         print('1/1/2 bytesSent = ' + str(self.ixia.chassis.get_ports()['1/1/2'].stats.bytes_sent))
 
         pg.destroy()
-
-    #
-    # Auxiliary functions, no testing inside.
-    #
-
-    def _reserve_ports(self):
-        self.pg = PortGroup(self._api, id)

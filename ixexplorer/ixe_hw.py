@@ -147,8 +147,8 @@ class Port(IxeObject):
     LINK_STATE_LOSS_OF_FRAME = 24
     LINK_STATE_LOSS_OF_SIGNAL = 25
 
-    def __init__(self, parent, port_id):
-        super(self.__class__, self).__init__(uri=parent.uri + ' ' + str(port_id), parent=parent)
+    def __init__(self, parent, uri):
+        super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
         self.stats = Statistics(self)
 
     def supported_speeds(self):
@@ -182,6 +182,10 @@ class Port(IxeObject):
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
 
+    def clear_stats(self):
+        self.api.call_rc('ixClearPortStats {}'.format(self.uri))
+        self.api.call_rc('ixClearPortPacketGroups {}'.format(self.uri))
+
 
 class Card(IxeObject):
     __tcl_command__ = 'card'
@@ -201,13 +205,13 @@ class Card(IxeObject):
 
     TYPE_NONE = 0
 
-    def __init__(self, parent, chassis_id, card_id):
-        super(self.__class__, self).__init__(uri=str(chassis_id) + ' ' + str(card_id), parent=parent)
+    def __init__(self, parent, uri):
+        super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
 
     def discover(self):
         self.logger.info('Discover card {}'.format(self.obj_name()))
         for pid in range(1, self.port_count + 1):
-            Port(self, pid)
+            Port(self, self.uri + '/' + str(pid))
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -304,7 +308,7 @@ class Chassis(IxeObject):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
-            card = Card(self, self.chassis_id, cid)
+            card = Card(self, str(self.chassis_id) + '/' + str(cid))
             try:
                 card.discover()
             except IxTclHalError:
