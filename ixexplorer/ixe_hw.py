@@ -195,9 +195,19 @@ class IxePort(IxeObject):
     def add_stream(self, name=None):
         stream = IxeStream(self, self.uri + '/' + str(int(self.get_stream_count()) + 1))
         self.api.call('stream setDefault')
+        stream._ix_set()
         if not name:
             name = str(stream)
         stream.name = name
+        return stream
+
+    def get_streams(self):
+        """
+        :return: dictionary {name: object} of all streams.
+        """
+
+        return {str(s): s for s in self.get_objects_by_type('stream')}
+    streams = property(get_streams)
 
 
 class IxeCard(IxeObject):

@@ -6,7 +6,10 @@ from ixexplorer.ixe_object import IxeObject
 class IxeStream(IxeObject):
     __tcl_command__ = 'stream'
     __tcl_members__ = [
+            TclMember('bpsRate', type=int),
+            TclMember('da'),
             TclMember('name'),
+            TclMember('sa'),
     ]
 
     __tcl_commands__ = ['export', 'setDefault', 'write']

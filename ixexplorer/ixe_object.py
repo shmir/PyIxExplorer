@@ -14,6 +14,7 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
         super(IxeObject, self).__init__(objType=self.__tcl_command__, **data)
         self._data['name'] = self.uri.replace(' ', '/')
+        self.__class__.current_object = None
 
     def obj_uri(self):
         """
@@ -26,8 +27,10 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         return self.api.call(('{} {} {}' + len(args) * ' {}').
                              format(self.__tcl_command__, command, self.uri, *args))
 
-    def _ix_get(self, member):
-        self.api.call_rc('{} get {}'.format(self.__tcl_command__, self.uri))
+    def _ix_get(self):
+        if self != self.__class__.current_object:
+            self.api.call_rc('{} get {}'.format(self.__tcl_command__, self.uri))
+        self.__class__.current_object = self
 
-    def _ix_set(self, member):
+    def _ix_set(self):
         self.api.call_rc('{} set {}'.format(self.__tcl_command__, self.uri))

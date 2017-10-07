@@ -20,5 +20,10 @@ class IxExplorerTestBase(IxeTestBase):
 
     def testBuildConfig(self):
         ports = self.ixia.session.reserve_ports(self.port1, self.port2)
-        ports[self.port1].add_stream()
+        stream = ports[self.port1].add_stream()
+        stream.da = "11:11:11:11:11:11"
+        stream.sa = "11:11:11:11:11:11"
+        stream = ports[self.port1].add_stream()
+        stream.da = "22:22:22:22:22:22"
+        stream.sa = "22:22:22:22:22:22"
         ports[self.port1].write()

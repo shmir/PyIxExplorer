@@ -120,13 +120,15 @@ class _MetaIxTclApi(type):
                 raise RuntimeError('Element #%d of __tcl_members__ is not a TclMember' % (n+1,))
 
             def fget(self, cmd=command, m=m):
-                self._ix_get(m)
+                self._ix_get()
                 val = self.api.call('%s cget -%s' % (cmd, m.name))
                 return m.type(val.strip() if type(val) is str else val[0])
 
             def fset(self, value, cmd=command, m=m):
+                if self != self.__class__.current_object:
+                    self._ix_get()
                 self.api.call('%s config -%s %s' % (cmd, m.name, value))
-                self._ix_set(m)
+                self._ix_set()
 
             attrname = m.attrname
             if m.attrname is None:
