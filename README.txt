@@ -11,6 +11,8 @@ Short term:
 - Add port statistics counters
 - Stream (packet group) statistics
 - Start/Stop/Retrieve capture
+- Move uri=uri.replace('/', ' ') to IxeObject
+- Add add/remove stream to port to manage next_stream_id
 
 Longer term:
 - Local Tcl

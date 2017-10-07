@@ -5,8 +5,8 @@ from trafficgenerator.tgn_app import TgnApp
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_hw import Chassis, Port
-from ixexplorer.ixe_stream import Stream
+from ixexplorer.ixe_hw import IxeChassis, IxePort
+from ixexplorer.ixe_stream import IxeStream
 
 
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
@@ -34,9 +34,9 @@ class IxeApp(TgnApp):
         super(self.__class__, self).__init__(logger, api_wrapper)
         IxeObject.api = self.api
         IxeObject.logger = logger
-        self.session = Session()
+        self.session = IxeSession()
         IxeObject.session = self.session
-        self.chassis = Chassis(host)
+        self.chassis = IxeChassis(host)
 
     def connect(self):
         self.api._tcl_handler.connect()
@@ -50,7 +50,7 @@ class IxeApp(TgnApp):
         return self.chassis.discover()
 
 
-class Session(IxeObject):
+class IxeSession(IxeObject):
     __tcl_command__ = 'session'
     __tcl_members__ = [
             TclMember('userName', flags=FLAG_RDONLY),
@@ -69,10 +69,10 @@ class Session(IxeObject):
         """
 
         for port_uri in ports_uri:
-            port = Port(parent=self, uri=port_uri)
+            port = IxePort(parent=self, uri=port_uri)
             port.reserve(force=True)
             port.set_factory_defaults()
-            Stream(parent=port, stream_id=1).remove()
+            IxeStream(parent=port, uri=port.uri + '/1').remove()
             port.write()
             port.clear_stats()
 

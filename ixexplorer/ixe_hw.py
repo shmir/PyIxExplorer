@@ -20,10 +20,10 @@ import re
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_stream import Stream
+from ixexplorer.ixe_stream import IxeStream
 
 
-class PortGroup(IxeObject):
+class IxePortGroup(IxeObject):
     START_TRANSMIT = 7
     STOP_TRANSMIT = 8
     START_CAPTURE = 9
@@ -48,8 +48,8 @@ class PortGroup(IxeObject):
 
     def __init__(self, pg_id=None):
         if not pg_id:
-            pg_id = PortGroup.next_free_id
-            PortGroup.next_free_id += 1
+            pg_id = IxePortGroup.next_free_id
+            IxePortGroup.next_free_id += 1
         super(self.__class__, self).__init__(uri=pg_id, parent=IxeObject.session)
 
     def add_port(self, port):
@@ -98,7 +98,7 @@ class PortGroup(IxeObject):
             self._set_command(self.CLEAR_OWNERSHIP_FORCED)
 
 
-class Statistics(IxeObject):
+class IxePortStatistics(IxeObject):
     """Per port statistics."""
 
     __tcl_command__ = 'stat'
@@ -117,7 +117,7 @@ class Statistics(IxeObject):
         self.api.call('stat set {} {}'.format(member.name, self.uri))
 
 
-class Port(IxeObject):
+class IxePort(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
             TclMember('name'),
@@ -150,7 +150,7 @@ class Port(IxeObject):
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
-        self.stats = Statistics(self)
+        self.stats = IxePortStatistics(self)
 
     def supported_speeds(self):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
@@ -183,8 +183,8 @@ class Port(IxeObject):
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
 
-        for _ in self.get_stream_count():
-            Stream(self)
+        for stream_id in range(1, int(self.get_stream_count()) + 1):
+            IxeStream(self, self.uri + '/' + str(stream_id))
 
     def clear_stats(self):
         self.api.call_rc('ixClearPortStats {}'.format(self.uri))
@@ -193,7 +193,7 @@ class Port(IxeObject):
         self.api.call_rc('ixClearPerStreamTxStats pl')
 
 
-class Card(IxeObject):
+class IxeCard(IxeObject):
     __tcl_command__ = 'card'
     __tcl_members__ = [
             TclMember('cardOperationMode', type=int, flags=FLAG_RDONLY),
@@ -217,13 +217,13 @@ class Card(IxeObject):
     def discover(self):
         self.logger.info('Discover card {}'.format(self.obj_name()))
         for pid in range(1, self.port_count + 1):
-            Port(self, self.uri + '/' + str(pid))
+            IxePort(self, self.uri + '/' + str(pid))
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
         self._api.call_rc('card addVMPort {} {} {} {} {} {} {} {}'.
                           format(card_id[0], card_id[1], port_id, nic_id, promiscuous, mac, mtu, speed))
-        return Port(self._api, self, port_id)
+        return IxePort(self._api, self, port_id)
 
     def remove_vm_port(self, card):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
@@ -237,7 +237,7 @@ class Card(IxeObject):
     ports = property(get_ports)
 
 
-class Chassis(IxeObject):
+class IxeChassis(IxeObject):
     __tcl_command__ = 'chassis'
     __tcl_members__ = [
             TclMember('baseIpAddress'),
@@ -314,7 +314,7 @@ class Chassis(IxeObject):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
-            card = Card(self, str(self.chassis_id) + '/' + str(cid))
+            card = IxeCard(self, str(self.chassis_id) + '/' + str(cid))
             try:
                 card.discover()
             except IxTclHalError:
@@ -322,7 +322,7 @@ class Chassis(IxeObject):
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
         self._api.call_rc('chassis addVirtualCard {} {} {} {}'.format(self.host, card_ip, card_id, keep_alive))
-        return Card(self._api, self, card_id)
+        return IxeCard(self._api, self, card_id)
 
     def remove_vm_card(self, card):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))

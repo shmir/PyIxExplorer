@@ -11,7 +11,7 @@ from trafficgenerator.tgn_utils import ApiType
 from trafficgenerator.test.test_tgn import TgnTest
 
 from ixexplorer.ixe_app import init_ixe
-from ixexplorer.ixe_hw import PortGroup
+from ixexplorer.ixe_hw import IxePortGroup
 
 
 class IxeTestBase(TgnTest):
@@ -45,7 +45,7 @@ class IxeTestBase(TgnTest):
         cfg2 = path.join(path.dirname(__file__), 'c:/configs/test_config_2.str').replace('\\', '/')
         self.ixia.chassis.get_ports()['1/1/2'].load_config(cfg2)
 
-        pg = PortGroup()
+        pg = IxePortGroup()
         pg.create()
         pg.add_port(self.ixia.chassis.get_ports()['1/1/1'])
         pg.add_port(self.ixia.chassis.get_ports()['1/1/2'])

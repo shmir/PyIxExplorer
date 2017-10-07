@@ -6,7 +6,7 @@ from os import path
 from configparser import SafeConfigParser
 
 from trafficgenerator.tgn_utils import ApiType
-from ixexplorer.ixe_hw import Port, PortGroup
+from ixexplorer.ixe_hw import IxePort, IxePortGroup
 from ixexplorer.ixe_app import init_ixe
 
 # API type = tcl or socket. Default is tcl with DEBUG log messages (see bellow) because it gives best visibility.
@@ -26,9 +26,9 @@ ixia = None
 
 def link_state_str(link_state):
     prefix = 'LINK_STATE_'
-    for attr in dir(Port):
+    for attr in dir(IxePort):
         if attr.startswith(prefix):
-            val = getattr(Port, attr)
+            val = getattr(IxePort, attr)
             if val == link_state:
                 return attr[len(prefix):]
     return link_state
@@ -101,7 +101,7 @@ def take_ownership():
 
     ixia.discover()
     ixia.session.login('ixe_samples')
-    pg = PortGroup()
+    pg = IxePortGroup()
     pg.create()
     pg.add_port(ixia.chassis.ports.values()[0])
     pg.add_port(ixia.chassis.ports.values()[1])
