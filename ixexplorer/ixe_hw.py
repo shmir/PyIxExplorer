@@ -192,6 +192,13 @@ class IxePort(IxeObject):
         self.api.call('set pl {{%s}}' % self.uri)
         self.api.call_rc('ixClearPerStreamTxStats pl')
 
+    def add_stream(self, name=None):
+        stream = IxeStream(self, self.uri + '/' + str(int(self.get_stream_count()) + 1))
+        self.api.call('stream setDefault')
+        if not name:
+            name = str(stream)
+        stream.name = name
+
 
 class IxeCard(IxeObject):
     __tcl_command__ = 'card'

@@ -17,3 +17,8 @@ class IxExplorerTestBase(IxeTestBase):
         ports[self.port1].load_config(cfg1)
         cfg2 = path.join(path.dirname(__file__), 'c:/configs/test_config_2.str').replace('\\', '/')
         ports[self.port2].load_config(cfg2)
+
+    def testBuildConfig(self):
+        ports = self.ixia.session.reserve_ports(self.port1, self.port2)
+        ports[self.port1].add_stream()
+        ports[self.port1].write()

@@ -15,9 +15,6 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         super(IxeObject, self).__init__(objType=self.__tcl_command__, **data)
         self._data['name'] = self.uri.replace(' ', '/')
 
-    def _create(self):
-        pass
-
     def obj_uri(self):
         """
         :return: object URI.
