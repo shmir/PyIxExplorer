@@ -15,11 +15,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 from os import path
+from collections import OrderedDict
 import re
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
-from argh.compat import OrderedDict
+from ixexplorer.ixe_stream import Stream
 
 
 class PortGroup(IxeObject):
@@ -129,7 +130,7 @@ class Port(IxeObject):
             TclMember('transmitMode'),
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'reset', 'setFactoryDefaults', 'write']
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'write']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -182,9 +183,14 @@ class Port(IxeObject):
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
 
+        for _ in self.get_stream_count():
+            Stream(self)
+
     def clear_stats(self):
         self.api.call_rc('ixClearPortStats {}'.format(self.uri))
         self.api.call_rc('ixClearPortPacketGroups {}'.format(self.uri))
+        self.api.call('set pl {{%s}}' % self.uri)
+        self.api.call_rc('ixClearPerStreamTxStats pl')
 
 
 class Card(IxeObject):

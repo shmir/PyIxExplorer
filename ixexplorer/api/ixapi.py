@@ -92,7 +92,7 @@ class IxTclHalApi(object):
 
     def call_rc(self, cmd, *args):
         rc = self.call(cmd, *args)[0]
-        if int(rc) != 0:
+        if int(rc[-1]) != 0:
             raise IxTclHalError(rc)
 
 

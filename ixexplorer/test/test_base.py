@@ -26,6 +26,9 @@ class IxeTestBase(TgnTest):
         self.ixia.session.login('pyixexplorer')
         self.ixia.discover()
 
+        self.port1 = self.config.get('IXE', 'port1')
+        self.port2 = self.config.get('IXE', 'port2')
+
     def tearDown(self):
         super(IxeTestBase, self).tearDown()
 
