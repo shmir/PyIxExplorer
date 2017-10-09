@@ -1,18 +1,3 @@
-# Copyright (c) 2015  Kontron Europe GmbH
-#
-# This module is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This module is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this module; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 from os import path
 from collections import OrderedDict
@@ -21,6 +6,7 @@ import re
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
+from ixexplorer.ixe_statistics import IxePortStatistics
 
 
 class IxePortGroup(IxeObject):
@@ -98,25 +84,6 @@ class IxePortGroup(IxeObject):
             self._set_command(self.CLEAR_OWNERSHIP_FORCED)
 
 
-class IxePortStatistics(IxeObject):
-    """Per port statistics."""
-
-    __tcl_command__ = 'stat'
-    __tcl_members__ = [
-            TclMember('bytesReceived', type=int, flags=FLAG_RDONLY),
-            TclMember('bytesSent', type=int, flags=FLAG_RDONLY),
-    ]
-
-    def __init__(self, parent):
-        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
-
-    def _ix_get(self, member):
-        self.api.call('stat get {} {}'.format(member.name, self.uri))
-
-    def _ix_set(self, member):
-        self.api.call('stat set {} {}'.format(member.name, self.uri))
-
-
 class IxePort(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
@@ -177,6 +144,7 @@ class IxePort(IxeObject):
         :param config_file_name: full path to the configuration file.
         """
 
+        config_file_name = config_file_name.replace('\\', '/')
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
             self.api.call_rc('port import {} {}'.format(config_file_name, self.uri))

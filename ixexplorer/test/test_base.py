@@ -1,17 +1,15 @@
 """
-Base class for all IxLoad package tests.
+Base class for all IxExplorer package tests.
 
 @author yoram@ignissoft.com
 """
 
 from os import path
-import time
 
 from trafficgenerator.tgn_utils import ApiType
 from trafficgenerator.test.test_tgn import TgnTest
 
 from ixexplorer.ixe_app import init_ixe
-from ixexplorer.ixe_hw import IxePortGroup
 
 
 class IxeTestBase(TgnTest):
@@ -33,3 +31,11 @@ class IxeTestBase(TgnTest):
 
     def testHelloWorld(self):
         pass
+
+    def _reserve_ports(self):
+        self.ports = self.ixia.session.reserve_ports([self.port1, self.port2], force=True)
+
+    def _load_config(self, cfg1, cfg2):
+        self._reserve_ports()
+        self.ports[self.port1].load_config(cfg1)
+        self.ports[self.port2].load_config(cfg2)

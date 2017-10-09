@@ -1,10 +1,12 @@
 """
-Base class for all IxLoad package tests.
+TestCenter package tests that require actual Ixia chassis and active ports.
+
+Test setup:
+Two Ixia ports connected back to back.
 
 @author yoram@ignissoft.com
 """
 
-from os import path
 import time
 
 from ixexplorer.ixe_hw import IxePortGroup
@@ -14,28 +16,28 @@ from ixexplorer.test.test_base import IxeTestBase
 class IxExplorerTestBase(IxeTestBase):
 
     def testAll(self):
-        self.ixia.chassis.get_ports()['1/1/1'].reserve()
-        self.ixia.chassis.get_ports()['1/1/2'].reserve()
-        self.ixia.chassis.get_ports()['1/1/1'].set_factory_defaults()
-        self.ixia.chassis.get_ports()['1/1/2'].set_factory_defaults()
-        cfg1 = path.join(path.dirname(__file__), 'c:/configs/test_config_1.str').replace('\\', '/')
-        self.ixia.chassis.get_ports()['1/1/1'].load_config(cfg1)
-        cfg2 = path.join(path.dirname(__file__), 'c:/configs/test_config_2.str').replace('\\', '/')
-        self.ixia.chassis.get_ports()['1/1/2'].load_config(cfg2)
+        cfg1 = 'c:/configs/test_config_1.prt'
+        cfg2 = 'c:/configs/test_config_2.prt'
+        self._load_config(cfg1, cfg2)
 
         pg = IxePortGroup()
         pg.create()
-        pg.add_port(self.ixia.chassis.get_ports()['1/1/1'])
-        pg.add_port(self.ixia.chassis.get_ports()['1/1/2'])
+        pg.add_port(self.ports[self.port1])
+        pg.add_port(self.ports[self.port2])
 
         pg.start_transmit()
         time.sleep(8)
         pg.stop_transmit()
         time.sleep(2)
 
-        print('1/1/1 bytesReceived = ' + str(self.ixia.chassis.get_ports()['1/1/1'].stats.bytes_received))
-        print('1/1/1 bytesSent = ' + str(self.ixia.chassis.get_ports()['1/1/1'].stats.bytes_sent))
-        print('1/1/2 bytesReceived = ' + str(self.ixia.chassis.get_ports()['1/1/2'].stats.bytes_received))
-        print('1/1/2 bytesSent = ' + str(self.ixia.chassis.get_ports()['1/1/2'].stats.bytes_sent))
+        print('{} bytesReceived = {}'.format(self.port1, self.ports[self.port1].stats.bytes_received))
+        print('{} bytesSent = {}'.format(self.port1, self.ports[self.port1].stats.bytes_sent))
+        print('{} bytesReceived = {}'.format(self.port2, self.ports[self.port2].stats.bytes_received))
+        print('{} bytesSent = {}'.format(self.port2, self.ports[self.port2].stats.bytes_sent))
+
+        print('{} bytesReceived = {}'.format(self.port1, self.ports[self.port1].stats.bits_received))
+        print('{} bytesSent = {}'.format(self.port1, self.ports[self.port1].stats.bits_sent))
+        print('{} bytesReceived = {}'.format(self.port2, self.ports[self.port2].stats.bits_received))
+        print('{} bytesSent = {}'.format(self.port2, self.ports[self.port2].stats.bits_sent))
 
         pg.destroy()

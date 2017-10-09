@@ -27,10 +27,10 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         return self.api.call(('{} {} {}' + len(args) * ' {}').
                              format(self.__tcl_command__, command, self.uri, *args))
 
-    def _ix_get(self):
+    def _ix_get(self, member=None):
         if self != self.__class__.current_object:
             self.api.call_rc('{} get {}'.format(self.__tcl_command__, self.uri))
         self.__class__.current_object = self
 
-    def _ix_set(self):
+    def _ix_set(self, member=None):
         self.api.call_rc('{} set {}'.format(self.__tcl_command__, self.uri))

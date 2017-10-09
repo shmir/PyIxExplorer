@@ -1,10 +1,8 @@
 """
-Base class for all IxLoad package tests.
+IxExplorer package tests that can run in offline mode.
 
 @author yoram@ignissoft.com
 """
-
-from os import path
 
 from ixexplorer.test.test_base import IxeTestBase
 
@@ -12,11 +10,9 @@ from ixexplorer.test.test_base import IxeTestBase
 class IxExplorerTestBase(IxeTestBase):
 
     def testLoadConfig(self):
-        ports = self.ixia.session.reserve_ports([self.port1, self.port2], force=True)
-        cfg1 = path.join(path.dirname(__file__), 'c:/configs/test_config_1.str').replace('\\', '/')
-        ports[self.port1].load_config(cfg1)
-        cfg2 = path.join(path.dirname(__file__), 'c:/configs/test_config_2.str').replace('\\', '/')
-        ports[self.port2].load_config(cfg2)
+        cfg1 = 'c:/configs/test_config_1.str'
+        cfg2 = 'c:/configs/test_config_2.str'
+        self._load_config(cfg1, cfg2)
 
     def testBuildConfig(self):
         ports = self.ixia.session.reserve_ports(self.port1, self.port2)
