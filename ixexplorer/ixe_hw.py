@@ -6,7 +6,6 @@ import re
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics import IxePortStatistics
 
 
 class IxePortGroup(IxeObject):
@@ -117,7 +116,6 @@ class IxePort(IxeObject):
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
-        self.stats = IxePortStatistics(self)
 
     def supported_speeds(self):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))

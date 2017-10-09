@@ -125,14 +125,13 @@ class _MetaIxTclApi(type):
                 return m.type(val.strip() if type(val) is str else val[0])
 
             def fset(self, value, cmd=command, m=m):
-                if self != self.__class__.current_object:
-                    self._ix_get(m)
+                self._ix_get(m)
                 self.api.call('%s config -%s %s' % (cmd, m.name, value))
                 self._ix_set(m)
 
-            attrname = m.attrname
             if m.attrname is None:
-                attrname = translate_ix_member_name(m.name)
+                m.attrname = translate_ix_member_name(m.name)
+            attrname = m.attrname
 
             if m.doc is not None:
                 fget.__doc__ = m.doc

@@ -6,7 +6,6 @@ from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis, IxePort
-from ixexplorer.ixe_stream import IxeStream
 
 
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
@@ -80,4 +79,12 @@ class IxeSession(IxeObject):
                 port.write()
                 port.clear_stats()
 
+        return self.ports
+
+    def get_ports(self):
+        """
+        :return: dictionary {name: object} of all reserved ports.
+        """
+
         return {str(p): p for p in self.get_objects_by_type('port')}
+    ports = property(get_ports)

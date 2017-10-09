@@ -15,11 +15,11 @@ class IxExplorerTestBase(IxeTestBase):
         self._load_config(cfg1, cfg2)
 
     def testBuildConfig(self):
-        ports = self.ixia.session.reserve_ports(self.port1, self.port2)
-        stream = ports[self.port1].add_stream()
+        self._reserve_ports()
+        stream = self.ports[self.port1].add_stream()
         stream.da = "11:11:11:11:11:11"
         stream.sa = "11:11:11:11:11:11"
-        stream = ports[self.port1].add_stream()
+        stream = self.ports[self.port1].add_stream()
         stream.da = "22:22:22:22:22:22"
         stream.sa = "22:22:22:22:22:22"
-        ports[self.port1].write()
+        self.ports[self.port1].write()
