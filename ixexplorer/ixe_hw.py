@@ -156,6 +156,11 @@ class IxePort(IxeObject):
         return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
 
     def reserve(self, force=False):
+        """ Reserve port.
+
+        :param force: True - take forcefully, False - fail if port is reserved by other user
+        """
+
         if not force:
             self.api.call_rc('ixPortTakeOwnership {}'.format(self.uri))
         else:
@@ -170,7 +175,6 @@ class IxePort(IxeObject):
         Configuration file type is extracted from the file suffix - prt or str.
 
         :param config_file_name: full path to the configuration file.
-        :todo: add support for str files.
         """
 
         ext = path.splitext(config_file_name)[-1].lower()

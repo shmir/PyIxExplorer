@@ -62,18 +62,22 @@ class IxeSession(IxeObject):
     def __init__(self):
         super(self.__class__, self).__init__(uri='', parent=None)
 
-    def reserve_ports(self, *ports_uri):
-        """ Reserve ports forcefully and reset factory defaults.
+    def reserve_ports(self, ports_uri, force=False, clear=True):
+        """ Reserve ports and reset factory defaults.
 
+        :param force: True - take forcefully, False - fail if port is reserved by other user
+        :param clear: True - clear port configuration and statistics, False - leave port as is
+        :param ports_uri: list of ports uris to reserve
         :return: ports dictionary (port uri, port object)
         """
 
         for port_uri in ports_uri:
             port = IxePort(parent=self, uri=port_uri)
-            port.reserve(force=True)
-            port.set_factory_defaults()
-            IxeStream(parent=port, uri=port.uri + '/1').remove()
-            port.write()
-            port.clear_stats()
+            port.reserve(force=force)
+            if clear:
+                port.set_factory_defaults()
+                port.reset()
+                port.write()
+                port.clear_stats()
 
         return {str(p): p for p in self.get_objects_by_type('port')}
