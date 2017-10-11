@@ -7,8 +7,6 @@ Two Ixia ports connected back to back.
 @author yoram@ignissoft.com
 """
 
-import time
-
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats
 from ixexplorer.test.test_base import IxeTestBase
 
@@ -21,8 +19,6 @@ class IxExplorerTestBase(IxeTestBase):
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_transmit()
-        time.sleep(4)
-        self.ixia.session.stop_transmit()
 
         stats = IxePortsStats()
         stats.read_stats()
@@ -31,3 +27,5 @@ class IxExplorerTestBase(IxeTestBase):
         stats = IxeStreamsStats()
         stats.read_stats()
         print stats.statistics
+
+        self.ixia.session.stop_transmit()

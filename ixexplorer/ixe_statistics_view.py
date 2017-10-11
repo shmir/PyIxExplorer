@@ -2,6 +2,7 @@
 Classes and utilities to manage IxExplorer statistics views.
 """
 
+import time
 from collections import OrderedDict
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
@@ -58,6 +59,18 @@ class IxePgStats(IxeObject):
         super(self.__class__, self).__init__(uri=parent.uri + ' ' + parent.uri[-1], parent=parent)
 
 
+class IxeStreamTxStats(IxeObject):
+    __tcl_command__ = 'streamTransmitStats'
+    __get_command__ = 'getGroup'
+    __tcl_members__ = [
+            TclMember('framesSent', type=int, flags=FLAG_RDONLY),
+            TclMember('frameRate', type=int, flags=FLAG_RDONLY),
+    ]
+
+    def __init__(self, parent, group_id):
+        super(self.__class__, self).__init__(uri=group_id, parent=parent)
+
+
 class IxeStats(object):
     pass
 
@@ -79,5 +92,13 @@ class IxeStreamsStats(IxeStats):
         self.statistics = OrderedDict()
         session = IxeObject.session
         for port in session.ports.values():
+            port.api.call_rc('packetGroupStats get {} 0 65536'.format(port.uri))
+            port.api.call_rc('streamTransmitStats get {} 1 {}'.format(port.uri, len(port.streams)))
+        time.sleep(1)
+        for port in session.ports.values():
+            port.api.call_rc('streamTransmitStats get {} 1 {}'.format(port.uri, len(port.streams)))
             for stream_name, stream in port.streams.items():
-                self.statistics[stream_name] = IxePgStats(stream).get_attributes(FLAG_RDONLY)
+                stream_stats = IxePgStats(stream).get_attributes(FLAG_RDONLY)
+                stream_stats_tx = IxeStreamTxStats(port, stream.uri[-1]).get_attributes(FLAG_RDONLY).items()
+                stream_stats.update({c + '_tx': v for c, v in stream_stats_tx})
+                self.statistics[stream_name] = stream_stats
