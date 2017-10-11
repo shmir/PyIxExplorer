@@ -1,4 +1,6 @@
 
+import time
+
 from trafficgenerator.tgn_utils import ApiType, TgnError
 from trafficgenerator.tgn_app import TgnApp
 
@@ -48,6 +50,13 @@ class IxeApp(TgnApp):
     def discover(self):
         return self.chassis.discover()
 
+    def start_transmit(self, blocking=False):
+        """
+        :param blocking: True - wait for transmit end, False - return immediately.
+        :todo: implement blocking.
+        """
+        self._set_command(self.START_TRANSMIT)
+
 
 class IxeSession(IxeObject):
     __tcl_command__ = 'session'
@@ -57,6 +66,8 @@ class IxeSession(IxeObject):
     ]
 
     __tcl_commands__ = ['login', 'logout']
+
+    port_lists = []
 
     def __init__(self):
         super(self.__class__, self).__init__(uri='', parent=None)
@@ -88,3 +99,46 @@ class IxeSession(IxeObject):
 
         return {str(p): p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
+
+    def start_transmit(self, blocking=False, *ports):
+        """ Start transmit on ports.
+
+        :param blocking: True - wait for traffic end, False - return after traffic start.
+        :param ports: list of ports to start traffic on, if empty start on all ports.
+        """
+
+        port_list = self.set_ports_list(*ports)
+        self.api.call_rc('ixClearTimeStamp {}'.format(port_list))
+        self.api.call_rc('ixStartPacketGroups {}'.format(port_list))
+        self.api.call_rc('ixStartTransmit {}'.format(port_list))
+        time.sleep(2)
+        if blocking:
+            self.wait_transmit(ports)
+
+    def stop_transmit(self, *ports):
+        """ Stop traffic on ports.
+
+        :param ports: list of ports to stop traffic on, if empty start on all ports.
+        """
+
+        port_list = self.set_ports_list(*ports)
+        self.api.call_rc('ixStopTransmit {}'.format(port_list))
+        time.sleep(2)
+
+    def wait_transmit(self, *ports):
+        """ Wait for traffic end on ports.
+
+        :param ports: list of ports to wait for, if empty wait for all ports.
+        """
+
+        port_list = self.set_ports_list(*ports)
+        self.api.call_rc('ixCheckTransmitDone {}'.format(port_list))
+
+    def set_ports_list(self, *ports):
+        if not ports:
+            ports = self.ports.values()
+        port_uris = [p.uri for p in ports]
+        port_list = 'pl_' + '_'.join(port_uris).replace(' ', '_')
+        if port_list not in self.port_lists:
+            self.api.call(('set {} [ list ' + len(port_uris) * '[list {}] ' + ']').format(port_list, *port_uris))
+        return port_list

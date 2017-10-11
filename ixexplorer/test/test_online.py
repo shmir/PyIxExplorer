@@ -9,7 +9,6 @@ Two Ixia ports connected back to back.
 
 import time
 
-from ixexplorer.ixe_hw import IxePortGroup
 from ixexplorer.ixe_statistics_view import IxePortStats
 from ixexplorer.test.test_base import IxeTestBase
 
@@ -17,22 +16,14 @@ from ixexplorer.test.test_base import IxeTestBase
 class IxExplorerTestBase(IxeTestBase):
 
     def testStats(self):
-        cfg1 = 'c:/configs/test_config_1.prt'
-        cfg2 = 'c:/configs/test_config_2.prt'
+        cfg1 = 'c:/configs/stats_config.prt'
+        cfg2 = 'c:/configs/stats_config.prt'
         self._load_config(cfg1, cfg2)
 
-        pg = IxePortGroup()
-        pg.create()
-        pg.add_port(self.ports[self.port1])
-        pg.add_port(self.ports[self.port2])
-
-        pg.start_transmit()
+        self.ixia.session.start_transmit()
         time.sleep(8)
-        pg.stop_transmit()
-        time.sleep(2)
+        self.ixia.session.stop_transmit()
 
         stats = IxePortStats()
         stats.read_stats()
         print stats.statistics
-
-        pg.destroy()
