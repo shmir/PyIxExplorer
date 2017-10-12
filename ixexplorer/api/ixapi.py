@@ -63,6 +63,17 @@ def translate_ix_member_name(name):
     return ''.join(_new_name)
 
 
+class MacStr(object):
+    def __init__(self, mac):
+        self.mac = mac
+
+    def __str__(self):
+        return self.mac.replace(' ', ':')
+
+    def __repr__(self):
+        return self.mac.replace(' ', ':')
+
+
 class TclMember(object):
     def __init__(self, name, type=str, attrname=None, flags=0, doc=None):
         self.name = name
@@ -120,14 +131,18 @@ class _MetaIxTclApi(type):
                 raise RuntimeError('Element #%d of __tcl_members__ is not a TclMember' % (n+1,))
 
             def fget(self, cmd=command, m=m):
-                self._ix_get(m)
+                self.ix_get(m)
                 val = self.api.call('%s cget -%s' % (cmd, m.name))
-                return m.type(val.strip() if type(val) is str else val[0])
+                return_val = val.strip() if type(val) is str else val[0]
+                if m.type != MacStr:
+                    return m.type(return_val)
+                else:
+                    return str(m.type(return_val))
 
             def fset(self, value, cmd=command, m=m):
-                self._ix_get(m)
-                self.api.call('%s config -%s %s' % (cmd, m.name, value))
-                self._ix_set(m)
+                self.ix_get(m)
+                self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
+                self.ix_set(m)
 
             if m.attrname is None:
                 m.attrname = translate_ix_member_name(m.name)
@@ -156,7 +171,7 @@ class _MetaIxTclApi(type):
     @classmethod
     def _add_f(cls, t, c):
         def f(self, *args, **kwargs):
-            rc = self._ix_command(c, *args, **kwargs)
+            rc = self.ix_command(c, *args, **kwargs)
             return rc if type(rc) is str else rc[0]
         f.__doc__ = translate_ix_member_name(c)
         f.__name__ = translate_ix_member_name(c)

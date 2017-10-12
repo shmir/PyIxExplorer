@@ -88,8 +88,7 @@ class IxePort(IxeObject):
 
     def add_stream(self, name=None):
         stream = IxeStream(self, self.uri + '/' + str(int(self.get_stream_count()) + 1))
-        self.api.call('stream setDefault')
-        stream._ix_set()
+        stream.ix_set_default()
         if not name:
             name = str(stream)
         stream.name = name
@@ -97,14 +96,11 @@ class IxePort(IxeObject):
 
     def get_streams(self):
         """
-        :return: dictionary {name: object} of all streams.
+        :return: dictionary {stream id: object} of all streams.
         """
 
-        return {str(s): s for s in self.get_objects_by_type('stream')}
+        return {int(str(s)[-1]): s for s in self.get_objects_by_type('stream')}
     streams = property(get_streams)
-
-    def is_running(self):
-        pass
 
 
 class IxeCard(IxeObject):
