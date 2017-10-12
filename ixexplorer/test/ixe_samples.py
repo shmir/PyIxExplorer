@@ -6,7 +6,7 @@ from os import path
 from configparser import SafeConfigParser
 
 from trafficgenerator.tgn_utils import ApiType
-from ixexplorer.ixe_hw import IxePort, IxePortGroup
+from ixexplorer.ixe_hw import IxePort
 from ixexplorer.ixe_app import init_ixe
 
 # API type = tcl or socket. Default is tcl with DEBUG log messages (see bellow) because it gives best visibility.
@@ -91,22 +91,6 @@ def build_ixvm():
     card = ixia.chassis.add_vm_card(vModule, 2)
     card.add_vm_port(1, 'eth1', mac)
     card.add_vm_port(2, 'eth2', mac)
-
-    disconnect()
-
-
-def take_ownership():
-
-    connect()
-
-    ixia.discover()
-    ixia.session.login('ixe_samples')
-    pg = IxePortGroup()
-    pg.create()
-    pg.add_port(ixia.chassis.ports.values()[0])
-    pg.add_port(ixia.chassis.ports.values()[1])
-    pg.take_ownership()
-    pg.destroy()
 
     disconnect()
 

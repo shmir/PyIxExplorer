@@ -93,10 +93,12 @@ class IxeStreamsStats(IxeStats):
         session = IxeObject.session
         for port in session.ports.values():
             port.api.call_rc('packetGroupStats get {} 0 65536'.format(port.uri))
-            port.api.call_rc('streamTransmitStats get {} 1 {}'.format(port.uri, len(port.streams)))
+            if len(port.streams):
+                port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
         time.sleep(1)
         for port in session.ports.values():
-            port.api.call_rc('streamTransmitStats get {} 1 {}'.format(port.uri, len(port.streams)))
+            if len(port.streams):
+                port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
             for stream_name, stream in port.streams.items():
                 stream_stats = IxePgStats(stream).get_attributes(FLAG_RDONLY)
                 stream_stats_tx = IxeStreamTxStats(port, stream.uri[-1]).get_attributes(FLAG_RDONLY).items()

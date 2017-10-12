@@ -20,12 +20,42 @@ class IxExplorerTestBase(IxeTestBase):
 
         self.ixia.session.start_transmit()
 
-        stats = IxePortsStats()
-        stats.read_stats()
-        print stats.statistics
+        port_stats = IxePortsStats()
+        port_stats.read_stats()
 
-        stats = IxeStreamsStats()
-        stats.read_stats()
-        print stats.statistics
+        stream_stats = IxeStreamsStats()
+        stream_stats.read_stats()
+
+        print '++++'
+        for port, stats in port_stats.statistics.items():
+            print '{}\n\t{}'.format(port, stats)
+        for stream, stats in stream_stats.statistics.items():
+            print '{}\n\t{}'.format(stream, stats)
+        print '++++'
+
+        self.ixia.session.stop_transmit()
+
+    def testMissingStats(self):
+        self._reserve_ports()
+        stream = self.ports[self.port1].add_stream()
+        stream.da = "11:11:11:11:11:11"
+        stream.sa = "11:11:11:11:11:11"
+        stream = self.ports[self.port1].add_stream()
+        stream.da = "22:22:22:22:22:22"
+        stream.sa = "22:22:22:22:22:22"
+        self.ports[self.port1].write()
+
+        port_stats = IxePortsStats()
+        port_stats.read_stats()
+
+        stream_stats = IxeStreamsStats()
+        stream_stats.read_stats()
+
+        print '++++'
+        for port, stats in port_stats.statistics.items():
+            print '{}\n\t{}'.format(port, stats)
+        for stream, stats in stream_stats.statistics.items():
+            print '{}\n\t{}'.format(stream, stats)
+        print '++++'
 
         self.ixia.session.stop_transmit()
