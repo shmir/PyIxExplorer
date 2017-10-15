@@ -50,13 +50,6 @@ class IxeApp(TgnApp):
     def discover(self):
         return self.chassis.discover()
 
-    def start_transmit(self, blocking=False):
-        """
-        :param blocking: True - wait for transmit end, False - return immediately.
-        :todo: implement blocking.
-        """
-        self._set_command(self.START_TRANSMIT)
-
 
 class IxeSession(IxeObject):
     __tcl_command__ = 'session'

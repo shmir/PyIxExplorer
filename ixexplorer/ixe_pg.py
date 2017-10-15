@@ -33,10 +33,10 @@ class IxePortGroup(IxeObject):
         super(self.__class__, self).__init__(uri=pg_id, parent=IxeObject.session)
 
     def add_port(self, port):
-        self._ix_command('add', port.uri)
+        self.ix_command('add', port.uri)
 
     def del_port(self, port):
-        self._ix_command('del', port.uri)
+        self.ix_command('del', port.uri)
 
     def _set_command(self, cmd):
         self.api.call_rc('portGroup setCommand {} {}'.format(self.uri, cmd))
@@ -46,37 +46,37 @@ class IxePortGroup(IxeObject):
         :param blocking: True - wait for transmit end, False - return immediately.
         :todo: implement blocking.
         """
-        self._set_command(self.START_TRANSMIT)
+        self.set_command(self.START_TRANSMIT)
 
     def stop_transmit(self):
-        self._set_command(self.STOP_TRANSMIT)
+        self.set_command(self.STOP_TRANSMIT)
 
     def start_capture(self):
-        self._set_command(self.START_CAPTURE)
+        self.set_command(self.START_CAPTURE)
 
     def stop_capture(self):
-        self._set_command(self.STOP_CAPTURE)
+        self.set_command(self.STOP_CAPTURE)
 
     def reset_statistics(self):
-        self._set_command(self.RESET_STATISTICS)
+        self.set_command(self.RESET_STATISTICS)
 
     def pause_transmit(self):
-        self._set_command(self.PAUSE_TRANSMIT)
+        self.set_command(self.PAUSE_TRANSMIT)
 
     def step_transmit(self):
-        self._set_command(self.STEP_TRANSMIT)
+        self.set_command(self.STEP_TRANSMIT)
 
     def transmit_ping(self):
-        self._set_command(self.TRANSMIT_PING)
+        self.set_command(self.TRANSMIT_PING)
 
     def take_ownership(self, force=False):
         if not force:
-            self._set_command(self.TAKE_OWNERSHIP)
+            self.set_command(self.TAKE_OWNERSHIP)
         else:
-            self._set_command(self.TAKE_OWNERSHIP_FORCED)
+            self.set_command(self.TAKE_OWNERSHIP_FORCED)
 
     def clear_ownership(self, force=False):
         if not force:
-            self._set_command(self.CLEAR_OWNERSHIP)
+            self.set_command(self.CLEAR_OWNERSHIP)
         else:
-            self._set_command(self.CLEAR_OWNERSHIP_FORCED)
+            self.set_command(self.CLEAR_OWNERSHIP_FORCED)

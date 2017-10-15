@@ -65,6 +65,7 @@ class IxeTestOffline(IxeTestBase):
         self._reserve_ports()
 
         self.ports[self.port1].add_stream()
+
         self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
         self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
         self.ports[self.port1].streams[1].protocol.ethernet_type = 'ethernetII'
@@ -77,6 +78,7 @@ class IxeTestOffline(IxeTestBase):
         self.ports[self.port1].streams[1].weightedRandomFramesize.addPair(100, 5)
         self.ports[self.port1].streams[1].weightedRandomFramesize.addPair(200, 10)
         self.ports[self.port1].streams[1].weightedRandomFramesize.delPair(64, 1)
+
         self.ports[self.port1].add_stream()
         self.ports[self.port1].streams[2].da = "22:22:22:22:22:22"
         self.ports[self.port1].streams[2].sa = "11:11:11:11:11:22"

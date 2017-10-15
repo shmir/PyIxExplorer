@@ -102,6 +102,19 @@ class IxePort(IxeObject):
         return {int(str(s)[-1]): s for s in self.get_objects_by_type('stream')}
     streams = property(get_streams)
 
+    def start_transmit(self, blocking=False):
+        """ Start transmit on port.
+
+        :param blocking: True - wait for traffic end, False - return after traffic start.
+        """
+
+        self.session.start_transmit(blocking, self)
+
+    def stop_transmit(self):
+        """ Stop traffic on port. """
+
+        self.session.stop_transmit(self)
+
 
 class IxeCard(IxeObject):
     __tcl_command__ = 'card'

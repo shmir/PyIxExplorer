@@ -35,6 +35,17 @@ class IxeTestOnline(IxeTestBase):
 
         self.ixia.session.stop_transmit()
 
+        self.ports[self.port1].start_transmit()
+        port_stats.read_stats()
+        stream_stats.read_stats()
+        print '++++'
+        for port, stats in port_stats.statistics.items():
+            print '{}\n\t{}'.format(port, stats)
+        for stream, stats in stream_stats.statistics.items():
+            print '{}\n\t{}'.format(stream, stats)
+        print '++++'
+        self.ports[self.port1].stop_transmit()
+
     def testMissingStats(self):
         self._reserve_ports()
         stream = self.ports[self.port1].add_stream()
