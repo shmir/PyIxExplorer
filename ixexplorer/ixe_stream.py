@@ -12,7 +12,7 @@ class IxeStream(IxeObject):
             TclMember('name'),
             TclMember('sa', type=MacStr),
 
-            #Stream_Control
+            # Stream_Control
             TclMember('rateMode', type=int),
             TclMember('percentPacketRate', type=float),
     ]
