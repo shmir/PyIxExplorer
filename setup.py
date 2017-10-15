@@ -1,13 +1,11 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 from __future__ import print_function
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 import io
-import os
-import sys
 
 import ixexplorer
-
-here = os.path.abspath(os.path.dirname(__file__))
 
 
 def read(*filenames, **kwargs):
@@ -21,17 +19,9 @@ def read(*filenames, **kwargs):
 
 long_description = read('README.txt')
 
-
-class PyTest(TestCommand):
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        errcode = pytest.main(self.test_args)
-        sys.exit(errcode)
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+install_requires = [r for r in required if r and r[0] != '#' and not r.startswith('git')]
 
 setup(
     name='ixeooapi',
@@ -39,16 +29,14 @@ setup(
     url='https://github.com/shmir/PyIxExplorer/',
     license='Apache Software License',
     author='Yoram Shamir',
-    tests_require=[],
-    install_requires=['tgnooapi'],
-    cmdclass={},
+    install_requires=install_requires,
     author_email='yoram@ignissoft.com',
     description='Python OO API package to automate Ixia IxExplorer traffic generator',
     long_description=long_description,
-    packages=['ixexplorer', 'ixexplorer.test', 'ixexplorer.api', 'ixexplorer.bin', 'ixexplorer.examples'],
+    packages=['ixexplorer', 'ixexplorer.test', 'ixexplorer.api'],
     include_package_data=True,
     platforms='any',
-    test_suite='ixexplorer.test',
+    tests_require=['pytest'],
     classifiers=[
         'Programming Language :: Python',
         'Development Status :: 4 - Beta',
@@ -57,5 +45,4 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Testing :: Traffic Generation'],
-    extras_require={}
 )

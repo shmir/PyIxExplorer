@@ -15,6 +15,8 @@ class IxeStream(IxeObject):
 
     __tcl_commands__ = ['export', 'write']
 
+    last_object = None
+
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
 
@@ -22,6 +24,13 @@ class IxeStream(IxeObject):
         self._ix_command('remove')
         self._ix_command('write')
         self.del_object_from_parent()
+
+    def ix_set_default(self):
+        super(self.__class__, self).ix_set_default()
+        if IxeStream.last_object:
+            for stream_object in [o for o in IxeStream.last_object.__dict__.values() if isinstance(o, IxeStreamObj)]:
+                stream_object.ix_set_default()
+        IxeStream.last_object = self
 
     def get_ip(self):
         return self.get_object('_ip', IxeIp)
