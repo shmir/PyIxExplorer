@@ -21,7 +21,7 @@ class IxeTestBase(TgnTest):
         self.ixia = init_ixe(ApiType[self.config.get('IXE', 'api')], self.logger,
                              host=self.config.get('IXE', 'server'))
         self.ixia.connect()
-        self.ixia.session.login('pyixexplorer')
+        self.ixia.session.login('shay')
 
         self.port1 = self.config.get('IXE', 'port1')
         self.port2 = self.config.get('IXE', 'port2')
@@ -37,5 +37,5 @@ class IxeTestBase(TgnTest):
 
     def _load_config(self, cfg1, cfg2):
         self._reserve_ports()
-        self.ports[self.port1].load_config(cfg1)
-        self.ports[self.port2].load_config(cfg2)
+        # self.ports[self.port1].load_config(cfg1)
+        # self.ports[self.port2].load_config(cfg2)

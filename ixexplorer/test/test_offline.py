@@ -11,8 +11,8 @@ class IxeTestOffline(IxeTestBase):
 
     def testLoadConfig(self):
 
-        cfg1 = 'c:/configs/test_config_1.prt'
-        cfg2 = 'c:/configs/test_config_2.prt'
+        cfg1 = 'c:/simpleConfig1.prt'
+        cfg2 = 'c:/simpleConfig2.prt'
         self._load_config(cfg1, cfg2)
 
         assert(len(self.ports) == 2)
@@ -70,6 +70,7 @@ class IxeTestOffline(IxeTestBase):
 
         self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
         self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
+        self.ports[self.port1].streams[1].sa.daRepeatCounter = 2
         self.ports[self.port1].streams[1].protocol.ethernet_type = 'ethernetII'
         self.ports[self.port1].streams[1].protocol.name = 'ipV4'
         self.ports[self.port1].streams[1].ip.destIpAddr = '1.1.2.1'
