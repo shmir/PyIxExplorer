@@ -26,7 +26,7 @@ class IxeTestOffline(IxeTestBase):
 
         self.ports[self.port1].streams[1].da = '33:33:33:33:33:33'
         self.ports[self.port1].streams[1].sa = '44:44:44:44:44:44'
-        self.ports[self.port1].streams[2].ip.ix_get()
+        self.ports[self.port1].streams[2].ip.ix_get(force=True)
         self.ports[self.port1].streams[2].ip.destIpAddr = '2.2.2.2'
         self.ports[self.port1].write()
 

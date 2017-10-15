@@ -65,9 +65,9 @@ class IxeStreamObj(IxeObject):
         self.ix_set()
         return rc
 
-    def ix_get(self, member=None):
-        self.parent.ix_get(member)
-        super(IxeStreamObj, self).ix_get(member)
+    def ix_get(self, member=None, force=False):
+        self.parent.ix_get(member, force)
+        super(IxeStreamObj, self).ix_get(member, force)
 
     def ix_set(self, member=None):
         super(IxeStreamObj, self).ix_set(member)
@@ -81,8 +81,8 @@ class IxeProtocol(IxeStreamObj):
             TclMember('name'),
     ]
 
-    def ix_get(self, member=None):
-        self.parent.ix_get(member)
+    def ix_get(self, member=None, force=False):
+        self.parent.ix_get(member, force)
 
     def ix_set(self, member=None):
         pass
