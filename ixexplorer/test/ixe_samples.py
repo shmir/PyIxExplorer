@@ -41,12 +41,12 @@ def connect():
     config = SafeConfigParser(allow_no_value=True)
     config.read(config_file)
 
-    logging.basicConfig()
-    logging.getLogger().setLevel(config.get('Logging', 'level'))
-    logging.getLogger().addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    logger = logging.getLogger()
+    logger.setLevel(config.get('Logging', 'level'))
+    logger.addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
+    logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
+    ixia = init_ixe(api, logger, host, tcp_port, rsa_id)
     ixia.connect()
 
 
@@ -61,7 +61,7 @@ def discover():
 
     print ('%-7s | %-32s | %-10s' % ('Chassis', 'Type', 'Version'))
     print ('--------+----------------------------------+--------------')
-    print ('%-7s | %-32s | %-10s' % (ixia.chassis.id, ixia.chassis.type_name, ixia.chassis.ix_server_version))
+    print ('%-7s | %-32s | %-10s' % (ixia.chassis.id, ixia.chassis.typeName, ixia.chassis.ixServerVersion))
     print (ixia.chassis.id)
     print ('')
 
@@ -69,7 +69,7 @@ def discover():
     print ('-----+----------------------------------+------------+--------------')
     for card in ixia.chassis.cards.values():
         if card is not None:
-            print('%-4s | %-32s | %-10s | %-s' % (card, card.type_name, card.hw_version, card.serial_number))
+            print('%-4s | %-32s | %-10s | %-s' % (card, card.typeName, card.hwVersion, card.serialNumber))
 
     print ('')
     print ('%-8s | %-8s | %-10s | %-s' % ('Port', 'Owner', 'Link State', 'Speeds'))
@@ -78,7 +78,7 @@ def discover():
         if card is None:
             continue
         for port in card.ports.values():
-            print ('%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.link_state),
+            print ('%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.linkState),
                                                   port.supported_speeds()))
 
     disconnect()
@@ -93,6 +93,21 @@ def build_ixvm():
     card.add_vm_port(2, 'eth2', mac)
 
     disconnect()
+
+
+def detailed_log():
+
+    config_file = path.join(path.dirname(__file__), 'IxExplorer.ini')
+    config = SafeConfigParser(allow_no_value=True)
+    config.read(config_file)
+
+    logging.basicConfig()
+    logging.getLogger().setLevel(config.get('Logging', 'level'))
+    logging.getLogger().addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
+    ixia.connect()
+    ixia.disconnect()
 
 
 if __name__ == '__main__':

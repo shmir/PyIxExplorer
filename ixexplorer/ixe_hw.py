@@ -43,7 +43,7 @@ class IxePort(IxeObject):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
 
     def supported_speeds(self):
-        return re.findall(r'\d+', self.get_feature('ethernetLineRate'))
+        return re.findall(r'\d+', self.getFeature('ethernetLineRate'))
 
     def reserve(self, force=False):
         """ Reserve port.
@@ -78,7 +78,7 @@ class IxePort(IxeObject):
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
 
-        for stream_id in range(1, int(self.get_stream_count()) + 1):
+        for stream_id in range(1, int(self.getStreamCount()) + 1):
             IxeStream(self, self.uri + '/' + str(stream_id))
 
     def clear_stats(self):
@@ -87,7 +87,7 @@ class IxePort(IxeObject):
         self.api.call_rc('ixClearPerStreamTxStats {}'.format(self.session.set_ports_list(self)))
 
     def add_stream(self, name=None):
-        stream = IxeStream(self, self.uri + '/' + str(int(self.get_stream_count()) + 1))
+        stream = IxeStream(self, self.uri + '/' + str(int(self.getStreamCount()) + 1))
         stream.ix_set_default()
         if not name:
             name = str(stream)
@@ -126,7 +126,7 @@ class IxeCard(IxeObject):
 
     def discover(self):
         self.logger.info('Discover card {}'.format(self.obj_name()))
-        for pid in range(1, self.port_count + 1):
+        for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + '/' + str(pid))
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
@@ -216,11 +216,11 @@ class IxeChassis(IxeObject):
         self.id = self.chassis_id
 
     def disconnect(self):
-        self._ix_command('del')
+        self.ix_command('del')
 
     def discover(self):
         self.logger.info('Discover chassis {}'.format(self.obj_name()))
-        for cid in range(1, self.max_card_count + 1):
+        for cid in range(1, self.maxCardCount + 1):
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.

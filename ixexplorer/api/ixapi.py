@@ -144,8 +144,8 @@ class _MetaIxTclApi(type):
                 self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
                 self.ix_set(m)
 
-            if m.attrname is None:
-                m.attrname = translate_ix_member_name(m.name)
+            if not m.attrname:
+                m.attrname = m.name
             attrname = m.attrname
 
             if m.doc is not None:
@@ -173,6 +173,6 @@ class _MetaIxTclApi(type):
         def f(self, *args, **kwargs):
             rc = self.ix_command(c, *args, **kwargs)
             return rc if type(rc) is str else rc[0]
-        f.__doc__ = translate_ix_member_name(c)
-        f.__name__ = translate_ix_member_name(c)
-        setattr(t, translate_ix_member_name(c), f)
+        f.__doc__ = c
+        f.__name__ = c
+        setattr(t, c, f)
