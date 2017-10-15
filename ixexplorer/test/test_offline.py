@@ -7,7 +7,7 @@ IxExplorer package tests that can run in offline mode.
 from ixexplorer.test.test_base import IxeTestBase
 
 
-class IxExplorerTestBase(IxeTestBase):
+class IxeTestOffline(IxeTestBase):
 
     def testLoadConfig(self):
 
@@ -41,6 +41,7 @@ class IxExplorerTestBase(IxeTestBase):
         self.ports[self.port1].streams[1].protocol.ethernet_type = 'ethernetII'
         self.ports[self.port1].streams[1].protocol.name = 'ipV4'
         self.ports[self.port1].streams[1].ip.dest_ip_addr = '1.1.2.1'
+        self.ports[self.port1].streams[1].ip.source_ip_addr = '1.1.2.2'
         self.ports[self.port1].add_stream()
         self.ports[self.port1].streams[2].da = "22:22:22:22:22:22"
         self.ports[self.port1].streams[2].sa = "11:11:11:11:11:22"
@@ -63,3 +64,24 @@ class IxExplorerTestBase(IxeTestBase):
         assert(self.ports[self.port1].streams[1].sa == '11:11:11:11:11:11')
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
+
+    def testWithShay(self):
+        self._reserve_ports()
+
+        self.ports[self.port1].add_stream()
+        self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
+        self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
+        self.ports[self.port1].streams[1].protocol.ethernet_type = 'ethernetII'
+        self.ports[self.port1].streams[1].protocol.name = 'ipV4'
+        self.ports[self.port1].streams[1].ip.dest_ip_addr = '1.1.2.1'
+        self.ports[self.port1].streams[1].ip.source_ip_addr = '1.1.2.2'
+        self.ports[self.port1].streams[1].ip.ttl = 6
+        self.ports[self.port1].streams[1].frame_size_type = 1
+        self.ports[self.port1].streams[1].weightedRandomFramesize.random_type = 1
+        self.ports[self.port1].streams[1].weightedRandomFramesize.add_pair(100, 5)
+        self.ports[self.port1].streams[1].weightedRandomFramesize.add_pair(200, 10)
+        self.ports[self.port1].streams[1].weightedRandomFramesize.del_pair(64, 1)
+        self.ports[self.port1].add_stream()
+        self.ports[self.port1].streams[2].da = "22:22:22:22:22:22"
+        self.ports[self.port1].streams[2].sa = "11:11:11:11:11:22"
+        self.ports[self.port1].write()

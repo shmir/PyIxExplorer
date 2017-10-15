@@ -1,5 +1,5 @@
 
-from ixexplorer.api.ixapi import TclMember, MacStr
+from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 
 
@@ -8,6 +8,7 @@ class IxeStream(IxeObject):
     __tcl_members__ = [
             TclMember('bpsRate', type=int),
             TclMember('da', type=MacStr),
+            TclMember('frameSizeType', type=int),
             TclMember('name'),
             TclMember('sa', type=MacStr),
     ]
@@ -30,10 +31,14 @@ class IxeStream(IxeObject):
         return self.get_object('_protocol', IxeProtocol)
     protocol = property(get_protocol)
 
+    def get_weightedRandomFramesize(self):
+        return self.get_object('_weightedRandomFramesize', IxeWeightedRandomFramesize)
+    weightedRandomFramesize = property(get_weightedRandomFramesize)
+
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
-        getattr(self, field).ix_set_default()
+            getattr(self, field).ix_set_default()
         return getattr(self, field)
 
 
@@ -41,6 +46,11 @@ class IxeStreamObj(IxeObject):
 
     def __init__(self, parent):
         super(IxeStreamObj, self).__init__(uri=parent.uri[:-2], parent=parent)
+
+    def ix_command(self, command, *args, **kwargs):
+        rc = self.api.call(('{} {}' + len(args) * ' {}').format(self.__tcl_command__, command, *args))
+        self.ix_set()
+        return rc
 
     def ix_get(self, member=None):
         self.parent.ix_get(member)
@@ -72,4 +82,17 @@ class IxeIp(IxeStreamObj):
             TclMember('destIpAddrMode'),
             TclMember('sourceIpAddr'),
             TclMember('sourceIpAddrMode'),
+            TclMember('ttl', type=int),
     ]
+
+
+class IxeWeightedRandomFramesize(IxeStreamObj):
+    __tcl_command__ = 'weightedRandomFramesize'
+    __tcl_members__ = [
+            TclMember('center', type=float),
+            TclMember('pairList', flags=FLAG_RDONLY),
+            TclMember('randomType', type=int),
+            TclMember('weight', type=int),
+            TclMember('widthAtHalf', type=float),
+    ]
+    __tcl_commands__ = ['addPair', 'delPair']

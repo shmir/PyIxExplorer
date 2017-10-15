@@ -11,7 +11,7 @@ from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats
 from ixexplorer.test.test_base import IxeTestBase
 
 
-class IxExplorerTestBase(IxeTestBase):
+class IxeTestOnline(IxeTestBase):
 
     def testStats(self):
         cfg1 = 'c:/configs/stats_config.prt'
