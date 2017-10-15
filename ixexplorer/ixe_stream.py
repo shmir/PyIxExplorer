@@ -11,6 +11,10 @@ class IxeStream(IxeObject):
             TclMember('frameSizeType', type=int),
             TclMember('name'),
             TclMember('sa', type=MacStr),
+
+            #Stream_Control
+            TclMember('rateMode', type=int),
+            TclMember('percentPacketRate', type=float),
     ]
 
     __tcl_commands__ = ['export', 'write']
