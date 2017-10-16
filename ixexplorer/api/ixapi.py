@@ -102,8 +102,8 @@ class IxTclHalApi(object):
         return self._tcl_handler.call(cmd, *args)
 
     def call_rc(self, cmd, *args):
-        rc = self.call(cmd, *args)[0]
-        if int(rc[-1]) != 0:
+        rc = self.call(cmd, *args)
+        if 'error' in rc.lower() or int(rc[-1]) != 0:
             raise IxTclHalError(rc)
 
 

@@ -20,6 +20,7 @@
 
 import socket
 import paramiko
+import time
 
 
 class TclError(Exception):
@@ -84,6 +85,7 @@ class TclClient:
         self.stdin.flush()
         l = len(self.stdout.channel.in_buffer)
         while not l:
+            time.sleep(0.25)
             l = len(self.stdout.channel.in_buffer)
         ret_value = str(self.stdout.read(l).decode("utf-8").rstrip())
         self.logger.debug('received %s', ret_value)
@@ -91,7 +93,7 @@ class TclClient:
 
     def call(self, string, *args):
         if self.windows_server:
-            return self.socket_call(string, *args)
+            return self.socket_call(string, *args)[0]
         else:
             return self.ssh_call(string, *args)
 

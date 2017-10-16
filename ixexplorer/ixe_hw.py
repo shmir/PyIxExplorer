@@ -1,6 +1,5 @@
 
 from os import path
-from collections import OrderedDict
 import re
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
@@ -99,7 +98,7 @@ class IxePort(IxeObject):
         :return: dictionary {stream id: object} of all streams.
         """
 
-        return {int(str(s)[-1]): s for s in self.get_objects_by_type('stream')}
+        return {int(s.uri[-1]): s for s in self.get_objects_by_type('stream')}
     streams = property(get_streams)
 
     def start_transmit(self, blocking=False):
@@ -156,7 +155,7 @@ class IxeCard(IxeObject):
         :return: dictionary {name: object} of all ports.
         """
 
-        return {str(p): p for p in self.get_objects_by_type('port')}
+        return {int(p.uri[-1]): p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
 
@@ -255,16 +254,5 @@ class IxeChassis(IxeObject):
         :return: dictionary {name: object} of all cards.
         """
 
-        return {str(c): c for c in self.get_objects_by_type('card')}
+        return {int(c.uri[-1]): c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)
-
-    def get_ports(self):
-        """
-        :return: dictionary {name: object} of all ports.
-        """
-
-        ports = OrderedDict()
-        for c in self.cards.values():
-            ports.update(c.ports)
-        return ports
-    ports = property(get_ports)

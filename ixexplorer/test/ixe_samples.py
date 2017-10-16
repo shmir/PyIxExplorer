@@ -2,8 +2,6 @@
 
 import logging
 import sys
-from os import path
-from configparser import SafeConfigParser
 
 from trafficgenerator.tgn_utils import ApiType
 from ixexplorer.ixe_hw import IxePort
@@ -12,11 +10,11 @@ from ixexplorer.ixe_app import init_ixe
 # API type = tcl or socket. Default is tcl with DEBUG log messages (see bellow) because it gives best visibility.
 api = ApiType.socket
 host = '192.168.42.61'
-# For Linux servers use 8022
+# Windows - 4555, Linux - 8022
 tcp_port = 4555
 # Required only for Linux servers
-rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.20-EA/TclScripts/lib/ixTcl1.0/id_rsa'
-rsa_id = '/opt/ixia/ixos-api/8.20.0.10/lib/ixTcl1.0/id_rsa'
+rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'
+rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.30-EA/TclScripts/lib/ixTcl1.0/id_rsa'
 
 vModule = '10.10.10.3'
 mac = '00:00:00:00:00:00'
@@ -37,13 +35,8 @@ def link_state_str(link_state):
 def connect():
     global ixia
 
-    config_file = path.join(path.dirname(__file__), 'IxExplorer.ini')
-    config = SafeConfigParser(allow_no_value=True)
-    config.read(config_file)
-
     logger = logging.getLogger()
-    logger.setLevel(config.get('Logging', 'level'))
-    logger.addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
+    logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(api, logger, host, tcp_port, rsa_id)
@@ -97,13 +90,8 @@ def build_ixvm():
 
 def detailed_log():
 
-    config_file = path.join(path.dirname(__file__), 'IxExplorer.ini')
-    config = SafeConfigParser(allow_no_value=True)
-    config.read(config_file)
-
     logging.basicConfig()
-    logging.getLogger().setLevel(config.get('Logging', 'level'))
-    logging.getLogger().addHandler(logging.FileHandler(config.get('Logging', 'file_name')))
+    logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
     ixia.connect()
