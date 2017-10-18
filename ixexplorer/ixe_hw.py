@@ -114,6 +114,22 @@ class IxePort(IxeObject):
 
         self.session.stop_transmit(self)
 
+    def start_capture(self):
+        """ Start capture on port. """
+
+        self.session.start_capture(self)
+
+    def stop_capture(self, cap_file_name):
+        """ Stop capture on port.
+
+        :param cap_file_name: prefix for the capture file name.
+            Capture file will be saved as pcap file named 'prefix' + 'URI'.pcap.
+        :return: full path to pcap file if capture exists else None
+        """
+
+        full_cap_file_name = self.session.stop_capture(cap_file_name, self)
+        return full_cap_file_name.get(self, None)
+
 
 class IxeCard(IxeObject):
     __tcl_command__ = 'card'

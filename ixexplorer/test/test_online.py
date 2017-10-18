@@ -7,6 +7,8 @@ Two Ixia ports connected back to back.
 @author yoram@ignissoft.com
 """
 
+import time
+
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats
 from ixexplorer.test.test_base import IxeTestBase
 
@@ -70,3 +72,20 @@ class IxeTestOnline(IxeTestBase):
         print '++++'
 
         self.ixia.session.stop_transmit()
+
+    def testCapture(self):
+        cfg1 = 'c:/configs/cap_cpnfig.prt'
+        cfg2 = 'c:/configs/cap_cpnfig.prt'
+        self._load_config(cfg1, cfg2)
+
+        self.ixia.session.start_capture()
+        self.ixia.session.start_transmit()
+        time.sleep(4)
+        self.ixia.session.stop_transmit()
+        self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia_cap')
+
+        self.ixia.session.start_capture()
+        self.ports[self.port1].start_transmit()
+        time.sleep(4)
+        self.ports[self.port1].stop_transmit()
+        self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia_cap_single')
