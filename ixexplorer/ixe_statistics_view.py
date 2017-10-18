@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
+from ixexplorer.ixe_stream import IxePacketGroupStream
 
 
 class IxeStat(IxeObject):
@@ -55,8 +56,8 @@ class IxePgStats(IxeObject):
             TclMember('averageLatency', type=int, flags=FLAG_RDONLY),
     ]
 
-    def __init__(self, parent):
-        super(self.__class__, self).__init__(uri=parent.uri + ' ' + parent.uri[-1], parent=parent)
+    def __init__(self, parent, pg_id):
+        super(self.__class__, self).__init__(uri=parent.uri + ' ' + str(pg_id) + ' ' + str(pg_id), parent=parent)
 
 
 class IxeStreamTxStats(IxeObject):
@@ -121,11 +122,15 @@ class IxeStreamsStats(IxeStats):
             if len(port.streams):
                 port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
         time.sleep(1)
-        for port in session.ports.values():
-            if len(port.streams):
-                port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
-            for stream_name, stream in port.streams.items():
-                stream_stats = IxePgStats(stream).get_attributes(FLAG_RDONLY)
-                stream_stats_tx = IxeStreamTxStats(port, stream.uri[-1]).get_attributes(FLAG_RDONLY).items()
-                stream_stats.update({c + '_tx': v for c, v in stream_stats_tx})
-                self.statistics[stream_name] = stream_stats
+        for port_tx in session.ports.values():
+            for stream in port_tx.streams.values():
+                stream_stats = {}
+                stream_stats_tx = {c + '_tx': v for c, v in
+                                   IxeStreamTxStats(port_tx, stream.uri[-1]).get_attributes(FLAG_RDONLY).items()}
+                stream_stats['tx'] = stream_stats_tx
+                stream_stat_pgid = IxePacketGroupStream(stream).groupId
+                stream_stats_pg = OrderedDict()
+                for port_rx in session.ports.values():
+                    stream_stats_pg[port_rx] = IxePgStats(port_rx, stream_stat_pgid).get_attributes(FLAG_RDONLY)
+                stream_stats['rx'] = stream_stats_pg
+                self.statistics[stream] = stream_stats

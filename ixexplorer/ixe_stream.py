@@ -109,3 +109,15 @@ class IxeWeightedRandomFramesize(IxeStreamObj):
             TclMember('widthAtHalf', type=float),
     ]
     __tcl_commands__ = ['addPair', 'delPair']
+
+
+class IxePacketGroupStream(IxeStreamObj):
+    __tcl_command__ = 'packetGroup'
+    __tcl_members__ = [
+            TclMember('groupId', type=int),
+    ]
+    __get_command__ = 'getTx'
+    __set_command__ = 'setTx'
+
+    def __init__(self, parent):
+        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)

@@ -76,7 +76,10 @@ class IxePort(IxeObject):
         else:
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
+        self.discover()
 
+    def discover(self):
+        self.logger.info('Discover port {}'.format(self.obj_name()))
         for stream_id in range(1, int(self.getStreamCount()) + 1):
             IxeStream(self, self.uri + '/' + str(stream_id))
 

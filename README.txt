@@ -24,18 +24,16 @@ Short term:
 - Stream (packet group) statistics
 
 Longer term:
-1. Local Tcl
-2. Full support for Linux server (including error detection)
-3. Better error messages
-4. Implicit load configuration
-5, Get/Set Enums
-6. Full support for Linux clients (over sockets only / with local Tcl)
-7. Copy to file server
-8. Set ports and streams for stream stats implicitly
-9. Multi chassis
-10. Elaborate Stats...
-11. Load cfg
-12. Copy pcap files from TG
+- Local Tcl
+- Full support for Linux server (including error detection)
+- Better error messages
+- Implicit load configuration
+- Get/Set Enums
+- Full support for Linux clients (over sockets only)
+- Copy files to (config) / from (cap) server
+- Multi chassis
+- Improve stream stats - performance, single stream only, set implicitly
+- Load cfg
 
 Installation:
 stable - pip instsll ixeooapi
