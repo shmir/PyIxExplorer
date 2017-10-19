@@ -5,6 +5,7 @@ import re
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
 class IxePort(IxeObject):
@@ -122,15 +123,16 @@ class IxePort(IxeObject):
 
         self.session.start_capture(self)
 
-    def stop_capture(self, cap_file_name):
+    def stop_capture(self, cap_file_name, cap_file_format=IxeCapFileFormat.enc):
         """ Stop capture on port.
 
         :param cap_file_name: prefix for the capture file name.
             Capture file will be saved as pcap file named 'prefix' + 'URI'.pcap.
+        :param cap_file_format: exported file format
         :return: full path to pcap file if capture exists else None
         """
 
-        full_cap_file_name = self.session.stop_capture(cap_file_name, self)
+        full_cap_file_name = self.session.stop_capture(cap_file_name, cap_file_format, self)
         return full_cap_file_name.get(self, None)
 
 

@@ -4,10 +4,17 @@ Classes and utilities to manage IxExplorer statistics views.
 
 import time
 from collections import OrderedDict
+from enum import Enum
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxePacketGroupStream
+
+
+class IxeCapFileFormat(Enum):
+    cap = 1
+    enc = 2
+    txt = 3
 
 
 class IxeStat(IxeObject):

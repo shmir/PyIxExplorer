@@ -8,7 +8,7 @@ from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis, IxePort
-from ixexplorer.ixe_statistics_view import IxeCapture, IxeCaptureBuffer
+from ixexplorer.ixe_statistics_view import IxeCapture, IxeCaptureBuffer, IxeCapFileFormat
 
 
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
@@ -137,11 +137,12 @@ class IxeSession(IxeObject):
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStartCapture {}'.format(port_list))
 
-    def stop_capture(self, cap_file_name, *ports):
+    def stop_capture(self, cap_file_name, cap_file_format=IxeCapFileFormat.enc, *ports):
         """ Stop capture on ports.
 
         :param cap_file_name: prefix for the capture file name.
             Capture files for each port are saved as individual pcap file named 'prefix' + 'URI'.pcap.
+        :param cap_file_format: exported file format
         :param ports: list of ports to stop traffic on, if empty stop all ports.
         :return: dictionary (port, full path of pcap file name)
         """
@@ -154,7 +155,7 @@ class IxeSession(IxeObject):
             port_cap = IxeCapture(parent=port)
             num_frames = port_cap.nPackets
             if num_frames:
-                cap_file_names[port] = cap_file_name + '-' + port.uri.replace(' ', '_') + '.cap'
+                cap_file_names[port] = cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name
                 port_buffer = IxeCaptureBuffer(parent=port, num_frames=num_frames)
                 port_buffer.ix_get(force=True)
                 port_buffer.export(cap_file_names[port])
