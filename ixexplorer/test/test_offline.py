@@ -4,6 +4,8 @@ IxExplorer package tests that can run in offline mode.
 @author yoram@ignissoft.com
 """
 
+from os import path
+
 from ixexplorer.test.test_base import IxeTestBase
 
 
@@ -11,8 +13,8 @@ class IxeTestOffline(IxeTestBase):
 
     def testLoadConfig(self):
 
-        cfg1 = 'c:/configs/test_config_1.prt'
-        cfg2 = 'c:/configs/test_config_2.prt'
+        cfg1 = path.join(path.dirname(__file__), 'configs/test_config_1.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.prt')
         self._load_config(cfg1, cfg2)
 
         assert(len(self.ports) == 2)

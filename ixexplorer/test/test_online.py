@@ -7,6 +7,7 @@ Two Ixia ports connected back to back.
 @author yoram@ignissoft.com
 """
 
+from os import path
 import time
 
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats
@@ -16,8 +17,8 @@ from ixexplorer.test.test_base import IxeTestBase
 class IxeTestOnline(IxeTestBase):
 
     def testStats(self):
-        cfg1 = 'c:/configs/stats_config_1.prt'
-        cfg2 = 'c:/configs/stats_config_2.prt'
+        cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/stats_config_2.prt')
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_transmit()
@@ -49,8 +50,8 @@ class IxeTestOnline(IxeTestBase):
         self.ports[self.port1].stop_transmit()
 
     def testCapture(self):
-        cfg1 = 'c:/configs/cap_cpnfig.prt'
-        cfg2 = 'c:/configs/cap_cpnfig.prt'
+        cfg1 = path.join(path.dirname(__file__), 'configs/cap_cpnfig.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/cap_cpnfig.prt')
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_capture()
@@ -60,8 +61,8 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia_cap')
 
     def testStreamStats(self):
-        cfg1 = 'c:/configs/stats_config_1.prt'
-        cfg2 = 'c:/configs/stats_config_2.prt'
+        cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/stats_config_2.prt')
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_transmit()

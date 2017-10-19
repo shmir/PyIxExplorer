@@ -26,21 +26,21 @@ def init_ixe(api, logger, host, port=4555, rsa_id=None):
     if api == ApiType.tcl:
         raise TgnError('Tcl API not supported in this version.')
 
-    return IxeApp(logger, IxTclHalApi(TclClient(logger, host, port, rsa_id)), host)
+    return IxeApp(logger, IxTclHalApi(TclClient(logger, host, port, rsa_id)))
 
 
 class IxeApp(TgnApp):
     """ This version supports only one chassis. """
 
-    def __init__(self, logger, api_wrapper, host):
+    def __init__(self, logger, api_wrapper):
         super(self.__class__, self).__init__(logger, api_wrapper)
         IxeObject.api = self.api
         IxeObject.logger = logger
         self.session = IxeSession()
         IxeObject.session = self.session
-        self.chassis = IxeChassis(host)
 
-    def connect(self):
+    def connect(self, chassis):
+        self.chassis = IxeChassis(chassis)
         self.api._tcl_handler.connect()
         self.chassis.connect()
 
