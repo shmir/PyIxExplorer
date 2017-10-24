@@ -2,7 +2,7 @@
 from os import path
 import re
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
@@ -11,14 +11,58 @@ from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 class IxePort(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
-            TclMember('name'),
-            TclMember('owner', flags=FLAG_RDONLY),
-            TclMember('type', type=int, flags=FLAG_RDONLY),
-            TclMember('loopback'),
-            TclMember('flowControl'),
-            TclMember('linkState', type=int, flags=FLAG_RDONLY),
-            TclMember('portMode', type=int),
-            TclMember('transmitMode'),
+        TclMember('advertise1000FullDuplex'),
+        TclMember('advertise100FullDuplex'),
+        TclMember('advertise100HalfDuplex'),
+        TclMember('advertise10FullDuplex'),
+        TclMember('advertise10HalfDuplex'),
+        TclMember('advertiseAbilities'),
+        TclMember('autoDetectInstrumentationMode'),
+        TclMember('autonegotiate'),
+        TclMember('dataCenterMode'),
+        TclMember('DestMacAddress', type=MacStr),
+        TclMember('directedAddress', type=MacStr),
+        TclMember('duplex'),
+        TclMember('enableAutoDetectInstrumentation'),
+        TclMember('enableDataCenterMode'),
+        TclMember('enableManualAutoNegotiate'),
+        TclMember('enablePhyPolling'),
+        TclMember('enableRepeatableLastRandomPattern'),
+        TclMember('enableSimulateCableDisconnect'),
+        TclMember('enableTransparentDynamicRateChange'),
+        TclMember('enableTxRxSyncStatsMode'),
+        TclMember('flowControl'),
+        TclMember('flowControlType', int),
+        TclMember('ignoreLink'),
+        TclMember('linkState', type=int, flags=FLAG_RDONLY),
+        TclMember('loopback'),
+        TclMember('MacAddress', type=MacStr),
+        TclMember('masterSlave'),
+        TclMember('multicastPauseAddress'),
+        TclMember('name'),
+        TclMember('negotiateMasterSlave'),
+        TclMember('operationModeList', int),
+        TclMember('packetFlowFileName'),
+        TclMember('pfcEnableValueList'),
+        TclMember('pfcEnableValueListBitMatrix'),
+        TclMember('pfcResponseDelayEnabled'),
+        TclMember('pfcResponseDelayQuanta'),
+        TclMember('phyMode', flags=FLAG_RDONLY),
+        TclMember('pmaClock', int),
+        TclMember('portMode', int),
+        TclMember('preEmphasis'),
+        TclMember('receiveMode'),
+        TclMember('rxTxMode', int),
+        TclMember('speed', int),
+        TclMember('timeoutEnable'),
+        TclMember('transmitClockDeviation'),
+        TclMember('transmitClockMode', int),
+        TclMember('transmitMode', int),
+        TclMember('txRxSyncInterval', int),
+        TclMember('type, read-only'),
+        TclMember('typeName', flags=FLAG_RDONLY),
+        TclMember('usePacketFlowImageFile'),
+
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'write']
