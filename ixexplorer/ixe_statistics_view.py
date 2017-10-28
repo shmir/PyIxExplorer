@@ -36,6 +36,19 @@ class IxeStat(IxeObject):
             TclMember('link', type=int, flags=FLAG_RDONLY),
             TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
             TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
+
+            TclMember('enableValidStats'),
+            TclMember('enableProtocolServerStats'),
+            TclMember('enableArpStats'),
+            TclMember('enablePosExtendedStats'),
+            TclMember('enableDhcpStats'),
+            TclMember('enableDhcpV6Stats'),
+            TclMember('enableFcoeStats'),
+            TclMember('fcoeRxSharedStatType1'),
+            TclMember('fcoeRxSharedStatType2'),
+            TclMember('enableIcmpStats'),
+            TclMember('enableIgmpStats'),
+            TclMember('enableMacSecStats'),
     ]
 
     def __init__(self, parent):
