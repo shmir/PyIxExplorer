@@ -5,7 +5,7 @@ import re
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics_view import IxeCapFileFormat
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats
 
 
 class IxePort(IxeObject):
@@ -134,6 +134,9 @@ class IxePort(IxeObject):
 
         full_cap_file_name = self.session.stop_capture(cap_file_name, cap_file_format, self)
         return full_cap_file_name.get(self, None)
+
+    def read_stats(self):
+        return IxePortsStats(self).read_stats().values()[0]
 
 
 class IxeCard(IxeObject):

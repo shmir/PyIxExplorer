@@ -10,7 +10,7 @@ Two Ixia ports connected back to back.
 from os import path
 import time
 
-from ixexplorer.ixe_statistics_view import IxeStat, IxePortsStats, IxeStreamsStats
+from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats
 from ixexplorer.test.test_base import IxeTestBase
 
 
@@ -22,21 +22,17 @@ class IxeTestOnline(IxeTestBase):
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_transmit()
-
         port_stats = IxePortsStats()
         port_stats.read_stats()
         print '++++'
         for port, stats in port_stats.statistics.items():
             print '{}\n\t{}'.format(port, stats)
         print '++++'
-
         self.ixia.session.stop_transmit()
 
         self.ports[self.port1].start_transmit()
-        port_stats.read_stats()
         print '++++'
-        for port, stats in port_stats.statistics.items():
-            print '{}\n\t{}'.format(port, stats)
+        print '{}\n\t{}'.format(self.ports[self.port1], self.ports[self.port1].read_stats())
         print '++++'
         self.ports[self.port1].stop_transmit()
 

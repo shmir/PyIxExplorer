@@ -121,18 +121,21 @@ class IxeStats(object):
 
 class IxePortsStats(IxeStats):
 
-    def set_attributes(self, **attributes):
+    def __init__(self, *ports):
         session = IxeObject.session
-        for port in session.ports.values():
+        self.ports = ports if ports else session.ports.values()
+
+    def set_attributes(self, **attributes):
+        for port in self.ports:
             IxeStatTotal(port).set_attributes(**attributes)
 
     def read_stats(self):
         self.statistics = OrderedDict()
-        session = IxeObject.session
-        for port_name, port in session.ports.items():
+        for port in self.ports:
             port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY)
             port_stats.update({c + '_rate': v for c, v in IxeStatRate(port).get_attributes(FLAG_RDONLY).items()})
-            self.statistics[port_name] = port_stats
+            self.statistics[str(port)] = port_stats
+        return self.statistics
 
 
 class IxeStreamsStats(IxeStats):
