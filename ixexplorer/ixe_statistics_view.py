@@ -20,8 +20,6 @@ class IxeCapFileFormat(Enum):
 class IxeStat(IxeObject):
     __tcl_command__ = 'stat'
     __tcl_members__ = [
-            TclMember('enableArpStats', type=bool),
-
             TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
             TclMember('link', type=int, flags=FLAG_RDONLY),
             TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
@@ -41,6 +39,19 @@ class IxeStat(IxeObject):
 
             TclMember('rxArpRequest', type=int, flags=FLAG_RDONLY),
             TclMember('rxArpRequest', type=int, flags=FLAG_RDONLY),
+
+            TclMember('enableArpStats'),
+            TclMember('enableDhcpStats'),
+            TclMember('enableDhcpV6Stats'),
+            TclMember('enableFcoeStats'),
+            TclMember('enableIcmpStats'),
+            TclMember('enableIgmpStats'),
+            TclMember('enableMacSecStats'),
+            TclMember('enablePosExtendedStats'),
+            TclMember('enableProtocolServerStats'),
+            TclMember('enableValidStats'),
+            TclMember('fcoeRxSharedStatType1'),
+            TclMember('fcoeRxSharedStatType2'),
     ]
     __tcl_commands__ = ['write']
     __get_command__ = None
