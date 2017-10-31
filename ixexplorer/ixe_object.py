@@ -36,7 +36,7 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         self.__class__.current_object = self
 
     def ix_get(self, member=None, force=False):
-        if self != self.__class__.current_object or force:
+        if (self != self.__class__.current_object or force) and self.__get_command__:
             self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__get_command__, self.uri))
         self.__class__.current_object = self
 
@@ -49,3 +49,7 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
             if member.flags & flags:
                 attributes[member.attrname] = getattr(self, member.attrname)
         return attributes
+
+    def set_attributes(self, **attributes):
+        for name, value in attributes.items():
+            setattr(self, name, value)

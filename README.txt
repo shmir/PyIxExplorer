@@ -24,6 +24,8 @@ Short term:
 - Stream (packet group) statistics
 
 Longer term:
+- Refine set_attributes for port etc - IxeObjectWithWrite?
+- Use statList
 - Test if Tcl server and chassis on the same version
 - Local Tcl
 - Full support for Linux server (including error detection)

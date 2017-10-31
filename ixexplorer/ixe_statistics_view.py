@@ -20,6 +20,12 @@ class IxeCapFileFormat(Enum):
 class IxeStat(IxeObject):
     __tcl_command__ = 'stat'
     __tcl_members__ = [
+            TclMember('enableArpStats', type=bool),
+
+            TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
+            TclMember('link', type=int, flags=FLAG_RDONLY),
+            TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
+
             TclMember('framesSent', type=int, flags=FLAG_RDONLY),
             TclMember('framesReceived', type=int, flags=FLAG_RDONLY),
             TclMember('bytesSent', type=int, flags=FLAG_RDONLY),
@@ -32,14 +38,19 @@ class IxeStat(IxeObject):
             TclMember('vlanTaggedFramesRx', type=int, flags=FLAG_RDONLY),
             TclMember('ipPackets', type=int, flags=FLAG_RDONLY),
             TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
-            TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
-            TclMember('link', type=int, flags=FLAG_RDONLY),
-            TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
-            TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
+
+            TclMember('rxArpRequest', type=int, flags=FLAG_RDONLY),
+            TclMember('rxArpRequest', type=int, flags=FLAG_RDONLY),
     ]
+    __tcl_commands__ = ['write']
+    __get_command__ = None
 
     def __init__(self, parent):
         super(IxeStat, self).__init__(uri=parent.uri, parent=parent)
+
+    def set_attributes(self, **attributes):
+        super(IxeStat, self).set_attributes(**attributes)
+        self.write()
 
 
 class IxeStatTotal(IxeStat):
@@ -109,6 +120,11 @@ class IxeStats(object):
 
 
 class IxePortsStats(IxeStats):
+
+    def set_attributes(self, **attributes):
+        session = IxeObject.session
+        for port in session.ports.values():
+            IxeStatTotal(port).set_attributes(**attributes)
 
     def read_stats(self):
         self.statistics = OrderedDict()
