@@ -52,8 +52,8 @@ class IxeStream(IxeObject):
             TclMember('patternType'),
             TclMember('percentPacketRate', type=float),
             TclMember('preambleData'),
-            TclMember('preambleSize',type=int),
-            TclMember('priorityGroup',type=int),
+            TclMember('preambleSize', type=int),
+            TclMember('priorityGroup', type=int),
             TclMember('rateMode', type=int),
             TclMember('returnToId', type=int),
             TclMember('rxTriggerEnable'),
@@ -63,7 +63,6 @@ class IxeStream(IxeObject):
             TclMember('saRepeatCounter'),
             TclMember('saStep', type=int),
             TclMember('sourceInterfaceDescription'),
-
     ]
 
     __tcl_commands__ = ['export', 'write']
@@ -108,7 +107,6 @@ class IxeStream(IxeObject):
     def get_udf(self):
         return self.get_object('_udf', IxeUdf)
     udf = property(get_udf)
-
 
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
@@ -192,7 +190,6 @@ class IxeIp(IxeStreamObj):
             TclMember('totalLength', type=int),
             TclMember('ttl', type=int),
             TclMember('useValidChecksum'),
-
     ]
 
 
@@ -214,7 +211,6 @@ class IxeTcp(IxeStreamObj):
             TclMember('urgentPointerValid'),
             TclMember('useValidChecksum'),
             TclMember('window', type=int),
-
     ]
 
 
@@ -228,7 +224,6 @@ class IxeUdp(IxeStreamObj):
             TclMember('length', type=int),
             TclMember('lengthOverride'),
             TclMember('sourcePort', type=int),
-
     ]
 
 
@@ -291,6 +286,4 @@ class IxeUdf(IxeStreamObj):
             TclMember('updown', type=int),
             TclMember('valueList'),
             TclMember('valueRepeatCount'),
-
     ]
-
