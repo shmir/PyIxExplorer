@@ -9,9 +9,10 @@ from ixexplorer.ixe_app import init_ixe
 
 # API type = tcl or socket. Default is tcl with DEBUG log messages (see bellow) because it gives best visibility.
 api = ApiType.socket
-host = '192.168.42.61'
+host = '192.168.42.170'
 # Windows - 4555, Linux - 8022
-tcp_port = 4555
+tcp_port = 8022
+chassis = '192.168.42.170'
 # Required only for Linux servers
 rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'
 rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.30-EA/TclScripts/lib/ixTcl1.0/id_rsa'
@@ -40,7 +41,7 @@ def connect():
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(api, logger, host, tcp_port, rsa_id)
-    ixia.connect()
+    ixia.connect(chassis)
 
 
 def disconnect():
@@ -94,9 +95,9 @@ def detailed_log():
     logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
-    ixia.connect()
+    ixia.connect(chassis)
     ixia.disconnect()
 
 
 if __name__ == '__main__':
-    discover()
+    detailed_log()

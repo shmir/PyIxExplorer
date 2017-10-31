@@ -24,6 +24,7 @@ Short term:
 - Stream (packet group) statistics
 
 Longer term:
+- Test if Tcl server and chassis on the same version
 - Local Tcl
 - Full support for Linux server (including error detection)
 - Better error messages
@@ -34,6 +35,7 @@ Longer term:
 - Multi chassis
 - Improve stream stats - performance, single stream only, set implicitly
 - Load cfg
+- Full documentation
 
 Installation:
 stable - pip instsll ixeooapi

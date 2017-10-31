@@ -80,6 +80,7 @@ class IxeSession(IxeObject):
             port.reserve(force=force)
             if clear:
                 port.ix_set_default()
+                port.setFactoryDefaults()
                 port.reset()
                 port.write()
                 port.clear_stats()
