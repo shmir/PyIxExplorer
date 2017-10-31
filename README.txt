@@ -39,6 +39,8 @@ Longer term:
 - Improve stream stats - performance, single stream only, set implicitly
 - Load cfg
 - Full documentation
+- Per port stream stats
+
 
 Installation:
 stable - pip instsll ixeooapi
