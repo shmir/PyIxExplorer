@@ -198,7 +198,7 @@ class IxeChassis(IxeObject):
             TclMember('typeName', flags=FLAG_RDONLY),
     ]
 
-    __tcl_commands__ = ['add']
+    __tcl_commands__ = ['add', 'refresh']
 
     TYPE_1600 = 2
     TYPE_200 = 3
