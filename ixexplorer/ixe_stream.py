@@ -64,7 +64,7 @@ class IxeStream(IxeObject):
             TclMember('saStep', type=int),
             TclMember('sourceInterfaceDescription'),
             TclMember('startTxDelayUnit', type=int),
-            TclMember('startTxDelay', type=int),
+            TclMember('startTxDelay', type=float),
     ]
 
     __tcl_commands__ = ['export', 'write']
