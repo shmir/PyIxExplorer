@@ -63,6 +63,8 @@ class IxeStream(IxeObject):
             TclMember('saRepeatCounter'),
             TclMember('saStep', type=int),
             TclMember('sourceInterfaceDescription'),
+            TclMember('startTxDelayUnit', type=int),
+            TclMember('startTxDelay', type=int),
     ]
 
     __tcl_commands__ = ['export', 'write']
@@ -236,7 +238,7 @@ class IxeWeightedRandomFramesize(IxeStreamObj):
             TclMember('weight', type=int),
             TclMember('widthAtHalf', type=float),
     ]
-    __tcl_commands__ = ['addPair', 'delPair']
+    __tcl_commands__ = ['addPair', 'delPair', 'updateQuadGaussianCurve']
 
 
 class IxePacketGroupStream(IxeStreamObj):
