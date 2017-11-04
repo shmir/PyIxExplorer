@@ -230,34 +230,34 @@ class IxeIp(IxeStreamObj):
 class IxeTcp(IxeStreamObj):
     __tcl_command__ = 'tcp'
     __tcl_members__ = [
-            TclMember('acknowledgementNumber', type=int),
+            TclMember('acknowledgementNumber'),
             TclMember('acknowledgeValid'),
             TclMember('checksum'),
-            TclMember('destPort', type=int),
+            TclMember('destPort'),
             TclMember('finished'),
-            TclMember('offset', type=int),
+            TclMember('offset'),
             TclMember('pushFunctionValid'),
             TclMember('resetConnection'),
-            TclMember('sequenceNumber', type=int),
-            TclMember('sourcePort', type=int),
+            TclMember('sequenceNumber'),
+            TclMember('sourcePort'),
             TclMember('synchronize'),
-            TclMember('urgentPointer', type=int),
+            TclMember('urgentPointer'),
             TclMember('urgentPointerValid'),
             TclMember('useValidChecksum'),
-            TclMember('window', type=int),
+            TclMember('window'),
     ]
 
 
 class IxeUdp(IxeStreamObj):
     __tcl_command__ = 'udp'
     __tcl_members__ = [
-            TclMember('checksum', type=int),
+            TclMember('checksum'),
             TclMember('checksumMode'),
-            TclMember('destPort', type=int),
+            TclMember('destPort'),
             TclMember('enableChecksumOverride'),
-            TclMember('length', type=int),
+            TclMember('length'),
             TclMember('lengthOverride'),
-            TclMember('sourcePort', type=int),
+            TclMember('sourcePort'),
     ]
 
 
