@@ -37,8 +37,46 @@ class IxeStat(IxeObject):
             TclMember('ipPackets', type=int, flags=FLAG_RDONLY),
             TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
 
-            TclMember('rxArpRequest', type=int, flags=FLAG_RDONLY),
-            TclMember('rxArpRequest', type=int, flags=FLAG_RDONLY),
+            TclMember('asynchronousFramesSent', type=int, flags=FLAG_RDONLY),
+            TclMember('alignmentErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('bitsSent', type=int, flags=FLAG_RDONLY),
+            TclMember('captureFilter', type=int, flags=FLAG_RDONLY),
+            TclMember('captureTrigger', type=int, flags=FLAG_RDONLY),
+            TclMember('collisionFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('collisions', type=int, flags=FLAG_RDONLY),
+            TclMember('dataIntegrityErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('dataIntegrityFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('dribbleErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('droppedFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('excessiveCollisionFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('fcsErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('flowControlFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('fragments', type=int, flags=FLAG_RDONLY),
+            TclMember('ipChecksumErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('ipPackets', type=int, flags=FLAG_RDONLY),
+            TclMember('lateCollisions', type=int, flags=FLAG_RDONLY),
+            TclMember('oversize', type=int, flags=FLAG_RDONLY),
+            TclMember('oversizeAndCrcErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('pauseAcknowledge', type=int, flags=FLAG_RDONLY),
+            TclMember('pauseEndFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('pauseOverwrite', type=int, flags=FLAG_RDONLY),
+            TclMember('rxPingReply', type=int, flags=FLAG_RDONLY),
+            TclMember('rxPingRequest', type=int, flags=FLAG_RDONLY),
+            TclMember('scheduledFramesSent', type=int, flags=FLAG_RDONLY),
+            TclMember('sequenceErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('sequenceFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('symbolErrorFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('symbolErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('synchErrorFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('tcpChecksumErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('tcpPackets', type=int, flags=FLAG_RDONLY),
+            TclMember('transmitDuration', type=int, flags=FLAG_RDONLY),
+            TclMember('txPingReply', type=int, flags=FLAG_RDONLY),
+            TclMember('txPingRequest', type=int, flags=FLAG_RDONLY),
+            TclMember('udpChecksumErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
+            TclMember('undersize', type=int, flags=FLAG_RDONLY),
+
 
             TclMember('enableArpStats'),
             TclMember('enableDhcpStats'),
@@ -140,9 +178,15 @@ class IxePortsStats(IxeStats):
         for port in self.ports:
             IxeStatTotal(port).set_attributes(**attributes)
 
-    def read_stats(self):
+    def read_stats(self, ports_list=None):
         self.statistics = OrderedDict()
-        for port in self.ports:
+        port_list = []
+        if ports_list is None:
+            port_list = self.ports
+        else:
+            port_list.append(ports_list)
+
+        for port in port_list:
             port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY)
             port_stats.update({c + '_rate': v for c, v in IxeStatRate(port).get_attributes(FLAG_RDONLY).items()})
             self.statistics[str(port)] = port_stats

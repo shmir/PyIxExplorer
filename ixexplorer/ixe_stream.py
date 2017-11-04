@@ -63,8 +63,8 @@ class IxeStream(IxeObject):
             TclMember('saRepeatCounter'),
             TclMember('saStep', type=int),
             TclMember('sourceInterfaceDescription'),
-            TclMember('startTxDelayUnit', type=int),
-            TclMember('startTxDelay', type=float),
+            TclMember('startTxDelayUnit'),
+            TclMember('startTxDelay'),
     ]
 
     __tcl_commands__ = ['export', 'write']
@@ -85,6 +85,14 @@ class IxeStream(IxeObject):
             for stream_object in [o for o in IxeStream.last_object.__dict__.values() if isinstance(o, IxeStreamObj)]:
                 stream_object.ix_set_default()
         IxeStream.last_object = self
+
+    def get_vlan(self):
+        return self.get_object('_vlan', IxeVlan)
+    vlan = property(get_vlan)
+
+    def get_stacked_vlan(self):
+        return self.get_object('_stackedVlan', IxeStackedVlan)
+    stackedVlan = property(get_stacked_vlan)
 
     def get_ip(self):
         return self.get_object('_ip', IxeIp)
@@ -141,6 +149,7 @@ class IxeProtocol(IxeStreamObj):
     __tcl_members__ = [
             TclMember('appName'),
             TclMember('ethernetType'),
+            TclMember('enable802dot1qTag', type=int),
             TclMember('name'),
 
     ]
@@ -150,6 +159,28 @@ class IxeProtocol(IxeStreamObj):
 
     def ix_set(self, member=None):
         pass
+
+
+class IxeVlan(IxeStreamObj):
+    __tcl_command__ = 'vlan'
+    __tcl_members__ = [
+            TclMember('cfi', type=int),
+            TclMember('maskval'),
+            TclMember('mode'),
+            TclMember('name', flags=FLAG_RDONLY),
+            TclMember('repeat', type=int),
+            TclMember('step', type=int),
+            TclMember('userPriority', type=int),
+            TclMember('vlanID', type=int),
+    ]
+
+
+class IxeStackedVlan(IxeStreamObj):
+    __tcl_command__ = 'vlan'
+    __tcl_members__ = [
+            TclMember('numVlans', flags=FLAG_RDONLY),
+    ]
+    __tcl_commands__ = ['addVlan', 'delVlan', 'getFirstVlan', 'getNextVlan', 'getVlan', 'setVlan']
 
 
 class IxeIp(IxeStreamObj):
