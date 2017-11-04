@@ -172,11 +172,12 @@ class IxeVlan(IxeStreamObj):
             TclMember('step', type=int),
             TclMember('userPriority', type=int),
             TclMember('vlanID', type=int),
+            TclMember('protocolTagId'),
     ]
 
 
 class IxeStackedVlan(IxeStreamObj):
-    __tcl_command__ = 'vlan'
+    __tcl_command__ = 'stackedVlan'
     __tcl_members__ = [
             TclMember('numVlans', flags=FLAG_RDONLY),
     ]
