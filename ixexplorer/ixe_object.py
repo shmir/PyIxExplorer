@@ -53,3 +53,8 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
     def set_attributes(self, **attributes):
         for name, value in attributes.items():
             setattr(self, name, value)
+
+    def _reset_current_object(self):
+        self.__class__.current_object = None
+        for child in self.objects.values():
+            child._reset_current_object()

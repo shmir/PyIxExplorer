@@ -51,6 +51,10 @@ class IxeApp(TgnApp):
     def discover(self):
         return self.chassis.discover()
 
+    def refresh(self):
+        self.chassis.refresh()
+        self.session._reset_current_object()
+
 
 class IxeSession(IxeObject):
     __tcl_command__ = 'session'

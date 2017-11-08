@@ -40,7 +40,7 @@ Longer term:
 - Load cfg
 - Full documentation
 - Per port stream stats
-
+- session is static object!
 
 Installation:
 stable - pip instsll ixeooapi

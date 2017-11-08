@@ -32,10 +32,11 @@ class IxeTestOffline(IxeTestBase):
         self.ports[self.port1].streams[2].ip.destIpAddr = '2.2.2.2'
         self.ports[self.port1].write()
 
-        assert(self.ports[self.port1].streams[1].da == '33:33:33:33:33:33')
-        assert(self.ports[self.port1].streams[1].sa == '44:44:44:44:44:44')
+        self.ixia.refresh()
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
+        assert(self.ports[self.port1].streams[1].da == '33:33:33:33:33:33')
+        assert(self.ports[self.port1].streams[1].sa == '44:44:44:44:44:44')
 
     def testBuildConfig(self):
         self._reserve_ports()
