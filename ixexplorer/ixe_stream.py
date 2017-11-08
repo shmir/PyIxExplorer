@@ -110,6 +110,10 @@ class IxeStream(IxeObject):
         return self.get_object('_protocol', IxeProtocol)
     protocol = property(get_protocol)
 
+    def get_protocolOffset(self):
+        return self.get_object('_protocolOffset', IxeProtocolOffset)
+    protocolOffset = property(get_protocolOffset)
+
     def get_weightedRandomFramesize(self):
         return self.get_object('_weightedRandomFramesize', IxeWeightedRandomFramesize)
     weightedRandomFramesize = property(get_weightedRandomFramesize)
@@ -260,6 +264,12 @@ class IxeUdp(IxeStreamObj):
             TclMember('sourcePort'),
     ]
 
+class IxeProtocolOffset(IxeStreamObj):
+    __tcl_command__ = 'protocolOffset'
+    __tcl_members__ = [
+            TclMember('offset'),
+            TclMember('userDefinedTag'),
+    ]
 
 class IxeWeightedRandomFramesize(IxeStreamObj):
     __tcl_command__ = 'weightedRandomFramesize'
