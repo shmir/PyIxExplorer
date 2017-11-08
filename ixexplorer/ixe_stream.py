@@ -178,6 +178,7 @@ class IxeVlan(IxeStreamObj):
             TclMember('vlanID', type=int),
             TclMember('protocolTagId'),
     ]
+    __tcl_commands__ = ['setDefault']
 
 
 class IxeStackedVlan(IxeStreamObj):
@@ -185,7 +186,7 @@ class IxeStackedVlan(IxeStreamObj):
     __tcl_members__ = [
             TclMember('numVlans', flags=FLAG_RDONLY),
     ]
-    __tcl_commands__ = ['addVlan', 'delVlan', 'getFirstVlan', 'getNextVlan', 'getVlan', 'setVlan']
+    __tcl_commands__ = ['setDefault', 'addVlan', 'delVlan', 'getFirstVlan', 'getNextVlan', 'getVlan', 'setVlan']
 
 
 class IxeIp(IxeStreamObj):
