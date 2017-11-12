@@ -122,6 +122,10 @@ class IxeStream(IxeObject):
         return self.get_object('_udf', IxeUdf)
     udf = property(get_udf)
 
+    def get_dataIntegrity(self):
+        return self.get_object('_dataIntegrity', IxeDataIntegrity)
+    dataIntegrity = property(get_dataIntegrity)
+
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
@@ -332,3 +336,19 @@ class IxeUdf(IxeStreamObj):
             TclMember('valueList'),
             TclMember('valueRepeatCount'),
     ]
+    __tcl_commands__ = ['addRange', 'clearRangeList', 'config', 'getFirstRange', 'getNextRange',
+                        'getRange', 'setDefault']
+
+class IxeDataIntegrity(IxeStreamObj):
+    __tcl_command__ = 'dataIntegrity'
+    __tcl_members__ = [
+            TclMember('enableTimeStamp'),
+            TclMember('insertSignature'),
+            TclMember('signature'),
+            TclMember('signatureOffset'),
+            # TclMember('floatingTimestampAndDataIntegrityMode'),
+            # TclMember('numBytesFromEndOfFrame'),
+            # TclMember('payloadLength'),
+    ]
+    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setQueueTx',
+                        'setRx', 'setTx']
