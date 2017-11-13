@@ -50,6 +50,9 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
                 attributes[member.attrname] = getattr(self, member.attrname)
         return attributes
 
+    def get_attribute(self, attribute):
+        return getattr(self, attribute)
+
     def set_attributes(self, **attributes):
         for name, value in attributes.items():
             setattr(self, name, value)

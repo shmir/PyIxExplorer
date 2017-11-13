@@ -122,6 +122,14 @@ class IxeStream(IxeObject):
         return self.get_object('_udf', IxeUdf)
     udf = property(get_udf)
 
+    def get_dataIntegrity(self):
+        return self.get_object('_dataIntegrity', IxeDataIntegrityStream)
+    dataIntegrity = property(get_dataIntegrity)
+
+    def get_packetGroup(self):
+        return self.get_object('_packetGroup', IxePacketGroupStream)
+    packetGroup = property(get_packetGroup)
+
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
@@ -264,12 +272,14 @@ class IxeUdp(IxeStreamObj):
             TclMember('sourcePort'),
     ]
 
+
 class IxeProtocolOffset(IxeStreamObj):
     __tcl_command__ = 'protocolOffset'
     __tcl_members__ = [
             TclMember('offset'),
             TclMember('userDefinedTag'),
     ]
+
 
 class IxeWeightedRandomFramesize(IxeStreamObj):
     __tcl_command__ = 'weightedRandomFramesize'
@@ -281,18 +291,6 @@ class IxeWeightedRandomFramesize(IxeStreamObj):
             TclMember('widthAtHalf', type=float),
     ]
     __tcl_commands__ = ['addPair', 'delPair', 'updateQuadGaussianCurve']
-
-
-class IxePacketGroupStream(IxeStreamObj):
-    __tcl_command__ = 'packetGroup'
-    __tcl_members__ = [
-            TclMember('groupId', type=int),
-    ]
-    __get_command__ = 'getTx'
-    __set_command__ = 'setTx'
-
-    def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeUdf(IxeStreamObj):
@@ -331,3 +329,26 @@ class IxeUdf(IxeStreamObj):
             TclMember('valueList'),
             TclMember('valueRepeatCount'),
     ]
+
+
+class IxeDataIntegrityStream(IxeStreamObj):
+    __tcl_command__ = 'dataIntegrity'
+    __tcl_members__ = [
+    ]
+    __get_command__ = 'getTx'
+    __set_command__ = 'setTx'
+
+    def __init__(self, parent):
+        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
+
+
+class IxePacketGroupStream(IxeStreamObj):
+    __tcl_command__ = 'packetGroup'
+    __tcl_members__ = [
+            TclMember('groupId', type=int),
+    ]
+    __get_command__ = 'getTx'
+    __set_command__ = 'setTx'
+
+    def __init__(self, parent):
+        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)

@@ -38,21 +38,25 @@ class IxeApp(TgnApp):
         IxeObject.logger = logger
         self.session = IxeSession()
         IxeObject.session = self.session
+        self.chassis_chain = {}
 
     def connect(self, chassis):
-        self.chassis = IxeChassis(chassis)
         self.api._tcl_handler.connect()
-        self.chassis.connect()
+        self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
+        self.chassis_chain[chassis].connect()
 
     def disconnect(self):
-        self.chassis.disconnect()
+        for chassis in self.chassis_chain.values():
+            chassis.disconnect()
         self.api._tcl_handler.close()
 
     def discover(self):
-        return self.chassis.discover()
+        for chassis in self.chassis_chain.values():
+            chassis.discover()
 
     def refresh(self):
-        self.chassis.refresh()
+        for chassis in self.chassis_chain.values():
+            chassis.refresh()
         self.session._reset_current_object()
 
 
@@ -70,17 +74,21 @@ class IxeSession(IxeObject):
     def __init__(self):
         super(self.__class__, self).__init__(uri='', parent=None)
 
-    def reserve_ports(self, ports_uri, force=False, clear=True):
+    def reserve_ports(self, ports_locations, force=False, clear=True):
         """ Reserve ports and reset factory defaults.
 
+        :param ports_locations: list of ports ports_locations <ip, card, port> to reserve
         :param force: True - take forcefully, False - fail if port is reserved by other user
         :param clear: True - clear port configuration and statistics, False - leave port as is
-        :param ports_uri: list of ports uris to reserve
         :return: ports dictionary (port uri, port object)
         """
 
-        for port_uri in ports_uri:
-            port = IxePort(parent=self, uri=port_uri)
+        for port_location in ports_locations:
+            ip, card, port = port_location.split('/')
+            chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
+            uri = '{} {} {}'.format(chassis, card, port)
+            port = IxePort(parent=self, uri=uri)
+            port._data['name'] = port_location
             port.reserve(force=force)
             if clear:
                 port.ix_set_default()

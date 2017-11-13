@@ -4,15 +4,23 @@ import logging
 import sys
 
 from trafficgenerator.tgn_utils import ApiType
-from ixexplorer.ixe_hw import IxePort
+from ixexplorer.ixe_port import IxePort
 from ixexplorer.ixe_app import init_ixe
 
-# API type = tcl or socket. Default is tcl with DEBUG log messages (see bellow) because it gives best visibility.
+# API type = tcl or socket, currently supports only socket.
 api = ApiType.socket
-host = '192.168.42.170'
+
+# IxTclServer address.
+host = 'localhost'
+
 # Windows - 4555, Linux - 8022
-tcp_port = 8022
+tcp_port = 4555
+
+# Chassis IP address
+chassis = '192.168.28.7'
 chassis = '192.168.42.170'
+chassis = '192.168.42.61'
+
 # Required only for Linux servers
 rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'
 rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.30-EA/TclScripts/lib/ixTcl1.0/id_rsa'
@@ -52,23 +60,24 @@ def discover():
     connect()
 
     ixia.discover()
+    chassis = ixia.chassis_chain.values()[0]
 
     print ('%-7s | %-32s | %-10s' % ('Chassis', 'Type', 'Version'))
     print ('--------+----------------------------------+--------------')
-    print ('%-7s | %-32s | %-10s' % (ixia.chassis.id, ixia.chassis.typeName, ixia.chassis.ixServerVersion))
-    print (ixia.chassis.id)
+    print ('%-7s | %-32s | %-10s' % (chassis.id, chassis.typeName, chassis.ixServerVersion))
+    print (chassis.id)
     print ('')
 
     print ('%-4s | %-32s | %-10s | %s' % ('Card', 'Type', 'HW Version', 'Serial Number'))
     print ('-----+----------------------------------+------------+--------------')
-    for card in ixia.chassis.cards.values():
+    for card in chassis.cards.values():
         if card is not None:
             print('%-4s | %-32s | %-10s | %-s' % (card, card.typeName, card.hwVersion, card.serialNumber))
 
     print ('')
     print ('%-8s | %-8s | %-10s | %-s' % ('Port', 'Owner', 'Link State', 'Speeds'))
     print ('---------+----------+------------+-------------------------------')
-    for card in ixia.chassis.cards.values():
+    for card in chassis.cards.values():
         if card is None:
             continue
         for port in card.ports.values():
@@ -100,4 +109,4 @@ def detailed_log():
 
 
 if __name__ == '__main__':
-    detailed_log()
+    discover()
