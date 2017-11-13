@@ -186,6 +186,7 @@ class IxeVlan(IxeStreamObj):
             TclMember('vlanID', type=int),
             TclMember('protocolTagId'),
     ]
+    __tcl_commands__ = ['setDefault']
 
 
 class IxeStackedVlan(IxeStreamObj):
@@ -193,7 +194,7 @@ class IxeStackedVlan(IxeStreamObj):
     __tcl_members__ = [
             TclMember('numVlans', flags=FLAG_RDONLY),
     ]
-    __tcl_commands__ = ['addVlan', 'delVlan', 'getFirstVlan', 'getNextVlan', 'getVlan', 'setVlan']
+    __tcl_commands__ = ['setDefault', 'addVlan', 'delVlan', 'getFirstVlan', 'getNextVlan', 'getVlan', 'setVlan']
 
 
 class IxeIp(IxeStreamObj):
@@ -329,17 +330,20 @@ class IxeUdf(IxeStreamObj):
             TclMember('valueList'),
             TclMember('valueRepeatCount'),
     ]
+    __tcl_commands__ = ['addRange', 'clearRangeList', 'config', 'getFirstRange', 'getNextRange',
+                        'getRange', 'setDefault']
 
 
 class IxeDataIntegrityStream(IxeStreamObj):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
+            TclMember('enableTimeStamp'),
+            TclMember('insertSignature'),
+            TclMember('signature'),
+            TclMember('signatureOffset'),
     ]
-    __get_command__ = 'getTx'
-    __set_command__ = 'setTx'
-
-    def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
+    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setQueueTx',
+                        'setRx', 'setTx']
 
 
 class IxePacketGroupStream(IxeStreamObj):
