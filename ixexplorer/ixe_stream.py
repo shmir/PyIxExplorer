@@ -342,8 +342,7 @@ class IxeDataIntegrityStream(IxeStreamObj):
             TclMember('signature'),
             TclMember('signatureOffset'),
     ]
-    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setQueueTx',
-                        'setRx', 'setTx']
+    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getTx', 'setCircuitTx', 'setQueueTx', 'setTx']
 
 
 class IxePacketGroupStream(IxeStreamObj):
