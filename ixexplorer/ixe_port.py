@@ -193,7 +193,7 @@ class IxePort(IxeObject):
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_set_default()
+            getattr(self, field).ix_get()
         return getattr(self, field)
 
 
@@ -210,6 +210,10 @@ class IxePortObj(IxeObject):
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
         super(IxePortObj, self).ix_get(member, force)
+
+    def ix_set(self, member=None):
+        super(IxePortObj, self).ix_set(member)
+        self.parent.ix_set(member)
 
 
 class IxeDataIntegrityPort(IxePortObj):

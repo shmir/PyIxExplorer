@@ -39,6 +39,10 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[1].sa == '44:44:44:44:44:44')
 
         print self.ports[self.port1].packetGroup.signature
+        print self.ports[self.port1].streams[1].dataIntegrity.signature
+        self.ports[self.port1].packetGroup.signature = "{08 71 18 AA}"
+        self.ports[self.port1].streams[1].dataIntegrity.signature = "{08 71 18 AA}"
+        self.ports[self.port1].write()
 
     def testBuildConfig(self):
         self._reserve_ports()

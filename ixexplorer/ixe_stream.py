@@ -133,7 +133,7 @@ class IxeStream(IxeObject):
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_set_default()
+            getattr(self, field).ix_get()
         return getattr(self, field)
 
 
@@ -342,8 +342,13 @@ class IxeDataIntegrityStream(IxeStreamObj):
             TclMember('signature'),
             TclMember('signatureOffset'),
     ]
+    __get_command__ = 'getTx'
+    __set_command__ = 'setTx'
     __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setQueueTx',
                         'setRx', 'setTx']
+
+    def __init__(self, parent):
+        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxePacketGroupStream(IxeStreamObj):

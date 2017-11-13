@@ -21,6 +21,8 @@ But this is less elaborated and documented at this version.
 
 TODO
 Short term:
+- Reset all stream sub commands to default when adding stream
+- Reset all port sub-commands when reseting port? 
 - Stream (packet group) statistics
 
 Longer term:
