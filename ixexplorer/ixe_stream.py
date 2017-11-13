@@ -344,8 +344,7 @@ class IxeDataIntegrityStream(IxeStreamObj):
     ]
     __get_command__ = 'getTx'
     __set_command__ = 'setTx'
-    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setQueueTx',
-                        'setRx', 'setTx']
+    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'setCircuitTx', 'setQueueTx']
 
     def __init__(self, parent):
         super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
