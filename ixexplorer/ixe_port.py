@@ -219,9 +219,14 @@ class IxePortObj(IxeObject):
 class IxeDataIntegrityPort(IxePortObj):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
+            TclMember('enableTimeStamp'),
+            TclMember('insertSignature'),
+            TclMember('signature'),
+            TclMember('signatureOffset'),
     ]
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
+    __tcl_commands__ = ['config', 'getCircuitRx', 'getQueueRx', 'setCircuitRx', 'setQueueRx']
 
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
