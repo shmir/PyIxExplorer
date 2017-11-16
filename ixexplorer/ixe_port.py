@@ -65,7 +65,9 @@ class IxePort(IxeObject):
 
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode', 'write']
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode', 'write',
+                        'setModeDefaults', 'setReceiveMode', 'setTransmitMode', 'setDefault', 'restartAutoNegotiation',
+                        'getPortState']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
