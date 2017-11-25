@@ -21,13 +21,14 @@ class IxeTestBase(TgnTest):
         self.ixia = init_ixe(ApiType[self.config.get('IXE', 'api')], self.logger,
                              host=self.config.get('IXE', 'server'), port=self.config.getint('IXE', 'tcp_port'),
                              rsa_id=self.config.get('IXE', 'rsa_id'))
-        self.ixia.connect(self.config.get('IXE', 'chassis'))
-        self.ixia.session.login('pyixexplorer')
+        self.ixia.connect(self.config.get('IXE', 'user'))
+        self.ixia.add(self.config.get('IXE', 'chassis'))
 
         self.port1 = self.config.get('IXE', 'port1')
         self.port2 = self.config.get('IXE', 'port2')
 
     def tearDown(self):
+        self.ixia.disconnect()
         super(IxeTestBase, self).tearDown()
 
     def testHelloWorld(self):

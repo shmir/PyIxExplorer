@@ -17,9 +17,9 @@ host = 'localhost'
 tcp_port = 4555
 
 # Chassis IP address
-chassis = '192.168.28.7'
-chassis = '192.168.42.170'
-chassis = '192.168.42.61'
+ip = '192.168.28.7'
+ip = '192.168.42.170'
+ip = '192.168.42.61'
 
 # Required only for Linux servers
 rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'
@@ -49,7 +49,7 @@ def connect():
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(api, logger, host, tcp_port, rsa_id)
-    ixia.connect(chassis)
+    ixia.connect()
 
 
 def disconnect():
@@ -59,6 +59,7 @@ def disconnect():
 def discover():
     connect()
 
+    ixia.add(ip)
     ixia.discover()
     chassis = ixia.chassis_chain.values()[0]
 
@@ -104,7 +105,7 @@ def detailed_log():
     logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
-    ixia.connect(chassis)
+    ixia.connect(ip)
     ixia.disconnect()
 
 

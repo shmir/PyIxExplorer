@@ -12,13 +12,13 @@ from ixexplorer.ixe_statistics_view import IxeCapture, IxeCaptureBuffer, IxeCapF
 
 
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
-    """ Create STC object.
+    """ Connect to Tcl Server and Create IxExplorer object.
 
     :param api: socket/tcl
     :type api: trafficgenerator.tgn_utils.ApiType
     :param logger: python logger object
-    :param host: chassis IP address
-    :param port: Tcl server port
+    :param host: host (IxTclServer) IP address
+    :param port: Tcl Server port
     :param rsa_id: full path to RSA ID file for Linux based IxVM
     :return: IXE object
     """
@@ -30,7 +30,6 @@ def init_ixe(api, logger, host, port=4555, rsa_id=None):
 
 
 class IxeApp(TgnApp):
-    """ This version supports only one chassis. """
 
     def __init__(self, logger, api_wrapper):
         super(self.__class__, self).__init__(logger, api_wrapper)
@@ -40,15 +39,29 @@ class IxeApp(TgnApp):
         IxeObject.session = self.session
         self.chassis_chain = {}
 
-    def connect(self, chassis):
+    def connect(self, user=None):
+        """ Connect to host.
+
+        :param user: if user - login session.
+        """
+
         self.api._tcl_handler.connect()
-        self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
-        self.chassis_chain[chassis].connect()
+        if user:
+            self.session.login(user)
 
     def disconnect(self):
         for chassis in self.chassis_chain.values():
             chassis.disconnect()
         self.api._tcl_handler.close()
+
+    def add(self, chassis):
+        """ add chassis.
+
+        :param chassis: chassis IP address.
+        """
+
+        self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
+        self.chassis_chain[chassis].connect()
 
     def discover(self):
         for chassis in self.chassis_chain.values():
@@ -57,6 +70,7 @@ class IxeApp(TgnApp):
     def refresh(self):
         for chassis in self.chassis_chain.values():
             chassis.refresh()
+        self.session.logout()
         self.session._reset_current_object()
 
 
