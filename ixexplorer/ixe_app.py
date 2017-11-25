@@ -33,9 +33,7 @@ class IxeApp(TgnApp):
 
     def __init__(self, logger, api_wrapper):
         super(self.__class__, self).__init__(logger, api_wrapper)
-        IxeObject.api = self.api
-        IxeObject.logger = logger
-        self.session = IxeSession()
+        self.session = IxeSession(self.logger, self.api)
         IxeObject.session = self.session
         self.chassis_chain = {}
 
@@ -85,8 +83,10 @@ class IxeSession(IxeObject):
 
     port_lists = []
 
-    def __init__(self):
+    def __init__(self, logger, api):
         super(self.__class__, self).__init__(uri='', parent=None)
+        self.logger = logger
+        self.api = api
 
     def reserve_ports(self, ports_locations, force=False, clear=True):
         """ Reserve ports and reset factory defaults.
