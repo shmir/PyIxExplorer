@@ -50,6 +50,7 @@ class IxeApp(TgnApp):
     def disconnect(self):
         for chassis in self.chassis_chain.values():
             chassis.disconnect()
+        self.session.logout()
         self.api._tcl_handler.close()
 
     def add(self, chassis):
@@ -68,7 +69,6 @@ class IxeApp(TgnApp):
     def refresh(self):
         for chassis in self.chassis_chain.values():
             chassis.refresh()
-        self.session.logout()
         self.session._reset_current_object()
 
 

@@ -17,6 +17,7 @@ def read(*filenames, **kwargs):
             buf.append(f.read())
     return sep.join(buf)
 
+
 long_description = read('README.txt')
 
 with open('requirements.txt') as f:
@@ -24,7 +25,7 @@ with open('requirements.txt') as f:
 install_requires = [r for r in required if r and r[0] != '#' and not r.startswith('git')]
 
 setup(
-    name='ixeooapi',
+    name='pyixexplorer',
     version=ixexplorer.__version__,
     url='https://github.com/shmir/PyIxExplorer/',
     license='Apache Software License',
