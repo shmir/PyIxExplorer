@@ -43,6 +43,12 @@ Longer term:
 - Full documentation
 - Per port stream stats
 - session is static object!
+- add proper exception regarding miss match on multi server\chassis version
+- Set + set default automatically - not too much calls?
+	add a global flag for automatic set or not - Medium
+	In case of True, the user will have to call the object's write function at the end - Medium
+- Get specific list of counters instead of all
+	Read_stats will get a list of stats to get, or empty == read all - Medium
 
 Installation:
 stable - pip instsll ixeooapi

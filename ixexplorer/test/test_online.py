@@ -22,7 +22,7 @@ class IxeTestOnline(IxeTestBase):
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_transmit()
-        port_stats = IxePortsStats()
+        port_stats = IxePortsStats(self.ixia.session)
         port_stats.read_stats()
         print '++++'
         for port, stats in port_stats.statistics.items():
@@ -54,7 +54,7 @@ class IxeTestOnline(IxeTestBase):
 
         self.ixia.session.start_transmit()
 
-        stream_stats = IxeStreamsStats()
+        stream_stats = IxeStreamsStats(self.ixia.session)
         time.sleep(2)
         self.ixia.session.stop_transmit()
         stream_stats.read_stats()
@@ -67,5 +67,5 @@ class IxeTestOnline(IxeTestBase):
     def testStatsConfig(self):
         self._reserve_ports()
 
-        port_stats = IxePortsStats()
+        port_stats = IxePortsStats(self.ixia.session)
         port_stats.set_attributes(enableArpStats=False)

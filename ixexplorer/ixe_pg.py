@@ -30,7 +30,7 @@ class IxePortGroup(IxeObject):
         if not pg_id:
             pg_id = IxePortGroup.next_free_id
             IxePortGroup.next_free_id += 1
-        super(self.__class__, self).__init__(uri=pg_id, parent=IxeObject.session)
+        super(self.__class__, self).__init__(uri=pg_id, parent=self.session)
 
     def add_port(self, port):
         self.ix_command('add', port.uri)

@@ -165,14 +165,16 @@ class IxeCaptureBuffer(IxeObject):
 
 
 class IxeStats(object):
-    pass
+
+    def __init__(self, session):
+        self.session = session
 
 
 class IxePortsStats(IxeStats):
 
-    def __init__(self, *ports):
-        session = IxeObject.session
-        self.ports = ports if ports else session.ports.values()
+    def __init__(self, session, *ports):
+        super(self.__class__, self).__init__(session)
+        self.ports = ports if ports else self.session.ports.values()
 
     def set_attributes(self, **attributes):
         for port in self.ports:
@@ -197,13 +199,12 @@ class IxeStreamsStats(IxeStats):
 
     def read_stats(self):
         self.statistics = OrderedDict()
-        session = IxeObject.session
-        for port in session.ports.values():
+        for port in self.session.ports.values():
             port.api.call_rc('packetGroupStats get {} 0 65536'.format(port.uri))
             if len(port.streams):
                 port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
         time.sleep(1)
-        for port_tx in session.ports.values():
+        for port_tx in self.session.ports.values():
             for stream in port_tx.streams.values():
                 stream_stats = {}
                 stream_stats_tx = {c + '_tx': v for c, v in
@@ -211,7 +212,7 @@ class IxeStreamsStats(IxeStats):
                 stream_stats['tx'] = stream_stats_tx
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId
                 stream_stats_pg = OrderedDict()
-                for port_rx in session.ports.values():
+                for port_rx in self.session.ports.values():
                     stream_stats_pg[port_rx] = IxePgStats(port_rx, stream_stat_pgid).get_attributes(FLAG_RDONLY)
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[stream] = stream_stats

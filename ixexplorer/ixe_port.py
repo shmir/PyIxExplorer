@@ -182,7 +182,7 @@ class IxePort(IxeObject):
         return full_cap_file_name.get(self, None)
 
     def read_stats(self):
-        return IxePortsStats(self).read_stats().values()[0]
+        return IxePortsStats(self.session, self).read_stats().values()[0]
 
     def get_dataIntegrity(self):
         return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
