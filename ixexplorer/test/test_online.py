@@ -10,7 +10,7 @@ Two Ixia ports connected back to back.
 from os import path
 import time
 
-from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats
+from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
 from ixexplorer.test.test_base import IxeTestBase
 
 
@@ -37,15 +37,17 @@ class IxeTestOnline(IxeTestBase):
         self.ports[self.port1].stop_transmit()
 
     def testCapture(self):
-        cfg1 = path.join(path.dirname(__file__), 'configs/cap_cpnfig.prt')
-        cfg2 = path.join(path.dirname(__file__), 'configs/cap_cpnfig.prt')
+        cfg1 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
         self._load_config(cfg1, cfg2)
 
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit()
         time.sleep(4)
         self.ixia.session.stop_transmit()
-        self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia_cap')
+        self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia_cap', cap_file_format=IxeCapFileFormat.txt)
+        for cap_file in self.ixia.session.get_cap_files().values():
+            print cap_file
 
     def testStreamStats(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')

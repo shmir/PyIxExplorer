@@ -177,16 +177,24 @@ class IxeSession(IxeObject):
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStopCapture {}'.format(port_list))
 
-        cap_file_names = {}
+        self.cap_file_names = {}
         for port in (ports if ports else self.ports.values()):
             port_cap = IxeCapture(parent=port)
             num_frames = port_cap.nPackets
             if num_frames:
-                cap_file_names[port] = cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name
+                self.cap_file_names[port] = (cap_file_name + '-' + port.uri.replace(' ', '_') + '.' +
+                                             cap_file_format.name)
                 port_buffer = IxeCaptureBuffer(parent=port, num_frames=num_frames)
                 port_buffer.ix_get(force=True)
-                port_buffer.export(cap_file_names[port])
-        return cap_file_names
+                port_buffer.export(self.cap_file_names[port])
+        return self.cap_file_names
+
+    def get_cap_files(self):
+        cap_files = {}
+        for port, file_name in self.cap_file_names.items():
+            with open(file_name) as f:
+                cap_files[port] = f.read().splitlines()
+        return cap_files
 
     def set_ports_list(self, *ports):
         if not ports:

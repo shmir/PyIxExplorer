@@ -1,7 +1,7 @@
 *~
 *.pyc
 *.swp
-
+.eggs
 *.egg-info/
 build/
 develop-eggs/
