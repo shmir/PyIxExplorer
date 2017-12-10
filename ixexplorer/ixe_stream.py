@@ -268,6 +268,7 @@ class IxeUdp(IxeStreamObj):
             TclMember('checksumMode'),
             TclMember('destPort'),
             TclMember('enableChecksumOverride'),
+            TclMember('enableChecksum'),
             TclMember('length'),
             TclMember('lengthOverride'),
             TclMember('sourcePort'),
