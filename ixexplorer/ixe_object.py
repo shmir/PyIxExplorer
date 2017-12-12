@@ -45,12 +45,14 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
     def ix_set(self, member=None):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, self.uri))
 
-    def get_attributes(self, flags=0xFF):
-        attributes = OrderedDict()
+    def get_attributes(self, flags=0xFF, *attributes):
+        attrs_values = OrderedDict()
+        if not attributes:
+            attributes = [m.attrname for m in self.__tcl_members__]
         for member in self.__tcl_members__:
-            if member.flags & flags:
-                attributes[member.attrname] = getattr(self, member.attrname)
-        return attributes
+            if member.flags & flags and member.name in attributes:
+                attrs_values[member.attrname] = getattr(self, member.attrname)
+        return attrs_values
 
     def get_attribute(self, attribute):
         return getattr(self, attribute)

@@ -77,7 +77,6 @@ class IxeStat(IxeObject):
             TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
             TclMember('undersize', type=int, flags=FLAG_RDONLY),
 
-
             TclMember('enableArpStats'),
             TclMember('enableDhcpStats'),
             TclMember('enableDhcpV6Stats'),
@@ -180,24 +179,29 @@ class IxePortsStats(IxeStats):
         for port in self.ports:
             IxeStatTotal(port).set_attributes(**attributes)
 
-    def read_stats(self, ports_list=None):
-        self.statistics = OrderedDict()
-        port_list = []
-        if ports_list is None:
-            port_list = self.ports
-        else:
-            port_list.append(ports_list)
+    def read_stats(self, *stats):
+        """ Read port statistics from chassis.
 
-        for port in port_list:
-            port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY)
-            port_stats.update({c + '_rate': v for c, v in IxeStatRate(port).get_attributes(FLAG_RDONLY).items()})
+        :param stats: list of requested statistics to read, if empty - read all statistics.
+        """
+
+        self.statistics = OrderedDict()
+        for port in self.ports:
+            port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY, *stats)
+            port_stats.update({c + '_rate': v for c, v in
+                               IxeStatRate(port).get_attributes(FLAG_RDONLY, *stats).items()})
             self.statistics[str(port)] = port_stats
         return self.statistics
 
 
 class IxeStreamsStats(IxeStats):
 
-    def read_stats(self):
+    def read_stats(self, *stats):
+        """ Read stream statistics from chassis.
+
+        :param stats: list of requested statistics to read, if empty - read all statistics.
+        """
+
         self.statistics = OrderedDict()
         for port in self.session.ports.values():
             port.api.call_rc('packetGroupStats get {} 0 65536'.format(port.uri))
@@ -213,6 +217,7 @@ class IxeStreamsStats(IxeStats):
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId
                 stream_stats_pg = OrderedDict()
                 for port_rx in self.session.ports.values():
-                    stream_stats_pg[port_rx] = IxePgStats(port_rx, stream_stat_pgid).get_attributes(FLAG_RDONLY)
+                    stream_stats_pg[port_rx] = IxePgStats(port_rx, stream_stat_pgid).get_attributes(FLAG_RDONLY,
+                                                                                                    *stats)
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[stream] = stream_stats
