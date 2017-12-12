@@ -7,6 +7,7 @@ IxExplorer package tests that can run in offline mode.
 from os import path
 
 from ixexplorer.test.test_base import IxeTestBase
+from trafficgenerator.tgn_utils import TgnError
 
 
 class IxeTestOffline(IxeTestBase):
@@ -67,25 +68,16 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
 
-    def testWithShay(self):
-        self._reserve_ports()
+    def testErrors(self):
 
-        self.ports[self.port1].add_stream()
-
-        self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
-        self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
-        self.ports[self.port1].streams[1].protocol.ethernet_type = 'ethernetII'
-        self.ports[self.port1].streams[1].protocol.name = 'ipV4'
-        self.ports[self.port1].streams[1].ip.destIpAddr = '1.1.2.1'
-        self.ports[self.port1].streams[1].ip.sourceIpAddr = '1.1.2.2'
-        self.ports[self.port1].streams[1].ip.ttl = 6
-        self.ports[self.port1].streams[1].frameSizeType = 1
-        self.ports[self.port1].streams[1].weightedRandomFramesize.randomType = 1
-        self.ports[self.port1].streams[1].weightedRandomFramesize.addPair(100, 5)
-        self.ports[self.port1].streams[1].weightedRandomFramesize.addPair(200, 10)
-        self.ports[self.port1].streams[1].weightedRandomFramesize.delPair(64, 1)
-
-        self.ports[self.port1].add_stream()
-        self.ports[self.port1].streams[2].da = "22:22:22:22:22:22"
-        self.ports[self.port1].streams[2].sa = "11:11:11:11:11:22"
-        self.ports[self.port1].write()
+        cfg = path.join(path.dirname(__file__), 'configs/good_to_bad_config.prt')
+        port = self.ixia.session.reserve_ports([self.port1], force=True).values()[0]
+        self.ixia.session.login('anotherUser')
+        with self.assertRaises(TgnError):
+            assert(port.reserve())
+        self.ixia.session.login(self.config.get('IXE', 'user'))
+        port.reserve()
+        port.load_config(cfg)
+        port.streams[1].framesize = 64
+        with self.assertRaises(TgnError):
+            assert(port.write())

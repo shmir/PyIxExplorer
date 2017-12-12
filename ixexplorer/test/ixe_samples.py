@@ -18,8 +18,8 @@ tcp_port = 4555
 
 # Chassis IP address
 ip = '192.168.28.7'
-ip = '192.168.42.170'
 ip = '192.168.42.61'
+ip = '192.168.42.175'
 
 # Required only for Linux servers
 rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'

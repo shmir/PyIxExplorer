@@ -21,6 +21,7 @@
 import socket
 import paramiko
 import time
+from trafficgenerator.tgn_utils import TgnError
 
 
 class TclError(Exception):
@@ -83,17 +84,20 @@ class TclClient:
         self.logger.debug('sending %s', command.rstrip())
         self.stdin.write(command)
         self.stdin.flush()
-        l = len(self.stdout.channel.in_buffer)
-        while not l:
+        buf_len = len(self.stdout.channel.in_buffer)
+        while not buf_len:
             time.sleep(0.25)
-            l = len(self.stdout.channel.in_buffer)
-        ret_value = str(self.stdout.read(l).decode("utf-8").rstrip())
+            buf_len = len(self.stdout.channel.in_buffer)
+        ret_value = str(self.stdout.read(buf_len).decode("utf-8").rstrip())
         self.logger.debug('received %s', ret_value)
         return ret_value
 
     def call(self, string, *args):
         if self.windows_server:
-            return self.socket_call(string, *args)[0]
+            result, io_output = self.socket_call(string, *args)
+            if io_output and 'Error:' in io_output:
+                raise TgnError(io_output)
+            return result
         else:
             return self.ssh_call(string, *args)
 
@@ -118,7 +122,9 @@ class TclClient:
             fd.connect((self.host, self.port))
             self.fd = fd
 
-        self.call('package req IxTclHal')
+        rc = self.call('package req IxTclHal')
+        self.call('enableEvents true')
+        print 'rc = ' + rc
 
     def close(self):
         self.logger.debug('Closing connection')

@@ -2,6 +2,8 @@
 from os import path
 import re
 
+from trafficgenerator.tgn_utils import TgnError
+from trafficgenerator.tgn_tcl import tcl_str
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
@@ -65,7 +67,7 @@ class IxePort(IxeObject):
 
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode', 'write',
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode',
                         'setModeDefaults', 'setReceiveMode', 'setTransmitMode', 'setDefault', 'restartAutoNegotiation',
                         'getPortState']
 
@@ -98,12 +100,24 @@ class IxePort(IxeObject):
         """
 
         if not force:
-            self.api.call_rc('ixPortTakeOwnership {}'.format(self.uri))
+            try:
+                self.api.call_rc('ixPortTakeOwnership {}'.format(self.uri))
+            except Exception as _:
+                raise TgnError('Failed to take ownership for port {} current owner is {}'.format(self, self.owner))
         else:
             self.api.call_rc('ixPortTakeOwnership {} force'.format(self.uri))
 
     def release(self):
         self.api.call_rc('ixPortClearOwnership {}'.format(self.uri))
+
+    def write(self):
+        self.ix_command('write')
+        stream_warnings = self.streamRegion.generateWarningList()
+        warnings_list = (self.api.call('join ' + tcl_str(stream_warnings) + ' LiStSeP').split('LiStSeP')
+                         if self.streamRegion.generateWarningList() else [])
+        for warning in warnings_list:
+            if warning:
+                raise TgnError(warning)
 
     def load_config(self, config_file_name):
         """ Load configuration file from prt or str.
@@ -192,6 +206,10 @@ class IxePort(IxeObject):
         return self.get_object('_packetGroup', IxePacketGroupPort)
     packetGroup = property(get_packetGroup)
 
+    def get_streamRegion(self):
+        return self.get_object('_streamRegion', IxeStreamRegion)
+    streamRegion = property(get_streamRegion)
+
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
@@ -203,11 +221,6 @@ class IxePortObj(IxeObject):
 
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri[:-2], parent=parent)
-
-    def ix_command(self, command, *args, **kwargs):
-        rc = self.api.call(('{} {}' + len(args) * ' {}').format(self.__tcl_command__, command, *args))
-        self.ix_set()
-        return rc
 
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
@@ -241,6 +254,16 @@ class IxePacketGroupPort(IxePortObj):
     ]
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
+
+    def __init__(self, parent):
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+
+
+class IxeStreamRegion(IxePortObj):
+    __tcl_command__ = 'streamRegion'
+    __tcl_members__ = [
+    ]
+    __tcl_commands__ = ['generateWarningList']
 
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
