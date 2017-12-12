@@ -21,34 +21,35 @@ But this is less elaborated and documented at this version.
 
 TODO
 Short term:
-- Reset all stream sub commands to default when adding stream
+- Reset all stream sub commands to default when adding stream?
 - Reset all port sub-commands when reseting port? 
 - Stream (packet group) statistics
+- Per port stream stats
+- Set + set default automatically - not too much calls?
+	add a global flag for automatic set or not 
+	In case of True, the user will have to call the object's write function at the end
+- Get specific list of counters instead of all
+	Read_stats will get a list of stats to get, or empty == read all - Medium
+
+Architecture:
+- session is static object.
+- Full documentation
+- Full regression with tox, covarage etc.
 
 Longer term:
 - Should we clear stats on start traffic?
 - Refine set_attributes for port etc - IxeObjectWithWrite?
-- Use statList
-- Test if Tcl server and chassis on the same version
+- Use statList command?
 - Local Tcl
 - Full support for Linux server (including error detection)
 - Better error messages
+	- Test if Tcl server and chassis on the same version
+	- add proper exception regarding miss match on multi server\chassis version
 - Implicit load configuration
 - Get/Set Enums
 - Full support for Linux clients (over sockets only)
-- Copy files to (config) / from (cap) server
-- Multi chassis
 - Improve stream stats - performance, single stream only, set implicitly
 - Load cfg
-- Full documentation
-- Per port stream stats
-- session is static object!
-- add proper exception regarding miss match on multi server\chassis version
-- Set + set default automatically - not too much calls?
-	add a global flag for automatic set or not - Medium
-	In case of True, the user will have to call the object's write function at the end - Medium
-- Get specific list of counters instead of all
-	Read_stats will get a list of stats to get, or empty == read all - Medium
 
 Installation:
 stable - pip instsll ixeooapi

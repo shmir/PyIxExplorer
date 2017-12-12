@@ -89,6 +89,7 @@ class IxePort(IxeObject):
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+        self.cap_file_name = None
 
     def supported_speeds(self):
         return re.findall(r'\d+', self.getFeature('ethernetLineRate'))
@@ -192,8 +193,10 @@ class IxePort(IxeObject):
         :return: full path to pcap file if capture exists else None
         """
 
-        full_cap_file_name = self.session.stop_capture(cap_file_name, cap_file_format, self)
-        return full_cap_file_name.get(self, None)
+        self.session.stop_capture(cap_file_name, cap_file_format, self)
+
+    def get_cap_file(self):
+        return self.session.get_cap_files(self).values()[0]
 
     def read_stats(self):
         return IxePortsStats(self.session, self).read_stats().values()[0]

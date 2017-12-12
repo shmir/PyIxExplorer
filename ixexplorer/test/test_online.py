@@ -46,8 +46,10 @@ class IxeTestOnline(IxeTestBase):
         time.sleep(4)
         self.ixia.session.stop_transmit()
         self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia_cap', cap_file_format=IxeCapFileFormat.txt)
-        for cap_file in self.ixia.session.get_cap_files().values():
-            print cap_file
+        for name, port in self.ports.items():
+            print name
+            print port.cap_file_name
+            print port.get_cap_file()
 
     def testStreamStats(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
