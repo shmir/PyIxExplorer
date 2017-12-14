@@ -8,13 +8,13 @@ from enum import Enum
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_stream import IxePacketGroupStream
 
 
 class IxeCapFileFormat(Enum):
     cap = 1
     enc = 2
     txt = 3
+    mem = 4
 
 
 class IxeStat(IxeObject):
@@ -150,7 +150,7 @@ class IxeCapture(IxeObject):
 
 class IxeCaptureBuffer(IxeObject):
     __tcl_command__ = 'captureBuffer'
-    __tcl_commands__ = ['export']
+    __tcl_commands__ = ['export', 'getframe']
 
     def __init__(self, parent, num_frames):
         super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
@@ -196,20 +196,32 @@ class IxePortsStats(IxeStats):
 
 class IxeStreamsStats(IxeStats):
 
+    def __init__(self, session, *streams):
+        super(self.__class__, self).__init__(session)
+        self.ports_streams = dict(zip(self.session.ports.values(), [[] for _ in xrange(len(self.session.ports))]))
+        if streams:
+            for stream in streams:
+                self.ports_streams[stream.parent].append(stream)
+        else:
+            for port in self.session.ports.values():
+                self.ports_streams[port] = port.streams.values()
+
     def read_stats(self, *stats):
         """ Read stream statistics from chassis.
 
         :param stats: list of requested statistics to read, if empty - read all statistics.
         """
+        from ixexplorer.ixe_stream import IxePacketGroupStream
 
-        self.statistics = OrderedDict()
         for port in self.session.ports.values():
             port.api.call_rc('packetGroupStats get {} 0 65536'.format(port.uri))
             if len(port.streams):
                 port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
         time.sleep(1)
-        for port_tx in self.session.ports.values():
-            for stream in port_tx.streams.values():
+
+        self.statistics = OrderedDict()
+        for port_tx, streams in self.ports_streams.items():
+            for stream in streams:
                 stream_stats = {}
                 stream_stats_tx = {c + '_tx': v for c, v in
                                    IxeStreamTxStats(port_tx, stream.uri[-1]).get_attributes(FLAG_RDONLY).items()}
@@ -221,3 +233,4 @@ class IxeStreamsStats(IxeStats):
                                                                                                     *stats)
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[stream] = stream_stats
+        return self.statistics

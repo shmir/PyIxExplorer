@@ -30,6 +30,7 @@ Short term:
 	In case of True, the user will have to call the object's write function at the end
 - Get specific list of counters instead of all
 	Read_stats will get a list of stats to get, or empty == read all - Medium
+- Add from/to to stop_capture. See if IxeCaptureBuffer can be refactored so it does not have special ix_ methods. 
 
 Architecture:
 - session is static object.

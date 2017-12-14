@@ -1,6 +1,7 @@
 
 from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
+from ixexplorer.ixe_statistics_view import IxeStreamsStats
 
 
 class IxeStream(IxeObject):
@@ -85,6 +86,9 @@ class IxeStream(IxeObject):
             for stream_object in [o for o in IxeStream.last_object.__dict__.values() if isinstance(o, IxeStreamObj)]:
                 stream_object.ix_set_default()
         IxeStream.last_object = self
+
+    def read_stats(self, *stats):
+        return IxeStreamsStats(self.session, self).read_stats(*stats).values()[0]
 
     def get_vlan(self):
         return self.get_object('_vlan', IxeVlan)

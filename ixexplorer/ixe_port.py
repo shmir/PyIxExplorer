@@ -7,7 +7,7 @@ from trafficgenerator.tgn_tcl import tcl_str
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer
 
 
 class IxePort(IxeObject):
@@ -197,6 +197,19 @@ class IxePort(IxeObject):
 
     def get_cap_file(self):
         return self.session.get_cap_files(self).values()[0]
+
+    def get_cap_frames(self, *frame_nums):
+        """ Stop capture on ports.
+
+        :param frame_nums: list of frame numbers to read.
+        :return: list of captured frames.
+        """
+
+        cap_buffer = IxeCaptureBuffer(parent=self, num_frames=-1)
+        frames = []
+        for frame_num in frame_nums:
+            cap_buffer.getframe(frame_num)
+            frames.append(cap_buffer.ix_command('cget', '-frame'))
 
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats).values()[0]

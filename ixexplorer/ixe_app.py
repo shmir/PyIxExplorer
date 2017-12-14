@@ -181,10 +181,12 @@ class IxeSession(IxeObject):
             port_cap = IxeCapture(parent=port)
             num_frames = port_cap.nPackets
             if num_frames:
-                port.cap_file_name = (cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name)
-                port_buffer = IxeCaptureBuffer(parent=port, num_frames=num_frames)
-                port_buffer.ix_get(force=True)
-                port_buffer.export(port.cap_file_name)
+                port.cap_file_name = None
+                cap_buffer = IxeCaptureBuffer(parent=port, num_frames=num_frames)
+                cap_buffer.ix_get(force=True)
+                if cap_file_format is not IxeCapFileFormat.mem:
+                    port.cap_file_name = cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name
+                    cap_buffer.export(port.cap_file_name)
 
     def get_cap_files(self, *ports):
         cap_files = {}
