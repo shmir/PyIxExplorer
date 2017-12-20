@@ -210,6 +210,7 @@ class IxePort(IxeObject):
         for frame_num in frame_nums:
             cap_buffer.getframe(frame_num)
             frames.append(cap_buffer.ix_command('cget', '-frame'))
+        return frames
 
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats).values()[0]
