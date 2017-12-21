@@ -3,7 +3,6 @@ from os import path
 import re
 
 from trafficgenerator.tgn_utils import TgnError
-from trafficgenerator.tgn_tcl import tcl_str
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
@@ -118,7 +117,7 @@ class IxePort(IxeObject):
     def write(self):
         self.ix_command('write')
         stream_warnings = self.streamRegion.generateWarningList()
-        warnings_list = (self.api.call('join ' + tcl_str(stream_warnings) + ' LiStSeP').split('LiStSeP')
+        warnings_list = (self.api.call('join ' + ' {' + stream_warnings + '} ' + ' LiStSeP').split('LiStSeP')
                          if self.streamRegion.generateWarningList() else [])
         for warning in warnings_list:
             if warning:
