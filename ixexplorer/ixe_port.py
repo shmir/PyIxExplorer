@@ -10,6 +10,10 @@ from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer
 
 
+class StreamWarningsError(TgnError):
+    pass
+
+
 class IxePort(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
@@ -113,12 +117,12 @@ class IxePort(IxeObject):
 
     def write(self):
         self.ix_command('write')
-        # stream_warnings = self.streamRegion.generateWarningList()
-        # warnings_list = (self.api.call('join ' + tcl_str(stream_warnings) + ' LiStSeP').split('LiStSeP')
-        #                  if self.streamRegion.generateWarningList() else [])
-        # for warning in warnings_list:
-        #     if warning:
-        #         raise TgnError(warning)
+        stream_warnings = self.streamRegion.generateWarningList()
+        warnings_list = (self.api.call('join ' + tcl_str(stream_warnings) + ' LiStSeP').split('LiStSeP')
+                         if self.streamRegion.generateWarningList() else [])
+        for warning in warnings_list:
+            if warning:
+                raise StreamWarningsError(warning)
 
     def load_config(self, config_file_name):
         """ Load configuration file from prt or str.
