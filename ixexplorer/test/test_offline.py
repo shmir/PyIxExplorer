@@ -6,8 +6,9 @@ IxExplorer package tests that can run in offline mode.
 
 from os import path
 
-from ixexplorer.test.test_base import IxeTestBase
 from trafficgenerator.tgn_utils import TgnError
+from ixexplorer.ixe_port import StreamWarningsError
+from ixexplorer.test.test_base import IxeTestBase
 
 
 class IxeTestOffline(IxeTestBase):
@@ -79,5 +80,5 @@ class IxeTestOffline(IxeTestBase):
         port.reserve()
         port.load_config(cfg)
         port.streams[1].framesize = 64
-        with self.assertRaises(TgnError):
+        with self.assertRaises(StreamWarningsError):
             assert(port.write())
