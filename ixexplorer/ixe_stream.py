@@ -99,6 +99,11 @@ class IxeStream(IxeObject):
     stackedVlan = property(get_stacked_vlan)
 
     def get_ip(self):
+        if self.protocol.ethernetType == '0':
+            self.protocol.ethernetType = 'ethernetII'
+        if self.protocol.name == '0':
+            # for some reason (bug?) alias (ip/ipv4) is not acceptable here.
+            self.protocol.name = '4'
         return self.get_object('_ip', IxeIp)
     ip = property(get_ip)
 
@@ -167,14 +172,13 @@ class IxeProtocol(IxeStreamObj):
             TclMember('ethernetType'),
             TclMember('enable802dot1qTag', type=int),
             TclMember('name'),
-
     ]
 
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
 
     def ix_set(self, member=None):
-        pass
+        self.parent.ix_set(member)
 
 
 class IxeVlan(IxeStreamObj):
