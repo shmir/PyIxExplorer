@@ -82,3 +82,34 @@ class IxeTestOffline(IxeTestBase):
         port.streams[1].framesize = 64
         with self.assertRaises(StreamWarningsError):
             assert(port.write())
+
+    def testWriteAfterWrite(self):
+        self._reserve_ports()
+        port1 = self.ports[self.port1]
+
+        port1.loopback = 1
+        port1.add_stream()
+        port1_stream1 = port1.streams[1]
+        port1_stream1.da = "22:22:22:22:22:11"
+        port1_stream1.sa = "11:11:11:11:11:11"
+        port1_stream1.ip.destIpAddr = '1.1.2.1'
+        port1_stream1.ip.sourceIpAddr = '1.1.1.1'
+        port1_stream1.ip.ipProtocol = '17'
+
+        port1.add_stream()
+        port1_stream2 = self.ports[self.port1].streams[2]
+        port1_stream2.da = "22:22:22:22:22:22"
+        port1_stream2.sa = "11:11:11:11:11:22"
+        port1_stream2.ip.destIpAddr = '1.1.2.2'
+        port1_stream2.ip.sourceIpAddr = '1.1.1.2'
+        port1_stream2.ip.ipProtocol = '17'
+        port1.write()
+
+        port1.add_stream()
+        port1_stream3 = self.ports[self.port1].streams[3]
+        port1_stream3.da = "22:22:22:22:22:33"
+        port1_stream3.sa = "11:11:11:11:11:33"
+        port1_stream3.ip.destIpAddr = '1.1.2.3'
+        port1_stream3.ip.sourceIpAddr = '1.1.1.3'
+        port1_stream3.ip.ipProtocol = '17'
+        port1.write()

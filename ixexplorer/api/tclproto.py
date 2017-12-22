@@ -46,6 +46,19 @@ class TclClient:
         self.fd = None
         self.buffersize = 10240
 
+        import logging
+        from os import path
+        file_handler = None
+        for handler in logger.handlers:
+            if isinstance(handler, logging.FileHandler):
+                file_handler = handler
+        if file_handler:
+            logger_file_name = path.splitext(logger.handlers[0].baseFilename)[0]
+            tcl_logger_file_name = logger_file_name + '-' + self.__class__.__name__ + '.tcl'
+            self.tcl_script = logging.getLogger('tcl' + self.__class__.__name__)
+            self.tcl_script.addHandler(logging.FileHandler(tcl_logger_file_name, 'w'))
+            self.tcl_script.setLevel(logger.getEffectiveLevel())
+
     def socket_call(self, string, *args):
         if self.fd is None:
             raise RuntimeError('TclClient is not connected')
@@ -53,6 +66,7 @@ class TclClient:
         string += '\r\n'
         command = string % args
         self.logger.debug('sending %s', command.rstrip())
+        self.tcl_script.debug(command.rstrip())
         self.fd.send(command.encode('utf-8'))
 
         # reply format is
