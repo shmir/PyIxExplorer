@@ -53,7 +53,7 @@ class TclClient:
             if isinstance(handler, logging.FileHandler):
                 file_handler = handler
         if file_handler:
-            logger_file_name = path.splitext(logger.handlers[0].baseFilename)[0]
+            logger_file_name = path.splitext(file_handler.baseFilename)[0]
             tcl_logger_file_name = logger_file_name + '-' + self.__class__.__name__ + '.tcl'
             self.tcl_script = logging.getLogger('tcl' + self.__class__.__name__)
             self.tcl_script.addHandler(logging.FileHandler(tcl_logger_file_name, 'w'))

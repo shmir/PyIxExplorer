@@ -148,6 +148,9 @@ class IxePort(IxeObject):
         for stream_id in range(1, int(self.getStreamCount()) + 1):
             IxeStream(self, self.uri + '/' + str(stream_id))
 
+    def clear_port_stats(self):
+        self.api.call_rc('ixClearPortStats {}'.format(self.uri))
+
     def clear_stats(self):
         self.api.call_rc('ixClearPortStats {}'.format(self.uri))
         self.api.call_rc('ixClearPortPacketGroups {}'.format(self.uri))
