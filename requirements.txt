@@ -1,4 +1,4 @@
 future
 paramiko
 
-pytrafficgen>=1.2.0
+pytrafficgen>=1.2.2
