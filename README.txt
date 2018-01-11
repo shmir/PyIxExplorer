@@ -20,6 +20,13 @@ The package also support Add/Remove objects so it supports the following test ca
 But this is less elaborated and documented at this version.
 
 TODO
+
+Ideas:
+- Add per member set flag. Will be enable by default, except for list of known attributes.
+- Add set list of attributes, get before, config each attribute in the list,, set after.
+- Make order in low level commands (ix_* style) and higher level (get/set_attributes etc.)
+- Python 3 (latest?) high priority  
+
 Short term:
 - Reset all stream sub commands to default when adding stream?
 - Reset all port sub-commands when reseting port? 

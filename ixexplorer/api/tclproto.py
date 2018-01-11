@@ -21,7 +21,8 @@
 import socket
 import paramiko
 import time
-from trafficgenerator.tgn_utils import TgnError
+
+from trafficgenerator.tgn_utils import TgnError, new_log_file
 
 
 class TclError(Exception):
@@ -46,18 +47,7 @@ class TclClient:
         self.fd = None
         self.buffersize = 10240
 
-        import logging
-        from os import path
-        file_handler = None
-        for handler in logger.handlers:
-            if isinstance(handler, logging.FileHandler):
-                file_handler = handler
-        if file_handler:
-            logger_file_name = path.splitext(logger.handlers[0].baseFilename)[0]
-            tcl_logger_file_name = logger_file_name + '-' + self.__class__.__name__ + '.tcl'
-            self.tcl_script = logging.getLogger('tcl' + self.__class__.__name__)
-            self.tcl_script.addHandler(logging.FileHandler(tcl_logger_file_name, 'w'))
-            self.tcl_script.setLevel(logger.getEffectiveLevel())
+        self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
     def socket_call(self, string, *args):
         if self.fd is None:
@@ -138,7 +128,6 @@ class TclClient:
 
         rc = self.call('package req IxTclHal')
         self.call('enableEvents true')
-        print 'rc = ' + rc
 
     def close(self):
         self.logger.debug('Closing connection')

@@ -82,9 +82,8 @@ class IxeStream(IxeObject):
 
     def ix_set_default(self):
         super(self.__class__, self).ix_set_default()
-        if IxeStream.last_object:
-            for stream_object in [o for o in IxeStream.last_object.__dict__.values() if isinstance(o, IxeStreamObj)]:
-                stream_object.ix_set_default()
+        for stream_object in [o for o in self.__dict__.values() if isinstance(o, IxeStreamObj)]:
+            stream_object.ix_set_default()
         IxeStream.last_object = self
 
     def read_stats(self, *stats):
