@@ -55,13 +55,34 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         return attrs_values
 
     def get_attribute(self, attribute):
+        """ Abstract method - must implement - do not call directly. """
         return getattr(self, attribute)
 
     def set_attributes(self, **attributes):
+        """ Set group of attributes without calling set between attributes regardless of global auto_set.
+
+        Set will be called only after all attributes are set based on global auto_set.
+
+        :param attributes: dictionary of <attribute, value> to set.
+        """
+
+        auto_set = IxeObject.get_auto_set()
+        IxeObject.set_auto_set(False)
         for name, value in attributes.items():
             setattr(self, name, value)
+        if auto_set:
+            self.ix_set()
+        IxeObject.set_auto_set(auto_set)
 
     def _reset_current_object(self):
         self.__class__.current_object = None
         for child in self.objects.values():
             child._reset_current_object()
+
+    @classmethod
+    def get_auto_set(cls):
+        return _MetaIxTclApi.auto_set
+
+    @classmethod
+    def set_auto_set(cls, auto_set):
+        _MetaIxTclApi.auto_set = auto_set

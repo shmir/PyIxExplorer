@@ -1,15 +1,10 @@
 
 Ideas:
 - Add per member set flag. Will be enable by default, except for list of known attributes.
-- Add set list of attributes, get before, config each attribute in the list,, set after.
-- Make order in low level commands (ix_* style) and higher level (get/set_attributes etc.)
 
 Short term:
 - Reset all stream sub commands to default when adding stream?
 - Reset all port sub-commands when reseting port? 
-- Set + set default automatically - not too much calls?
-	add a global flag for automatic set or not 
-	In case of True, the user will have to call the object's write function at the end
 - Add from/to to stop_capture. See if IxeCaptureBuffer can be refactored so it does not have special ix_ methods.
 
 Architecture:

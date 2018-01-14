@@ -96,11 +96,16 @@ class IxeStream(IxeObject):
     stackedVlan = property(get_stacked_vlan)
 
     def get_ip(self):
+        require_set = False
         if self.protocol.ethernetType == '0':
             self.protocol.ethernetType = 'ethernetII'
+            require_set = True
         if self.protocol.name == '0':
             # for some reason (bug?) alias (ip/ipv4) is not acceptable here.
             self.protocol.name = '4'
+            require_set = True
+        if require_set and not IxeObject.get_auto_set():
+            self.ix_set()
         return self.get_object('_ip', IxeIp)
     ip = property(get_ip)
 

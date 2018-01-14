@@ -121,6 +121,9 @@ class _MetaIxTclApi(type):
     which fetches the properties and stores them into the IxTclHal object. Eg.
     for the 'port' command this would be 'port get <ch> <card> <port>'.
     """
+
+    auto_set = True
+
     def __new__(cls, clsname, clsbases, clsdict):
         members = clsdict.get('__tcl_members__', list())
         command = clsdict.get('__tcl_command__', None)
@@ -142,7 +145,8 @@ class _MetaIxTclApi(type):
             def fset(self, value, cmd=command, m=m):
                 self.ix_get(m)
                 self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
-                self.ix_set(m)
+                if _MetaIxTclApi.auto_set:
+                    self.ix_set(m)
 
             if not m.attrname:
                 m.attrname = m.name

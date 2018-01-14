@@ -1,7 +1,6 @@
 
 from os import path
 import re
-from collections import OrderedDict
 
 from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
