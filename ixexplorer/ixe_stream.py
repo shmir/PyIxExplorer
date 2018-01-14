@@ -70,10 +70,9 @@ class IxeStream(IxeObject):
 
     __tcl_commands__ = ['export', 'write']
 
-    last_object = None
-
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+        self.rx_ports = []
 
     def remove(self):
         self.ix_command('remove')
@@ -84,7 +83,6 @@ class IxeStream(IxeObject):
         super(self.__class__, self).ix_set_default()
         for stream_object in [o for o in self.__dict__.values() if isinstance(o, IxeStreamObj)]:
             stream_object.ix_set_default()
-        IxeStream.last_object = self
 
     def read_stats(self, *stats):
         return IxeStreamsStats(self.session, self).read_stats(*stats).values()[0]

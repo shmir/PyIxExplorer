@@ -1,12 +1,13 @@
 
 from os import path
 import re
+from collections import OrderedDict
 
 from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer, IxeStreamsStats
 
 
 class StreamWarningsError(TgnError):
@@ -221,6 +222,9 @@ class IxePort(IxeObject):
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats).values()[0]
 
+    def read_stream_stats(self, *stats):
+        return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(stats)
+
     def get_dataIntegrity(self):
         return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
     dataIntegrity = property(get_dataIntegrity)
@@ -238,6 +242,11 @@ class IxePort(IxeObject):
             setattr(self, field, ixe_object(parent=self))
             getattr(self, field).ix_get()
         return getattr(self, field)
+
+    def set_rx_ports(self, *rx_ports):
+        for stream in self.get_objects_by_type('stream'):
+            stream.rx_ports = rx_ports
+    rx_ports = property(fset=set_rx_ports)
 
 
 class IxePortObj(IxeObject):

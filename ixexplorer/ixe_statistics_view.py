@@ -194,6 +194,14 @@ class IxePortsStats(IxeStats):
         return self.statistics
 
 
+class pg_stats_dict(OrderedDict):
+    def __getitem__(self, key):
+        if key in self.keys():
+            return OrderedDict.__getitem__(self, key)
+        else:
+            return self.values()[0][key]
+
+
 class IxeStreamsStats(IxeStats):
 
     def __init__(self, session, *streams):
@@ -222,15 +230,16 @@ class IxeStreamsStats(IxeStats):
         self.statistics = OrderedDict()
         for port_tx, streams in self.ports_streams.items():
             for stream in streams:
-                stream_stats = {}
-                stream_stats_tx = {c + '_tx': v for c, v in
-                                   IxeStreamTxStats(port_tx, stream.uri[-1]).get_attributes(FLAG_RDONLY).items()}
+                stream_stats = OrderedDict()
+                stream_tx_stats = IxeStreamTxStats(port_tx, stream.uri[-1])
+                stream_stats_tx = {c: v for c, v in stream_tx_stats.get_attributes(FLAG_RDONLY).items()}
                 stream_stats['tx'] = stream_stats_tx
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId
-                stream_stats_pg = OrderedDict()
+                stream_stats_pg = pg_stats_dict()
                 for port_rx in self.session.ports.values():
-                    stream_stats_pg[port_rx] = IxePgStats(port_rx, stream_stat_pgid).get_attributes(FLAG_RDONLY,
-                                                                                                    *stats)
+                    if not stream.rx_ports or port_rx in stream.rx_ports:
+                        pg_stats = IxePgStats(port_rx, stream_stat_pgid)
+                        stream_stats_pg[str(port_rx)] = pg_stats.get_attributes(FLAG_RDONLY, *stats)
                 stream_stats['rx'] = stream_stats_pg
-                self.statistics[stream] = stream_stats
+                self.statistics[str(stream)] = stream_stats
         return self.statistics
