@@ -18,7 +18,7 @@ def read(*filenames, **kwargs):
     return sep.join(buf)
 
 
-long_description = read('README.txt')
+long_description = read('README.rst')
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()

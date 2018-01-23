@@ -169,7 +169,7 @@ class IxePort(IxeObject):
         :return: dictionary {stream id: object} of all streams.
         """
 
-        return {int(s.uri[-1]): s for s in self.get_objects_by_type('stream')}
+        return {int(s.uri.split()[-1]): s for s in self.get_objects_by_type('stream')}
     streams = property(get_streams)
 
     def start_transmit(self, blocking=False):

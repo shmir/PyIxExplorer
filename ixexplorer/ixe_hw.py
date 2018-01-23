@@ -44,7 +44,7 @@ class IxeCard(IxeObject):
         :return: dictionary {name: object} of all ports.
         """
 
-        return {int(p.uri[-1]): p for p in self.get_objects_by_type('port')}
+        return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
 
@@ -129,6 +129,7 @@ class IxeChassis(IxeObject):
             try:
                 card.discover()
             except IxTclHalError:
+                self.logger.info('slot {} is empty'.format(cid))
                 card.del_object_from_parent()
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
@@ -143,5 +144,5 @@ class IxeChassis(IxeObject):
         :return: dictionary {name: object} of all cards.
         """
 
-        return {int(c.uri[-1]): c for c in self.get_objects_by_type('card')}
+        return {int(c.uri.split()[-1]): c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)

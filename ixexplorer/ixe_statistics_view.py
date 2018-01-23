@@ -231,7 +231,7 @@ class IxeStreamsStats(IxeStats):
         for port_tx, streams in self.ports_streams.items():
             for stream in streams:
                 stream_stats = OrderedDict()
-                stream_tx_stats = IxeStreamTxStats(port_tx, stream.uri[-1])
+                stream_tx_stats = IxeStreamTxStats(port_tx, stream.uri.split()[-1])
                 stream_stats_tx = {c: v for c, v in stream_tx_stats.get_attributes(FLAG_RDONLY).items()}
                 stream_stats['tx'] = stream_stats_tx
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId
