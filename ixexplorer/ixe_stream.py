@@ -258,8 +258,7 @@ class IxeIpv6(IxeStreamObj):
     __tcl_command__ = 'ipV6'
     __tcl_members__ = [
             TclMember('destAddr'),
-            TclMember('destAddrMode', type=int),
-            TclMember('destAddrRepeatCount', type=int),
+            TclMember('destAddrMode'),
             TclMember('destAddrRepeatCount', type=int),
             TclMember('destMask', type=int),
             TclMember('destStepSize', type=int),
@@ -267,7 +266,7 @@ class IxeIpv6(IxeStreamObj):
             TclMember('hopLimit', type=int),
             TclMember('nextHeader', type=int),
             TclMember('sourceAddr'),
-            TclMember('sourceAddrMode', type=int),
+            TclMember('sourceAddrMode'),
             TclMember('sourceAddrRepeatCount', type=int),
             TclMember('sourceMask', type=int),
             TclMember('sourceStepSize', type=int),
