@@ -161,7 +161,7 @@ class IxePort(IxeObject):
         stream.ix_set_default()
         if not name:
             name = str(stream)
-        stream.name = name
+        stream.name = '{' + name + '}'
         return stream
 
     def get_streams(self):

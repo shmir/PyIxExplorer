@@ -95,24 +95,27 @@ class IxeStream(IxeObject):
         return self.get_object('_stackedVlan', IxeStackedVlan)
     stackedVlan = property(get_stacked_vlan)
 
-    def get_ip(self):
+    def _set_ip(self, version):
         require_set = False
         if self.protocol.ethernetType == '0':
             self.protocol.ethernetType = 'ethernetII'
             require_set = True
         if self.protocol.name == '0':
             # for some reason (bug?) alias (ip/ipv4) is not acceptable here.
-            self.protocol.name = '4'
+            self.protocol.name = str(version)
             require_set = True
         if require_set and not IxeObject.get_auto_set():
             self.ix_set()
+
+    def get_ip(self):
+        self._set_ip(4)
         return self.get_object('_ip', IxeIp)
     ip = property(get_ip)
 
     def get_ipV6(self):
+        self._set_ip(31)
         return self.get_object('_ipV6', IxeIpv6)
     ipV6 = property(get_ipV6)
-
 
     def get_tcp(self):
         return self.get_object('_tcp', IxeTcp)
@@ -149,7 +152,7 @@ class IxeStream(IxeObject):
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_get()
+            getattr(self, field).ix_set_default()
         return getattr(self, field)
 
 
@@ -253,6 +256,7 @@ class IxeIp(IxeStreamObj):
             TclMember('ttl', type=int),
             TclMember('useValidChecksum'),
     ]
+
 
 class IxeIpv6(IxeStreamObj):
     __tcl_command__ = 'ipV6'

@@ -48,9 +48,11 @@ class IxeTestOffline(IxeTestBase):
         self.ports[self.port1].add_stream()
         self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
         self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
-        self.ports[self.port1].add_stream()
+        self.ports[self.port1].add_stream(name='aaa')
         self.ports[self.port1].streams[2].da = "22:22:22:22:22:22"
         self.ports[self.port1].streams[2].sa = "11:11:11:11:11:22"
+        self.ports[self.port1].add_stream(name='111')
+        self.ports[self.port1].add_stream(name='1 a')
         self.ports[self.port1].write()
 
         assert(self.ports[self.port1].streams[1].da == '22:22:22:22:22:11')
