@@ -109,6 +109,11 @@ class IxeStream(IxeObject):
         return self.get_object('_ip', IxeIp)
     ip = property(get_ip)
 
+    def get_ipV6(self):
+        return self.get_object('_ipV6', IxeIpv6)
+    ipV6 = property(get_ipV6)
+
+
     def get_tcp(self):
         return self.get_object('_tcp', IxeTcp)
     tcp = property(get_tcp)
@@ -248,6 +253,27 @@ class IxeIp(IxeStreamObj):
             TclMember('ttl', type=int),
             TclMember('useValidChecksum'),
     ]
+
+class IxeIpv6(IxeStreamObj):
+    __tcl_command__ = 'ipV6'
+    __tcl_members__ = [
+            TclMember('destAddr'),
+            TclMember('destAddrMode'),
+            TclMember('destAddrRepeatCount', type=int),
+            TclMember('destMask', type=int),
+            TclMember('destStepSize', type=int),
+            TclMember('flowLabel', type=int),
+            TclMember('hopLimit', type=int),
+            TclMember('nextHeader', type=int),
+            TclMember('sourceAddr'),
+            TclMember('sourceAddrMode'),
+            TclMember('sourceAddrRepeatCount', type=int),
+            TclMember('sourceMask', type=int),
+            TclMember('sourceStepSize', type=int),
+            TclMember('trafficClass', type=int),
+    ]
+    __tcl_commands__ = ['addExtensionHeader', 'clearAllExtensionHeaders', 'config', 'decode', 'delExtensionHeader',
+                        'getFirstExtensionHeader', 'getNextExtensionHeader', 'setDefault']
 
 
 class IxeTcp(IxeStreamObj):
