@@ -6,7 +6,7 @@ import time
 from collections import OrderedDict
 from enum import Enum
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject
 
 
@@ -76,6 +76,8 @@ class IxeStat(IxeObject):
             TclMember('udpChecksumErrors', type=int, flags=FLAG_RDONLY),
             TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
             TclMember('undersize', type=int, flags=FLAG_RDONLY),
+
+            TclMember('linkFaultState', type=int, flags=FLAG_RDONLY & FLAG_IGERR),
 
             TclMember('enableArpStats'),
             TclMember('enableDhcpStats'),

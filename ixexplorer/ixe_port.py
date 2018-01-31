@@ -129,6 +129,9 @@ class IxePort(IxeObject):
         Configuration file type is extracted from the file suffix - prt or str.
 
         :param config_file_name: full path to the configuration file.
+            IxTclServer must have access to the file location. either:
+                The config file is on shared folder.
+                IxTclServer run on the client machine.
         """
 
         config_file_name = config_file_name.replace('\\', '/')

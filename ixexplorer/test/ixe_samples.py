@@ -117,5 +117,11 @@ def detailed_log():
     ixia.disconnect()
 
 
+def run_all():
+    connect()
+    discover()
+    disconnect()
+
+
 if __name__ == '__main__':
-    start_transmit()
+    run_all()

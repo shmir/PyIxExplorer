@@ -19,13 +19,20 @@ The package also support Add/Remove objects so it supports the following test ca
 	Load configuration -> Get/Set attributes -> Start/Stop traffic -> Get statistics.
 But this is less elaborated and documented at this version.
 
+Prerequisite:
+"""""""""""""
+Access to IxTclServer connected to IxServer. IxTclServer can run on any Windows machine as long as it can aceess the
+IxServer of the requested chassis.
+
 Installation:
 """""""""""""
 stable - pip instsll pyixexplorer
 
-Prerequisite:
-"""""""""""""
-In case of Linux IxOS - IxExplorer application installed.
+Getting started
+"""""""""""""""
+Under ixexplorer.test.ixe_samples you will shows basic samples (under development).
+Additional code snippets can be found in ixexplorer.test.test*
+See inside for more info.
 
 Related works:
 """"""""""""""
