@@ -67,7 +67,16 @@ class IxePort(IxeObject):
         TclMember('type', flags=FLAG_RDONLY),
         TclMember('typeName', flags=FLAG_RDONLY),
         TclMember('usePacketFlowImageFile', type=bool),
-
+        TclMember('enableRsFec', type=bool),
+        TclMember('ieeeL1Defaults', type=int),
+        TclMember('firecodeRequest', type=int),
+        TclMember('firecodeAdvertise', type=int),
+        TclMember('firecodeForceOn', type=int),
+        TclMember('firecodeForceOff', type=int),
+        TclMember('reedSolomonRequest', type=int),
+        TclMember('reedSolomonAdvertise', type=int),
+        TclMember('reedSolomonForceOn', type=int),
+        TclMember('reedSolomonForceOff', type=int)
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode',
@@ -223,10 +232,18 @@ class IxePort(IxeObject):
 
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats).values()[0]
-
+    
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(stats)
 
+    def get_filter(self):
+        return self.get_object('_filter', IxeFilterPort)
+    filter = property(get_filter)
+
+    def get_filterPallette(self):
+        return self.get_object('_filterPallette', IxeFilterPalettePort)
+    filterPallette = property(get_filterPallette)
+   
     def get_dataIntegrity(self):
         return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
     dataIntegrity = property(get_dataIntegrity)
@@ -250,6 +267,12 @@ class IxePort(IxeObject):
             stream.rx_ports = rx_ports
     rx_ports = property(fset=set_rx_ports)
 
+    def ix_set_list(self,optList):
+        self.ix_get()
+        for opt in optList:
+            value = optList[opt]
+            self.api.call('%s config -%s %s' % (self.__tcl_command__, opt, value))
+        self.ix_set()
 
 class IxePortObj(IxeObject):
 
@@ -292,6 +315,84 @@ class IxePacketGroupPort(IxePortObj):
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
+class IxeFilterPort(IxePortObj):
+    __tcl_command__ = 'filter'
+    __tcl_members__ = [
+            TclMember(''),
+        TclMember('captureTriggerDA'),
+        TclMember('captureTriggerSA'),
+        TclMember('captureTriggerPattern'),
+        TclMember('captureTriggerError'),
+        TclMember('captureTriggerFrameSizeEnable'),
+        TclMember('captureTriggerFrameSizeFrom'),
+        TclMember('captureTriggerFrameSizeTo'),
+        TclMember('captureTriggerCircuit'),
+        TclMember('captureFilterDA'),
+        TclMember('captureFilterSA'),
+        TclMember('captureFilterPattern'),
+        TclMember('captureFilterError'),
+        TclMember('captureFilterFrameSizeEnable'),
+        TclMember('captureFilterFrameSizeFrom'),
+        TclMember('captureFilterFrameSizeTo'),
+        TclMember('captureFilterCircuit'),
+        TclMember('userDefinedStat1DA'),
+        TclMember('userDefinedStat1SA'),
+        TclMember('userDefinedStat1Pattern'),
+        TclMember('userDefinedStat1Error'),
+        TclMember('userDefinedStat1FrameSizeEnable'),
+        TclMember('userDefinedStat1FrameSizeFrom'),
+        TclMember('userDefinedStat1FrameSizeTo'),
+        TclMember('userDefinedStat1Circuit'),
+        TclMember('userDefinedStat2DA'),
+        TclMember('userDefinedStat2SA'),
+        TclMember('userDefinedStat2Pattern'),
+        TclMember('userDefinedStat2Error'),
+        TclMember('userDefinedStat2FrameSizeEnable'),
+        TclMember('userDefinedStat2FrameSizeFrom'),
+        TclMember('userDefinedStat2FrameSizeTo'),
+        TclMember('userDefinedStat2Circuit'),
+        TclMember('asyncTrigger1DA'),
+        TclMember('asyncTrigger1SA'),
+        TclMember('asyncTrigger1Pattern'),
+        TclMember('asyncTrigger1Error'),
+        TclMember('asyncTrigger1FrameSizeEnable'),
+        TclMember('asyncTrigger1FrameSizeFrom'),
+        TclMember('asyncTrigger1FrameSizeTo'),
+        TclMember('asyncTrigger1Circuit'),
+        TclMember('asyncTrigger2DA'),
+        TclMember('asyncTrigger2SA'),
+        TclMember('asyncTrigger2Pattern'),
+        TclMember('asyncTrigger2Error'),
+        TclMember('asyncTrigger2FrameSizeEnable'),
+        TclMember('asyncTrigger2FrameSizeFrom'),
+        TclMember('asyncTrigger2FrameSizeTo'),
+        TclMember('asyncTrigger2Circuit'),
+        TclMember('captureTriggerEnable'),
+        TclMember('captureFilterEnable'),
+        TclMember('userDefinedStat1Enable'),
+        TclMember('userDefinedStat2Enable'),
+        TclMember('asyncTrigger1Enable'),
+        TclMember('asyncTrigger2Enable'),
+        TclMember('userDefinedStat1PatternExpressionEnable'),
+        TclMember('userDefinedStat2PatternExpressionEnable'),
+        TclMember('captureTriggerPatternExpressionEnable'),
+        TclMember('captureFilterPatternExpressionEnable'),
+        TclMember('asyncTrigger1PatternExpressionEnable'),
+        TclMember('asyncTrigger2PatternExpressionEnable'),
+        TclMember('userDefinedStat1PatternExpression'),
+        TclMember('userDefinedStat2PatternExpression'),
+        TclMember('captureTriggerPatternExpression'),
+        TclMember('captureFilterPatternExpression'),
+        TclMember('asyncTrigger1PatternExpression'),
+        TclMember('asyncTrigger2PatternExpression'),
+    ]
+
+    __tcl_commands__ = ['setDefault']
+    __get_command__ = 'get'
+    __set_command__ = 'set'
+
+    def __init__(self, parent):
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 class IxeStreamRegion(IxePortObj):
     __tcl_command__ = 'streamRegion'
@@ -299,5 +400,30 @@ class IxeStreamRegion(IxePortObj):
     ]
     __tcl_commands__ = ['generateWarningList']
 
+    def __init__(self, parent):
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+		
+		
+class IxeFilterPalettePort(IxePortObj):
+    __tcl_command__ = 'filterPallette'
+    __tcl_members__ = [
+        TclMember('DA1'),
+        TclMember('DAMask1'),
+        TclMember('DA2'),
+        TclMember('DAMask2'),
+        TclMember('SA1'),
+        TclMember('SAMask1'),
+        TclMember('SA2'),
+        TclMember('SAMask2'),
+        TclMember('pattern1'),
+        TclMember('patternMask1'),
+        TclMember('pattern2'),
+        TclMember('patternMask2'),
+        TclMember('patternOffset1',type=int),
+        TclMember('patternOffset2',type=int),
+    ]
+    __tcl_commands__ = ['setDefault']
+    __get_command__ = 'get'
+    __set_command__ = 'set'
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
