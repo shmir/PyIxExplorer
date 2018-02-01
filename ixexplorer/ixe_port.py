@@ -1,12 +1,19 @@
 
 from os import path
 import re
+from enum import Enum
 
 from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer, IxeStreamsStats
+
+
+class IxePhyMode(Enum):
+    copper = 'portPhyModeCopper'
+    fiber = 'portPhyModeFibber'
+    ignore = None
 
 
 class StreamWarningsError(TgnError):
@@ -255,25 +262,19 @@ class IxePort(IxeObject):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
-    def set_phymode(self, fiber=False):
-        """ Set phy mode to copper or fiber
-            It's useful for some card port which need to change mode manually
-        :param fiber:True - set to fiber mode
-        :return:
-        """
-        mode = "$::portPhyModeCopper"
-        if fiber:
-            mode = "$::portPhyModeFibber"
+    def set_phy_mode(self, mode=IxePhyMode.ignore):
+        """ Set phy mode to copper or fiber.
 
-        try:
-            self.api.call_rc('port setPhyMode {} {}'.format(mode, self.uri))
-        except Exception as _:
-            raise TgnError('Failed to setPhyMode for port {} current mode is {}'.format(self, mode))
+        :param mode: requested PHY mode.
+        """
+
+        if mode.value:
+            self.api.call_rc('port setPhyMode {} {}'.format(mode.value, self.uri))
 
     def set_receivemode(self, *modes):
         """ set port receive mode
         :param modes:such as "$::portCapture, $::portRxModeWidePacketGroup"
-        :return:
+        :todo refactor like set_phy_mode.
         """
         if not modes:
             modes = "$::portCapture"
@@ -288,7 +289,7 @@ class IxePort(IxeObject):
     def set_transmitmode(self, mode = "portTxPacketStreams"):
         """ set port transmit mode
         :param modes:such as "portTxPacketStreams"
-        :return:
+        :todo refactor like set_phy_mode.
         """
         try:
             self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
@@ -312,6 +313,7 @@ class IxePort(IxeObject):
             value = optList[opt]
             self.api.call('%s config -%s %s' % (self.__tcl_command__, opt, value))
         self.ix_set()
+
 
 class IxePortObj(IxeObject):
 
