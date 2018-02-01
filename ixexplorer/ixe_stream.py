@@ -68,7 +68,7 @@ class IxeStream(IxeObject):
             TclMember('startTxDelay'),
     ]
 
-    __tcl_commands__ = ['export', 'write']
+    __tcl_commands__ = ['export', 'write' ]
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
@@ -95,19 +95,27 @@ class IxeStream(IxeObject):
         return self.get_object('_stackedVlan', IxeStackedVlan)
     stackedVlan = property(get_stacked_vlan)
 
-    def get_ip(self):
+    def _set_ip(self, version):
         require_set = False
         if self.protocol.ethernetType == '0':
             self.protocol.ethernetType = 'ethernetII'
             require_set = True
         if self.protocol.name == '0':
             # for some reason (bug?) alias (ip/ipv4) is not acceptable here.
-            self.protocol.name = '4'
+            self.protocol.name = str(version)
             require_set = True
         if require_set and not IxeObject.get_auto_set():
             self.ix_set()
+
+    def get_ip(self):
+        self._set_ip(4)
         return self.get_object('_ip', IxeIp)
     ip = property(get_ip)
+
+    def get_ipV6(self):
+        self._set_ip(31)
+        return self.get_object('_ipV6', IxeIpv6)
+    ipV6 = property(get_ipV6)
 
     def get_tcp(self):
         return self.get_object('_tcp', IxeTcp)
@@ -144,7 +152,7 @@ class IxeStream(IxeObject):
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_get()
+            getattr(self, field).ix_set_default()
         return getattr(self, field)
 
 
@@ -250,6 +258,28 @@ class IxeIp(IxeStreamObj):
     ]
 
 
+class IxeIpv6(IxeStreamObj):
+    __tcl_command__ = 'ipV6'
+    __tcl_members__ = [
+            TclMember('destAddr'),
+            TclMember('destAddrMode'),
+            TclMember('destAddrRepeatCount', type=int),
+            TclMember('destMask', type=int),
+            TclMember('destStepSize', type=int),
+            TclMember('flowLabel', type=int),
+            TclMember('hopLimit', type=int),
+            TclMember('nextHeader', type=int),
+            TclMember('sourceAddr'),
+            TclMember('sourceAddrMode'),
+            TclMember('sourceAddrRepeatCount', type=int),
+            TclMember('sourceMask', type=int),
+            TclMember('sourceStepSize', type=int),
+            TclMember('trafficClass', type=int),
+    ]
+    __tcl_commands__ = ['addExtensionHeader', 'clearAllExtensionHeaders', 'config', 'decode', 'delExtensionHeader',
+                        'getFirstExtensionHeader', 'getNextExtensionHeader', 'setDefault']
+
+
 class IxeTcp(IxeStreamObj):
     __tcl_command__ = 'tcp'
     __tcl_members__ = [
@@ -344,6 +374,22 @@ class IxeUdf(IxeStreamObj):
     __tcl_commands__ = ['addRange', 'clearRangeList', 'config', 'getFirstRange', 'getNextRange',
                         'getRange', 'setDefault']
 
+    # def setDefault(self):
+    #     pass
+
+    def ix_get(self, member=None, force=False):
+        pass
+        #self.parent.ix_get(member, True)
+        #self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__get_command__, self.uri))
+        #super(IxeStreamObj, self).ix_get(member, force)
+
+    def ix_set(self, member=None):
+        pass
+        #super(IxeStreamObj, self).ix_set(member)
+        #self.parent.ix_set(member)
+
+    def set(self,index):
+        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__,index))
 
 class IxeDataIntegrityStream(IxeStreamObj):
     __tcl_command__ = 'dataIntegrity'

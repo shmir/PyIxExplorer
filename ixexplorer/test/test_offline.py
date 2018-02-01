@@ -17,8 +17,8 @@ class IxeTestOffline(IxeTestBase):
 
     def testLoadConfig(self):
 
-        cfg1 = path.join(path.dirname(__file__), 'configs/test_config_1.prt')
-        cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.prt')
+        cfg1 = path.join('C:/temp/a-b', 'test_config_1.prt')
+        cfg2 = path.join('C:/temp/a-b', 'test_config_2.prt')
         self._load_config(cfg1, cfg2)
 
         assert(len(self.ports) == 2)
@@ -48,15 +48,25 @@ class IxeTestOffline(IxeTestBase):
         self.ports[self.port1].add_stream()
         self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
         self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
-        self.ports[self.port1].add_stream()
+        self.ports[self.port1].add_stream(name='aaa')
         self.ports[self.port1].streams[2].da = "22:22:22:22:22:22"
         self.ports[self.port1].streams[2].sa = "11:11:11:11:11:22"
+        self.ports[self.port1].add_stream(name='1 a')
+        self.ports[self.port1].add_stream(name='1-a')
+        self.ports[self.port1].add_stream(name='1/a')
+        self.ports[self.port1].add_stream(name='1%a')
+        self.ports[self.port1].add_stream(name='1\a')
         self.ports[self.port1].write()
 
         assert(self.ports[self.port1].streams[1].da == '22:22:22:22:22:11')
         assert(self.ports[self.port1].streams[1].sa == '11:11:11:11:11:11')
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
+        assert(self.ports[self.port1].streams[3].name == '1 a')
+        assert(self.ports[self.port1].streams[4].name == '1-a')
+        assert(self.ports[self.port1].streams[5].name == '1/a')
+        assert(self.ports[self.port1].streams[6].name == '1%a')
+        assert(self.ports[self.port1].streams[7].name == '1\a')
 
         self.ports[self.port2].add_stream()
         self.ports[self.port2].streams[1].da = "11:11:11:11:11:11"
