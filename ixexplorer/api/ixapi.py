@@ -52,6 +52,7 @@ Note that there is only one temporary storage for each command.
 """
 
 from trafficgenerator.tgn_utils import TgnError
+from ixexplorer.api.tclproto import TclError
 
 FLAG_RDONLY = 1
 FLAG_IGERR = 2
@@ -140,9 +141,10 @@ class _MetaIxTclApi(type):
                 try:
                     self.ix_get(m)
                     val = self.api.call('%s cget -%s' % (cmd, m.name))
-                except TgnError as e:
-                    if not m.flags & FLAG_RDONLY:
+                except (TclError, TgnError) as e:
+                    if not m.flags & FLAG_IGERR:
                         raise e
+                    val = '-1'
 
                 return_val = val.strip() if type(val) is str else val[0]
                 if m.type != MacStr:
@@ -154,8 +156,8 @@ class _MetaIxTclApi(type):
                 try:
                     self.ix_get(m)
                     self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
-                except TgnError as e:
-                    if not m.flags & FLAG_RDONLY:
+                except (TclError, TgnError) as e:
+                    if not m.flags & FLAG_IGERR:
                         raise e
 
                 if _MetaIxTclApi.auto_set:

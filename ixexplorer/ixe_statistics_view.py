@@ -23,7 +23,7 @@ class IxeStat(IxeObject):
             TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
             TclMember('link', type=int, flags=FLAG_RDONLY),
             TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
-            TclMember('linkFaultState', type=int, flags=FLAG_RDONLY & FLAG_IGERR),
+            TclMember('linkFaultState', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
 
             TclMember('framesSent', type=int, flags=FLAG_RDONLY),
             TclMember('framesReceived', type=int, flags=FLAG_RDONLY),
