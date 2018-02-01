@@ -88,7 +88,7 @@ class IxeSession(IxeObject):
         self.api = api
         self.session = self
 
-    def reserve_ports(self, ports_locations, force=False, clear=True):
+    def reserve_ports(self, ports_locations, force=False, clear=True, fiber=False):
         """ Reserve ports and reset factory defaults.
 
         :param ports_locations: list of ports ports_locations <ip, card, port> to reserve
@@ -107,6 +107,7 @@ class IxeSession(IxeObject):
             if clear:
                 port.ix_set_default()
                 port.setFactoryDefaults()
+                port.set_phymode(fiber)
                 port.reset()
                 port.write()
                 port.clear_stats()
