@@ -79,8 +79,8 @@ class IxePort(IxeObject):
         TclMember('reedSolomonForceOff', type=int)
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode',
-                        'setModeDefaults', 'setReceiveMode', 'setTransmitMode', 'setDefault', 'restartAutoNegotiation',
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults',
+                        'setModeDefaults', 'setDefault', 'restartAutoNegotiation',
                         'getPortState']
 
     LINK_STATE_DOWN = 0
@@ -142,7 +142,6 @@ class IxePort(IxeObject):
                 The config file is on shared folder.
                 IxTclServer run on the client machine.
         """
-
         config_file_name = config_file_name.replace('\\', '/')
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
@@ -255,6 +254,46 @@ class IxePort(IxeObject):
     def get_streamRegion(self):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
+
+    def set_phymode(self, fiber=False):
+        """ Set phy mode to copper or fiber
+            It's useful for some card port which need to change mode manually
+        :param fiber:True - set to fiber mode
+        :return:
+        """
+        mode = "$::portPhyModeCopper"
+        if fiber:
+            mode = "$::portPhyModeFibber"
+
+        try:
+            self.api.call_rc('port setPhyMode {} {}'.format(mode, self.uri))
+        except Exception as _:
+            raise TgnError('Failed to setPhyMode for port {} current mode is {}'.format(self, mode))
+
+    def set_receivemode(self, *modes):
+        """ set port receive mode
+        :param modes:such as "$::portCapture, $::portRxModeWidePacketGroup"
+        :return:
+        """
+        if not modes:
+            modes = "$::portCapture"
+
+        mode_list = "[ expr " + " | ".join(modes) + " ]"
+
+        try:
+            self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
+        except Exception as _:
+            raise TgnError('Failed to setReceiveMode for port {} current mode is {}'.format(self, modes))
+
+    def set_transmitmode(self, mode = "portTxPacketStreams"):
+        """ set port transmit mode
+        :param modes:such as "portTxPacketStreams"
+        :return:
+        """
+        try:
+            self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
+        except Exception as _:
+            raise TgnError('Failed to setTransmitMode for port {} current mode is {}'.format(self, mode))
 
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
