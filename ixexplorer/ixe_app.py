@@ -7,7 +7,8 @@ from trafficgenerator.tgn_app import TgnApp
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_hw import IxeChassis, IxePort
+from ixexplorer.ixe_hw import IxeChassis
+from ixexplorer.ixe_port import IxePort, IxePhyMode
 from ixexplorer.ixe_statistics_view import IxeCapture, IxeCaptureBuffer, IxeCapFileFormat
 
 
@@ -88,12 +89,13 @@ class IxeSession(IxeObject):
         self.api = api
         self.session = self
 
-    def reserve_ports(self, ports_locations, force=False, clear=True, fiber=False):
+    def reserve_ports(self, ports_locations, force=False, clear=True, phy_mode=IxePhyMode.ignore):
         """ Reserve ports and reset factory defaults.
 
         :param ports_locations: list of ports ports_locations <ip, card, port> to reserve
         :param force: True - take forcefully, False - fail if port is reserved by other user
         :param clear: True - clear port configuration and statistics, False - leave port as is
+        :param phy_mode: requested PHY mode.
         :return: ports dictionary (port uri, port object)
         """
 
@@ -107,7 +109,7 @@ class IxeSession(IxeObject):
             if clear:
                 port.ix_set_default()
                 port.setFactoryDefaults()
-                port.set_phymode(fiber)
+                port.set_phy_mode(phy_mode)
                 port.reset()
                 port.write()
                 port.clear_stats()

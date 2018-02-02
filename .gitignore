@@ -16,3 +16,4 @@ dist/
 .coverage
 
 .idea
+.pytest_cache
