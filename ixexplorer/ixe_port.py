@@ -15,7 +15,41 @@ class IxePhyMode(Enum):
     fiber = 'portPhyModeFibber'
     ignore = None
 
+class IxeReceiveMode(Enum):
+	capture = '$::portCapture'
+	packetGroup = '$::portPacketGroup'
+	tcpSessions = '$::portRxTcpSessions'
+	tcpRoundTrip = '$::portRxTcpRoundTrip'
+	dataIntegrity = '$::portRxDataIntegrity'
+	firstTimeStamp = '$::portRxFirstTimeStamp'
+	sequenceChecking = '$::portRxSequenceChecking'
+	Bert = '$::portRxModeBert'
+	Isl = '$::portRxModeIsl'
+	bertChannelized = '$::portRxModeBertChannelized'
+	echo = '$::portRxModeEcho'
+	dcc = '$::portRxModeDcc'
+	widePacketGroup = '$::portRxModeWidePacketGroup'
+	prbs = '$::portRxModePrbs'
+	ratingMonitoring = '$::portRxModeRateMonitoring'
+	perFlowErrorStats = '$::portRxModePerFlowErrorStats'
+	
+	ignore = None
 
+class IxeTransmitMode(Enum):
+	packetFlows = 'portTxPacketFlows'
+	advancedScheduler = 'portTxModeAdvancedScheduler'
+	bert = 'portTxModeBert'
+	bertChannelized = 'portTxModeBertChannelized'
+	echo = 'portTxModeEcho'
+	dccStreams = 'portTxModeDccStreams'
+	dccAdvancedScheduler = 'portTxModeDccAvancedScheduler'
+	dccFlowSpecStreams = 'portTxModeDccFlowsSpeStreams'
+	dccFlowSpecAdvancedScheduler = 'portTxModeDccFlowsSpeAdvancedScheduler'
+	advancedSchedulerCoarse-vm = 'portTxModeAdvancedSchedulerCoarse'
+	streamsCoarse-vm = 'portTxModePacketStreamsCoarse'
+
+	ignore = None
+	
 class StreamWarningsError(TgnError):
     pass
 
@@ -273,28 +307,19 @@ class IxePort(IxeObject):
 
     def set_receivemode(self, *modes):
         """ set port receive mode
-        :param modes:such as "$::portCapture, $::portRxModeWidePacketGroup"
-        :todo refactor like set_phy_mode.
+        :param modes: requested receive mode list
         """
-        if not modes:
-            modes = "$::portCapture"
-
-        mode_list = "[ expr " + " | ".join(modes) + " ]"
-
-        try:
+        if modes:
+			mode_values = [mode.value for mode in modes]
+        	mode_list = "[ expr " + " | ".join(mode_values) + " ]"
             self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
-        except Exception as _:
-            raise TgnError('Failed to setReceiveMode for port {} current mode is {}'.format(self, modes))
 
-    def set_transmitmode(self, mode = "portTxPacketStreams"):
+    def set_transmitmode(self, mode=IxeTransmitMode.ignore):
         """ set port transmit mode
-        :param modes:such as "portTxPacketStreams"
-        :todo refactor like set_phy_mode.
+        :param modes: request transmit mode
         """
-        try:
+		if mode.value:
             self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
-        except Exception as _:
-            raise TgnError('Failed to setTransmitMode for port {} current mode is {}'.format(self, mode))
 
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
