@@ -15,41 +15,41 @@ class IxePhyMode(Enum):
     fiber = 'portPhyModeFibber'
     ignore = None
 
+
 class IxeReceiveMode(Enum):
-	capture = '$::portCapture'
-	packetGroup = '$::portPacketGroup'
-	tcpSessions = '$::portRxTcpSessions'
-	tcpRoundTrip = '$::portRxTcpRoundTrip'
-	dataIntegrity = '$::portRxDataIntegrity'
-	firstTimeStamp = '$::portRxFirstTimeStamp'
-	sequenceChecking = '$::portRxSequenceChecking'
-	Bert = '$::portRxModeBert'
-	Isl = '$::portRxModeIsl'
-	bertChannelized = '$::portRxModeBertChannelized'
-	echo = '$::portRxModeEcho'
-	dcc = '$::portRxModeDcc'
-	widePacketGroup = '$::portRxModeWidePacketGroup'
-	prbs = '$::portRxModePrbs'
-	ratingMonitoring = '$::portRxModeRateMonitoring'
-	perFlowErrorStats = '$::portRxModePerFlowErrorStats'
-	
-	ignore = None
+    capture = '$::portCapture'
+    packetGroup = '$::portPacketGroup'
+    tcpSessions = '$::portRxTcpSessions'
+    tcpRoundTrip = '$::portRxTcpRoundTrip'
+    dataIntegrity = '$::portRxDataIntegrity'
+    firstTimeStamp = '$::portRxFirstTimeStamp'
+    sequenceChecking = '$::portRxSequenceChecking'
+    bert = '$::portRxModeBert'
+    isl = '$::portRxModeIsl'
+    bertChannelized = '$::portRxModeBertChannelized'
+    echo = '$::portRxModeEcho'
+    dcc = '$::portRxModeDcc'
+    widePacketGroup = '$::portRxModeWidePacketGroup'
+    prbs = '$::portRxModePrbs'
+    ratingMonitoring = '$::portRxModeRateMonitoring'
+    perFlowErrorStats = '$::portRxModePerFlowErrorStats'
+
 
 class IxeTransmitMode(Enum):
-	packetFlows = 'portTxPacketFlows'
-	advancedScheduler = 'portTxModeAdvancedScheduler'
-	bert = 'portTxModeBert'
-	bertChannelized = 'portTxModeBertChannelized'
-	echo = 'portTxModeEcho'
-	dccStreams = 'portTxModeDccStreams'
-	dccAdvancedScheduler = 'portTxModeDccAvancedScheduler'
-	dccFlowSpecStreams = 'portTxModeDccFlowsSpeStreams'
-	dccFlowSpecAdvancedScheduler = 'portTxModeDccFlowsSpeAdvancedScheduler'
-	advancedSchedulerCoarse-vm = 'portTxModeAdvancedSchedulerCoarse'
-	streamsCoarse-vm = 'portTxModePacketStreamsCoarse'
+    packetStreams = 'portTxPacketStreams'
+    packetFlows = 'portTxPacketFlows'
+    advancedScheduler = 'portTxModeAdvancedScheduler'
+    bert = 'portTxModeBert'
+    bertChannelized = 'portTxModeBertChannelized'
+    echo = 'portTxModeEcho'
+    dccStreams = 'portTxModeDccStreams'
+    dccAdvancedScheduler = 'portTxModeDccAvancedScheduler'
+    dccFlowSpecStreams = 'portTxModeDccFlowsSpeStreams'
+    dccFlowSpecAdvancedScheduler = 'portTxModeDccFlowsSpeAdvancedScheduler'
+    advancedSchedulerCoarse = 'portTxModeAdvancedSchedulerCoarse'
+    streamsCoarse = 'portTxModePacketStreamsCoarse'
 
-	ignore = None
-	
+
 class StreamWarningsError(TgnError):
     pass
 
@@ -305,21 +305,25 @@ class IxePort(IxeObject):
         if mode.value:
             self.api.call_rc('port setPhyMode {} {}'.format(mode.value, self.uri))
 
-    def set_receivemode(self, *modes):
+    def set_receive_modes(self, *modes):
         """ set port receive mode
-        :param modes: requested receive mode list
-        """
-        if modes:
-			mode_values = [mode.value for mode in modes]
-        	mode_list = "[ expr " + " | ".join(mode_values) + " ]"
-            self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
 
-    def set_transmitmode(self, mode=IxeTransmitMode.ignore):
-        """ set port transmit mode
-        :param modes: request transmit mode
+        :param modes: requested receive modes
+        :type modes: list of ixexplorer.ixe_port.IxeReceiveMode
         """
-		if mode.value:
-            self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
+
+        mode_values = [mode.value for mode in modes]
+        mode_list = "[ expr " + " | ".join(mode_values) + " ]"
+        self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
+
+    def set_transmit_mode(self, mode):
+        """ set port transmit mode
+
+        :param mode: request transmit mode
+        :type mode: ixexplorer.ixe_port.IxeTransmitMode
+        """
+
+        self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
 
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
