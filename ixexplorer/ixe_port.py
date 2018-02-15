@@ -296,6 +296,12 @@ class IxePort(IxeObject):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
+
+    def get_capture(self):
+        return self.get_object('_capture', IxeCapturePort)
+    capture = property(get_capture())
+
+
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
 
@@ -495,5 +501,26 @@ class IxeFilterPalettePort(IxePortObj):
     __tcl_commands__ = ['setDefault']
     __get_command__ = 'get'
     __set_command__ = 'set'
+    def __init__(self, parent):
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+
+class IxeCapturePort(IxePortObj):
+    __tcl_command__ = 'capture'
+    __tcl_members__ = [
+            TclMember('afterTriggerFilter'),
+            TclMember('beforeTriggerFilter'),
+            TclMember('captureMode'),
+            TclMember('continuousFilter'),
+            TclMember('enableSmallPacketCapture'),
+            TclMember('fullAction'),
+            TclMember('nPackets', flags=FLAG_RDONLY),
+            TclMember('sliceSize'),
+            TclMember('triggerPosition'),
+
+    ]
+    __tcl_commands__ = ['setDefault']
+    __get_command__ = 'get'
+    __set_command__ = 'set'
+
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
