@@ -299,7 +299,7 @@ class IxePort(IxeObject):
 
     def get_capture(self):
         return self.get_object('_capture', IxeCapturePort)
-    capture = property(get_capture())
+    capture = property(get_capture)
 
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
