@@ -24,9 +24,9 @@ class IxePort(IxeObject):
         TclMember('advertiseAbilities'),
         TclMember('autoDetectInstrumentationMode', type=bool),
         TclMember('autonegotiate', type=bool),
-        TclMember('dataCenterMode', type=bool),
+        TclMember('dataCenterMode'),
         TclMember('DestMacAddress', type=MacStr),
-        TclMember('directedAddress', type=MacStr),
+        TclMember('directedAddress'),
         TclMember('duplex'),
         TclMember('enableAutoDetectInstrumentation', type=bool),
         TclMember('enableDataCenterMode', type=bool),
@@ -81,7 +81,7 @@ class IxePort(IxeObject):
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode',
                         'setModeDefaults', 'setReceiveMode', 'setTransmitMode', 'setDefault', 'restartAutoNegotiation',
-                        'getPortState']
+                        'getPortState','isValidFeature']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1

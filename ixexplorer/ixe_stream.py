@@ -374,19 +374,11 @@ class IxeUdf(IxeStreamObj):
     __tcl_commands__ = ['addRange', 'clearRangeList', 'config', 'getFirstRange', 'getNextRange',
                         'getRange', 'setDefault']
 
-    # def setDefault(self):
-    #     pass
-
     def ix_get(self, member=None, force=False):
         pass
-        #self.parent.ix_get(member, True)
-        #self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__get_command__, self.uri))
-        #super(IxeStreamObj, self).ix_get(member, force)
 
     def ix_set(self, member=None):
         pass
-        #super(IxeStreamObj, self).ix_set(member)
-        #self.parent.ix_set(member)
 
     def set(self,index):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__,index))
