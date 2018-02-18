@@ -1,12 +1,53 @@
 
 from os import path
 import re
+from enum import Enum
 
 from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer, IxeStreamsStats
+
+
+class IxePhyMode(Enum):
+    copper = 'portPhyModeCopper'
+    fiber = 'portPhyModeFibber'
+    ignore = None
+
+
+class IxeReceiveMode(Enum):
+    capture = '$::portCapture'
+    packetGroup = '$::portPacketGroup'
+    tcpSessions = '$::portRxTcpSessions'
+    tcpRoundTrip = '$::portRxTcpRoundTrip'
+    dataIntegrity = '$::portRxDataIntegrity'
+    firstTimeStamp = '$::portRxFirstTimeStamp'
+    sequenceChecking = '$::portRxSequenceChecking'
+    bert = '$::portRxModeBert'
+    isl = '$::portRxModeIsl'
+    bertChannelized = '$::portRxModeBertChannelized'
+    echo = '$::portRxModeEcho'
+    dcc = '$::portRxModeDcc'
+    widePacketGroup = '$::portRxModeWidePacketGroup'
+    prbs = '$::portRxModePrbs'
+    ratingMonitoring = '$::portRxModeRateMonitoring'
+    perFlowErrorStats = '$::portRxModePerFlowErrorStats'
+
+
+class IxeTransmitMode(Enum):
+    packetStreams = 'portTxPacketStreams'
+    packetFlows = 'portTxPacketFlows'
+    advancedScheduler = 'portTxModeAdvancedScheduler'
+    bert = 'portTxModeBert'
+    bertChannelized = 'portTxModeBertChannelized'
+    echo = 'portTxModeEcho'
+    dccStreams = 'portTxModeDccStreams'
+    dccAdvancedScheduler = 'portTxModeDccAvancedScheduler'
+    dccFlowSpecStreams = 'portTxModeDccFlowsSpeStreams'
+    dccFlowSpecAdvancedScheduler = 'portTxModeDccFlowsSpeAdvancedScheduler'
+    advancedSchedulerCoarse = 'portTxModeAdvancedSchedulerCoarse'
+    streamsCoarse = 'portTxModePacketStreamsCoarse'
 
 
 class StreamWarningsError(TgnError):
@@ -138,8 +179,10 @@ class IxePort(IxeObject):
         Configuration file type is extracted from the file suffix - prt or str.
 
         :param config_file_name: full path to the configuration file.
+            IxTclServer must have access to the file location. either:
+                The config file is on shared folder.
+                IxTclServer run on the client machine.
         """
-
         config_file_name = config_file_name.replace('\\', '/')
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
@@ -170,7 +213,7 @@ class IxePort(IxeObject):
         stream.ix_set_default()
         if not name:
             name = str(stream)
-        stream.name = '{' + name + '}'
+        stream.name = '{' + name.replace('%', '%%').replace('\\', '\\\\') + '}'
         return stream
 
     def get_streams(self):
@@ -253,6 +296,41 @@ class IxePort(IxeObject):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
+
+    def get_capture(self):
+        return self.get_object('_capture', IxeCapturePort)
+    capture = property(get_capture)
+
+
+    def set_phy_mode(self, mode=IxePhyMode.ignore):
+        """ Set phy mode to copper or fiber.
+
+        :param mode: requested PHY mode.
+        """
+
+        if mode.value:
+            self.api.call_rc('port setPhyMode {} {}'.format(mode.value, self.uri))
+
+    def set_receive_modes(self, *modes):
+        """ set port receive mode
+
+        :param modes: requested receive modes
+        :type modes: list of ixexplorer.ixe_port.IxeReceiveMode
+        """
+
+        mode_values = [mode.value for mode in modes]
+        mode_list = "[ expr " + " | ".join(mode_values) + " ]"
+        self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
+
+    def set_transmit_mode(self, mode):
+        """ set port transmit mode
+
+        :param mode: request transmit mode
+        :type mode: ixexplorer.ixe_port.IxeTransmitMode
+        """
+
+        self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
+
     def get_object(self, field, ixe_object):
         if not hasattr(self, field):
             setattr(self, field, ixe_object(parent=self))
@@ -270,6 +348,7 @@ class IxePort(IxeObject):
             value = optList[opt]
             self.api.call('%s config -%s %s' % (self.__tcl_command__, opt, value))
         self.ix_set()
+
 
 class IxePortObj(IxeObject):
 
@@ -422,5 +501,26 @@ class IxeFilterPalettePort(IxePortObj):
     __tcl_commands__ = ['setDefault']
     __get_command__ = 'get'
     __set_command__ = 'set'
+    def __init__(self, parent):
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+
+class IxeCapturePort(IxePortObj):
+    __tcl_command__ = 'capture'
+    __tcl_members__ = [
+            TclMember('afterTriggerFilter'),
+            TclMember('beforeTriggerFilter'),
+            TclMember('captureMode'),
+            TclMember('continuousFilter'),
+            TclMember('enableSmallPacketCapture'),
+            TclMember('fullAction'),
+            TclMember('nPackets', flags=FLAG_RDONLY),
+            TclMember('sliceSize'),
+            TclMember('triggerPosition'),
+
+    ]
+    __tcl_commands__ = ['setDefault']
+    __get_command__ = 'get'
+    __set_command__ = 'set'
+
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)

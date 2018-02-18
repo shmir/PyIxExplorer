@@ -51,7 +51,11 @@ Note that there is only one temporary storage for each command.
 
 """
 
+from trafficgenerator.tgn_utils import TgnError
+from ixexplorer.api.tclproto import TclError
+
 FLAG_RDONLY = 1
+FLAG_IGERR = 2
 
 
 def translate_ix_member_name(name):
@@ -134,8 +138,14 @@ class _MetaIxTclApi(type):
                 raise RuntimeError('Element #%d of __tcl_members__ is not a TclMember' % (n+1,))
 
             def fget(self, cmd=command, m=m):
-                self.ix_get(m)
-                val = self.api.call('%s cget -%s' % (cmd, m.name))
+                try:
+                    self.ix_get(m)
+                    val = self.api.call('%s cget -%s' % (cmd, m.name))
+                except (TclError, TgnError) as e:
+                    if not m.flags & FLAG_IGERR:
+                        raise e
+                    val = '-1'
+
                 return_val = val.strip() if type(val) is str else val[0]
                 if m.type != MacStr:
                     if m.type is bool:
@@ -145,8 +155,13 @@ class _MetaIxTclApi(type):
                     return str(m.type(return_val))
 
             def fset(self, value, cmd=command, m=m):
-                self.ix_get(m)
-                self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
+                try:
+                    self.ix_get(m)
+                    self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
+                except (TclError, TgnError) as e:
+                    if not m.flags & FLAG_IGERR:
+                        raise e
+
                 if _MetaIxTclApi.auto_set:
                     self.ix_set(m)
 

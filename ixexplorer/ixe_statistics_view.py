@@ -6,7 +6,7 @@ import time
 from collections import OrderedDict
 from enum import Enum
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject
 
 
@@ -23,6 +23,7 @@ class IxeStat(IxeObject):
             TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
             TclMember('link', type=int, flags=FLAG_RDONLY),
             TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
+            # TclMember('linkFaultState', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
 
             TclMember('framesSent', type=int, flags=FLAG_RDONLY),
             TclMember('framesReceived', type=int, flags=FLAG_RDONLY),
@@ -60,6 +61,7 @@ class IxeStat(IxeObject):
             TclMember('pauseAcknowledge', type=int, flags=FLAG_RDONLY),
             TclMember('pauseEndFrames', type=int, flags=FLAG_RDONLY),
             TclMember('pauseOverwrite', type=int, flags=FLAG_RDONLY),
+            TclMember('prbsErroredBits', type=int, flags=FLAG_RDONLY),
             TclMember('rxPingReply', type=int, flags=FLAG_RDONLY),
             TclMember('rxPingRequest', type=int, flags=FLAG_RDONLY),
             TclMember('scheduledFramesSent', type=int, flags=FLAG_RDONLY),

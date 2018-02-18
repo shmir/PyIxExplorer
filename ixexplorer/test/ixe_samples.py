@@ -11,16 +11,17 @@ from ixexplorer.ixe_app import init_ixe
 api = ApiType.socket
 
 # IxTclServer address.
-host = 'localhost'
+host = '192.168.42.61'
 
 # Windows - 4555, Linux - 8022
 tcp_port = 4555
 
 # Chassis IP address
 ip = '192.168.28.7'
-ip = '192.168.42.61'
 ip = '192.168.42.175'
-ip = 'localhost'
+ip = '192.168.42.61'
+
+user = 'pyixexplorer'
 
 # Required only for Linux servers
 rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'
@@ -50,7 +51,7 @@ def connect():
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(api, logger, host, tcp_port, rsa_id)
-    ixia.connect()
+    ixia.connect(user)
 
 
 def disconnect():
@@ -89,6 +90,12 @@ def discover():
     disconnect()
 
 
+def start_transmit():
+    connect()
+    ixia.add(ip)
+    ixia.session.reserve_ports([ip + '/1/1', ip + '/1/2'])
+
+
 def build_ixvm():
 
     connect()
@@ -110,5 +117,11 @@ def detailed_log():
     ixia.disconnect()
 
 
-if __name__ == '__main__':
+def run_all():
+    connect()
     discover()
+    disconnect()
+
+
+if __name__ == '__main__':
+    run_all()
