@@ -137,7 +137,7 @@ class IxeSession(IxeObject):
         self.api.call_rc('ixStartTransmit {}'.format(port_list))
         time.sleep(2)
         if blocking:
-            self.wait_transmit(ports)
+            self.wait_transmit(*ports)
 
     def stop_transmit(self, *ports):
         """ Stop traffic on ports.
