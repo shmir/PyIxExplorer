@@ -27,8 +27,8 @@ class IxeTestOnline(IxeTestBase):
         port_stats = IxePortsStats(self.ixia.session)
         port_stats.read_stats()
         print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
-        assert(port_stats.statistics['192.168.42.61/2/2']['framesSent'] > 0)
-        assert(port_stats.statistics['192.168.42.61/2/2']['framesSent_rate'] > 0)
+        assert(port_stats.statistics[self.port1]['framesSent'] > 0)
+        assert(port_stats.statistics[self.port2]['framesSent_rate'] > 0)
         self.ixia.session.stop_transmit()
 
         self.ports[self.port1].start_transmit()
@@ -56,7 +56,7 @@ class IxeTestOnline(IxeTestBase):
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
         assert(stream_stats.statistics['1/2/1/1']['tx']['framesSent'] > 0)
         assert(stream_stats.statistics['1/2/1/1']['tx']['frameRate'] == 0)
-        assert(stream_stats.statistics['1/2/1/1']['rx']['192.168.42.61/2/2']['totalFrames'] > 0)
+        assert(stream_stats.statistics['1/2/1/1']['rx']['totalFrames'] > 0)
         assert(stream_stats.statistics['1/2/1/1']['rx']['frameRate'] == 0)
 
         print(json.dumps(self.ports[self.port1].read_stream_stats('totalFrames'), indent=1))
