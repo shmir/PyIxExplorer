@@ -349,7 +349,7 @@ class IxePort(IxeObject):
 class IxePortObj(IxeObject):
 
     def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri[:-2], parent=parent)
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
@@ -372,9 +372,6 @@ class IxeDataIntegrityPort(IxePortObj):
     __set_command__ = 'setRx'
     __tcl_commands__ = ['config', 'getCircuitRx', 'getQueueRx', 'setCircuitRx', 'setQueueRx']
 
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
-
 
 class IxePacketGroupPort(IxePortObj):
     __tcl_command__ = 'packetGroup'
@@ -383,9 +380,6 @@ class IxePacketGroupPort(IxePortObj):
     ]
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeFilterPort(IxePortObj):
@@ -459,13 +453,7 @@ class IxeFilterPort(IxePortObj):
             TclMember('asyncTrigger1PatternExpression'),
             TclMember('asyncTrigger2PatternExpression'),
     ]
-
     __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeStreamRegion(IxePortObj):
@@ -473,9 +461,6 @@ class IxeStreamRegion(IxePortObj):
     __tcl_members__ = [
     ]
     __tcl_commands__ = ['generateWarningList']
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeFilterPalettePort(IxePortObj):
@@ -497,8 +482,3 @@ class IxeFilterPalettePort(IxePortObj):
         TclMember('patternOffset2', type=int),
     ]
     __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
