@@ -148,6 +148,8 @@ class _MetaIxTclApi(type):
 
                 return_val = val.strip() if type(val) is str else val[0]
                 if m.type != MacStr:
+                    if m.type is bool:
+                        return bool(int(return_val))
                     return m.type(return_val)
                 else:
                     return str(m.type(return_val))
