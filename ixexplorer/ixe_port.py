@@ -65,9 +65,9 @@ class IxePort(IxeObject):
         TclMember('advertiseAbilities'),
         TclMember('autoDetectInstrumentationMode', type=bool),
         TclMember('autonegotiate', type=bool),
-        TclMember('dataCenterMode'),
+        TclMember('dataCenterMode', type=bool),
         TclMember('DestMacAddress', type=MacStr),
-        TclMember('directedAddress'),
+        TclMember('directedAddress', type=MacStr),
         TclMember('duplex'),
         TclMember('enableAutoDetectInstrumentation', type=bool),
         TclMember('enableDataCenterMode', type=bool),
@@ -120,9 +120,9 @@ class IxePort(IxeObject):
         TclMember('reedSolomonForceOff', type=int)
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode',
-                        'setModeDefaults', 'setReceiveMode', 'setTransmitMode', 'setDefault', 'restartAutoNegotiation',
-                        'getPortState','isValidFeature']
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults',
+                        'setModeDefaults', 'setDefault', 'restartAutoNegotiation',
+                        'getPortState']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -298,12 +298,6 @@ class IxePort(IxeObject):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
-
-    def get_capture(self):
-        return self.get_object('_capture', IxeCapturePort)
-    capture = property(get_capture)
-
-
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
 
@@ -355,7 +349,7 @@ class IxePort(IxeObject):
 class IxePortObj(IxeObject):
 
     def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri[:-2], parent=parent)
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
@@ -378,9 +372,6 @@ class IxeDataIntegrityPort(IxePortObj):
     __set_command__ = 'setRx'
     __tcl_commands__ = ['config', 'getCircuitRx', 'getQueueRx', 'setCircuitRx', 'setQueueRx']
 
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
-
 
 class IxePacketGroupPort(IxePortObj):
     __tcl_command__ = 'packetGroup'
@@ -389,9 +380,6 @@ class IxePacketGroupPort(IxePortObj):
     ]
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeFilterPort(IxePortObj):
@@ -465,13 +453,7 @@ class IxeFilterPort(IxePortObj):
             TclMember('asyncTrigger1PatternExpression'),
             TclMember('asyncTrigger2PatternExpression'),
     ]
-
     __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeStreamRegion(IxePortObj):
@@ -479,9 +461,6 @@ class IxeStreamRegion(IxePortObj):
     __tcl_members__ = [
     ]
     __tcl_commands__ = ['generateWarningList']
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 
 class IxeFilterPalettePort(IxePortObj):
@@ -503,29 +482,3 @@ class IxeFilterPalettePort(IxePortObj):
         TclMember('patternOffset2', type=int),
     ]
     __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
-
-class IxeCapturePort(IxePortObj):
-    __tcl_command__ = 'capture'
-    __tcl_members__ = [
-            TclMember('afterTriggerFilter'),
-            TclMember('beforeTriggerFilter'),
-            TclMember('captureMode'),
-            TclMember('continuousFilter'),
-            TclMember('enableSmallPacketCapture'),
-            TclMember('fullAction'),
-            TclMember('nPackets', flags=FLAG_RDONLY),
-            TclMember('sliceSize'),
-            TclMember('triggerPosition'),
-
-    ]
-    __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)

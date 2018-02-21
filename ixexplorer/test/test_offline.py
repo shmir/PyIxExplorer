@@ -17,8 +17,8 @@ class IxeTestOffline(IxeTestBase):
 
     def testLoadConfig(self):
 
-        cfg1 = path.join('C:/temp/a-b', 'test_config_1.prt')
-        cfg2 = path.join('C:/temp/a-b', 'test_config_2.prt')
+        cfg1 = path.join(path.dirname(__file__), 'configs/test_config_1.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.prt')
         self._load_config(cfg1, cfg2)
 
         assert(len(self.ports) == 2)
@@ -144,3 +144,8 @@ class IxeTestOffline(IxeTestBase):
         assert(port1_stream1.ip.destIpAddr == '1.1.2.1')
         assert(port2_stream1.da == '11:11:11:11:11:11')
         assert(port2_stream1.ip.destIpAddr == '1.1.1.2')
+
+    def testPortAndStreamObjects(self):
+        self._reserve_ports()
+
+        print(self.ports[self.port1].packetGroup.signature)
