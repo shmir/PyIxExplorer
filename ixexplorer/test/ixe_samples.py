@@ -59,7 +59,6 @@ def disconnect():
 
 
 def discover():
-    connect()
 
     ixia.add(ip)
     ixia.discover()
@@ -87,41 +86,15 @@ def discover():
             print ('%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.linkState),
                                                   port.supported_speeds()))
 
-    disconnect()
-
-
-def start_transmit():
-    connect()
-    ixia.add(ip)
-    ixia.session.reserve_ports([ip + '/1/1', ip + '/1/2'])
-
 
 def build_ixvm():
-
-    connect()
 
     card = ixia.chassis.add_vm_card(vModule, 2)
     card.add_vm_port(1, 'eth1', mac)
     card.add_vm_port(2, 'eth2', mac)
 
-    disconnect()
 
-
-def detailed_log():
-
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-    ixia = init_ixe(api, logging.getLogger(), host, tcp_port, rsa_id)
-    ixia.connect(ip)
-    ixia.disconnect()
-
-
-def run_all():
+if __name__ == '__main__':
     connect()
     discover()
     disconnect()
-
-
-if __name__ == '__main__':
-    run_all()
