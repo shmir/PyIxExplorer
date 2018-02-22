@@ -11,7 +11,7 @@ from os import path
 import time
 import json
 
-from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat, IxeCapture
+from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
 from ixexplorer.test.test_base import IxeTestBase
 from ixexplorer.ixe_port import StreamWarningsError
 
@@ -98,5 +98,5 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit(blocking=True)
         self.ixia.session.stop_capture(cap_file_name=None, cap_file_format=IxeCapFileFormat.mem)
-        for p in range(1, int(IxeCapture(parent=self.ports[self.port2]).nPackets) + 1):
+        for p in range(1, self.ports[self.port2].capture.nPackets + 1):
             print('frame len = {}'.format(len(self.ports[self.port2].get_cap_frames(p)[0]) / 3 + 1))
