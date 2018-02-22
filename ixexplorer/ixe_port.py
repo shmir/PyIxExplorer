@@ -7,7 +7,7 @@ from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer, IxeStreamsStats
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats
 
 
 class IxePhyMode(Enum):
@@ -65,9 +65,9 @@ class IxePort(IxeObject):
         TclMember('advertiseAbilities'),
         TclMember('autoDetectInstrumentationMode', type=bool),
         TclMember('autonegotiate', type=bool),
-        TclMember('dataCenterMode', type=bool),
+        TclMember('dataCenterMode'),
         TclMember('DestMacAddress', type=MacStr),
-        TclMember('directedAddress', type=MacStr),
+        TclMember('directedAddress'),
         TclMember('duplex'),
         TclMember('enableAutoDetectInstrumentation', type=bool),
         TclMember('enableDataCenterMode', type=bool),
@@ -120,9 +120,8 @@ class IxePort(IxeObject):
         TclMember('reedSolomonForceOff', type=int)
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults',
-                        'setModeDefaults', 'setDefault', 'restartAutoNegotiation',
-                        'getPortState']
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
+                        'restartAutoNegotiation', 'getPortState', 'isValidFeature']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -263,11 +262,10 @@ class IxePort(IxeObject):
         :return: list of captured frames.
         """
 
-        cap_buffer = IxeCaptureBuffer(parent=self, num_frames=-1)
         frames = []
         for frame_num in frame_nums:
-            if cap_buffer.getframe(frame_num) == '0':
-                frames.append(cap_buffer.ix_command('cget', '-frame'))
+            if self.captureBuffer.getframe(frame_num) == '0':
+                frames.append(self.captureBuffer.frame)
             else:
                 frames.append(None)
         return frames
@@ -297,6 +295,14 @@ class IxePort(IxeObject):
     def get_streamRegion(self):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
+
+    def get_capture(self):
+        return self.get_object('_capture', IxeCapture)
+    capture = property(get_capture)
+
+    def get_captureBuffer(self):
+        return self.get_object('_captureBuffer', IxeCaptureBuffer)
+    captureBuffer = property(get_captureBuffer)
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
@@ -453,13 +459,10 @@ class IxeFilterPort(IxePortObj):
             TclMember('asyncTrigger1PatternExpression'),
             TclMember('asyncTrigger2PatternExpression'),
     ]
-    __tcl_commands__ = ['setDefault']
 
 
 class IxeStreamRegion(IxePortObj):
     __tcl_command__ = 'streamRegion'
-    __tcl_members__ = [
-    ]
     __tcl_commands__ = ['generateWarningList']
 
 
@@ -481,4 +484,36 @@ class IxeFilterPalettePort(IxePortObj):
         TclMember('patternOffset1', type=int),
         TclMember('patternOffset2', type=int),
     ]
-    __tcl_commands__ = ['setDefault']
+
+
+class IxeCapture(IxePortObj):
+    __tcl_command__ = 'capture'
+    __tcl_members__ = [
+            TclMember('afterTriggerFilter'),
+            TclMember('beforeTriggerFilter'),
+            TclMember('captureMode'),
+            TclMember('continuousFilter'),
+            TclMember('enableSmallPacketCapture'),
+            TclMember('fullAction'),
+            TclMember('nPackets', type=int, flags=FLAG_RDONLY),
+            TclMember('sliceSize'),
+            TclMember('triggerPosition')
+    ]
+
+
+class IxeCaptureBuffer(IxeObject):
+    __tcl_command__ = 'captureBuffer'
+    __tcl_members__ = [
+            TclMember('frame', flags=FLAG_RDONLY),
+    ]
+    __tcl_commands__ = ['export', 'getframe']
+
+    def __init__(self, parent):
+        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
+        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
+
+    def ix_command(self, command, *args, **kwargs):
+        return self.api.call(('captureBuffer {} ' + len(args) * ' {}').format(command, *args))
+
+    def ix_get(self, member=None, force=False):
+        pass

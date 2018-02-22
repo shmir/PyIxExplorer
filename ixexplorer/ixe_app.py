@@ -9,7 +9,7 @@ from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
 from ixexplorer.ixe_port import IxePort, IxePhyMode
-from ixexplorer.ixe_statistics_view import IxeCapture, IxeCaptureBuffer, IxeCapFileFormat
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
@@ -181,15 +181,11 @@ class IxeSession(IxeObject):
         self.api.call_rc('ixStopCapture {}'.format(port_list))
 
         for port in (ports if ports else self.ports.values()):
-            port_cap = IxeCapture(parent=port)
-            num_frames = port_cap.nPackets
-            if num_frames:
+            if port.capture.nPackets:
                 port.cap_file_name = None
-                cap_buffer = IxeCaptureBuffer(parent=port, num_frames=num_frames)
-                cap_buffer.ix_get(force=True)
                 if cap_file_format is not IxeCapFileFormat.mem:
                     port.cap_file_name = cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name
-                    cap_buffer.export(port.cap_file_name)
+                    port.captureBuffer.export(port.cap_file_name)
 
     def get_cap_files(self, *ports):
         cap_files = {}

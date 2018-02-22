@@ -147,12 +147,12 @@ class _MetaIxTclApi(type):
                     val = '-1'
 
                 return_val = val.strip() if type(val) is str else val[0]
-                if m.type != MacStr:
-                    if m.type is bool:
-                        return bool(int(return_val))
-                    return m.type(return_val)
-                else:
+                if m.type == MacStr:
                     return str(m.type(return_val))
+                elif m.type is bool:
+                    return bool(int(return_val))
+                else:
+                    return m.type(return_val)
 
             def fset(self, value, cmd=command, m=m):
                 try:

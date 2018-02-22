@@ -68,7 +68,7 @@ class IxeStream(IxeObject):
             TclMember('startTxDelay'),
     ]
 
-    __tcl_commands__ = ['export', 'write' ]
+    __tcl_commands__ = ['export', 'write']
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
@@ -380,8 +380,9 @@ class IxeUdf(IxeStreamObj):
     def ix_set(self, member=None):
         pass
 
-    def set(self,index):
-        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__,index))
+    def set(self, index):
+        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
+
 
 class IxeDataIntegrityStream(IxeStreamObj):
     __tcl_command__ = 'dataIntegrity'
