@@ -220,3 +220,4 @@ class IxeStreamsStats(IxeStats):
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[str(stream)] = stream_stats
         return self.statistics
+
