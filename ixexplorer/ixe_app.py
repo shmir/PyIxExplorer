@@ -191,6 +191,9 @@ class IxeSession(IxeObject):
         return nPackets
 
     def get_cap_files(self, *ports):
+        """
+        :return: dictionary (port, capture file)
+        """
         cap_files = {}
         for port in ports:
             if port.cap_file_name:

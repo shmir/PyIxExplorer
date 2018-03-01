@@ -84,7 +84,7 @@ class IxeTestOffline(IxeTestBase):
     def testErrors(self):
 
         cfg = path.join(path.dirname(__file__), 'configs/good_to_bad_config.prt')
-        port = self.ixia.session.reserve_ports([self.port1], force=True).values()[0]
+        port = list(self.ixia.session.reserve_ports([self.port1], force=True).values())[0]
         self.ixia.session.login('anotherUser')
         with self.assertRaises(TgnError):
             assert(port.reserve())

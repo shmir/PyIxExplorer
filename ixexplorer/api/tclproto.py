@@ -62,13 +62,12 @@ class TclClient:
         # reply format is
         #  [<io output>\r]<result><tcl return code>\r\n
         # where tcl_return code is exactly one byte
-        raw_reply = ''
+        reply = ''
         for _ in range(16 * 100):
-            raw_reply += self.fd.recv(self.buffersize)
-            if raw_reply.endswith('\r\n'):
+            reply += str(self.fd.recv(self.buffersize).decode('utf-8'))
+            if reply.endswith('\r\n'):
                 break
             time.sleep(0.01)
-        reply = str(raw_reply.decode('utf-8'))
         self.logger.debug('received %s', reply.rstrip())
         assert reply[-2:] == '\r\n'
 
