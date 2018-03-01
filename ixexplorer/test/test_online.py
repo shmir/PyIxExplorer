@@ -54,10 +54,10 @@ class IxeTestOnline(IxeTestBase):
         self.ports[self.port2].rx_ports = self.ports[self.port1]
         stream_stats.read_stats()
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
-        assert(stream_stats.statistics['1/2/1/1']['tx']['framesSent'] > 0)
-        assert(stream_stats.statistics['1/2/1/1']['tx']['frameRate'] == 0)
-        assert(stream_stats.statistics['1/2/1/1']['rx']['totalFrames'] > 0)
-        assert(stream_stats.statistics['1/2/1/1']['rx']['frameRate'] == 0)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] > 0)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['frameRate'] == 0)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx']['totalFrames'] > 0)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx']['frameRate'] == 0)
 
         print(json.dumps(self.ports[self.port1].read_stream_stats('totalFrames'), indent=1))
         print(json.dumps(self.ports[self.port1].streams[1].read_stats('totalFrames'), indent=1))
@@ -67,22 +67,25 @@ class IxeTestOnline(IxeTestBase):
         cfg2 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
         self._load_config(cfg1, cfg2)
 
-        for port in self.ports.values():
-            port.start_capture()
-            port.start_transmit()
-        time.sleep(2)
-        for name, port in self.ports.items():
-            port.stop_transmit()
-            port.stop_capture(cap_file_name=None, cap_file_format=IxeCapFileFormat.mem)
-            print(name)
-            print(port.get_cap_frames(1, 3, 5))
+        self.ports[self.port1].start_capture()
+        self.ports[self.port2].start_transmit(blocking=True)
+        # Order matters to make sure nPackets is refreshed, so we read port2, port1 and then port1, port2
+        nPackets = self.ports[self.port2].stop_capture()
+        assert(nPackets == 0)
+        nPackets = self.ports[self.port1].stop_capture()
+        assert(nPackets == 800)
+        print(self.ports[self.port1].get_cap_frames(1, 3, 5))
+
+        self.ports[self.port1].clear_stats()
+        self.ports[self.port2].clear_stats()
 
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit()
-        time.sleep(4)
         self.ixia.session.stop_transmit()
-        self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia__session_cap', cap_file_format=IxeCapFileFormat.txt)
+        nPackets = self.ixia.session.stop_capture(cap_file_name='c:/temp/ixia__session_cap',
+                                                  cap_file_format=IxeCapFileFormat.txt)
         for name, port in self.ports.items():
+            assert(nPackets[port] < 800)
             print(name)
             print(port.cap_file_name)
             print(port.get_cap_file())

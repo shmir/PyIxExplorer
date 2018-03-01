@@ -241,16 +241,16 @@ class IxePort(IxeObject):
 
         self.session.start_capture(self)
 
-    def stop_capture(self, cap_file_name, cap_file_format=IxeCapFileFormat.enc):
+    def stop_capture(self, cap_file_name=None, cap_file_format=IxeCapFileFormat.mem):
         """ Stop capture on port.
 
         :param cap_file_name: prefix for the capture file name.
             Capture file will be saved as pcap file named 'prefix' + 'URI'.pcap.
         :param cap_file_format: exported file format
-        :return: full path to pcap file if capture exists else None
+        :return: number of captured frames
         """
 
-        self.session.stop_capture(cap_file_name, cap_file_format, self)
+        return self.session.stop_capture(cap_file_name, cap_file_format, self).values()[0]
 
     def get_cap_file(self):
         return self.session.get_cap_files(self).values()[0]

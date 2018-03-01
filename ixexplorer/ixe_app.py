@@ -8,7 +8,7 @@ from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
-from ixexplorer.ixe_port import IxePort, IxePhyMode
+from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
@@ -164,28 +164,31 @@ class IxeSession(IxeObject):
         :param ports: list of ports to start capture on, if empty start on all ports.
         """
 
+        IxeCapture.current_object = None
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStartCapture {}'.format(port_list))
 
-    def stop_capture(self, cap_file_name, cap_file_format=IxeCapFileFormat.enc, *ports):
+    def stop_capture(self, cap_file_name=None, cap_file_format=IxeCapFileFormat.mem, *ports):
         """ Stop capture on ports.
 
         :param cap_file_name: prefix for the capture file name.
             Capture files for each port are saved as individual pcap file named 'prefix' + 'URI'.pcap.
         :param cap_file_format: exported file format
         :param ports: list of ports to stop traffic on, if empty stop all ports.
-        :return: dictionary (port, full path of pcap file name)
+        :return: dictionary (port, nPackets)
         """
 
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStopCapture {}'.format(port_list))
 
+        nPackets = {}
         for port in (ports if ports else self.ports.values()):
-            if port.capture.nPackets:
-                port.cap_file_name = None
+            nPackets[port] = port.capture.nPackets
+            if nPackets[port]:
                 if cap_file_format is not IxeCapFileFormat.mem:
                     port.cap_file_name = cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name
                     port.captureBuffer.export(port.cap_file_name)
+        return nPackets
 
     def get_cap_files(self, *ports):
         cap_files = {}
