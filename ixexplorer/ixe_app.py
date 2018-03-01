@@ -8,7 +8,7 @@ from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
-from ixexplorer.ixe_port import IxePort, IxePhyMode
+from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
@@ -163,7 +163,7 @@ class IxeSession(IxeObject):
 
         :param ports: list of ports to start capture on, if empty start on all ports.
         """
-
+        IxeCapture.current_object = None
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStartCapture {}'.format(port_list))
 
