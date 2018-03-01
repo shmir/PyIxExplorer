@@ -45,7 +45,7 @@ class TclClient:
         self.port = port
         self.rsa_id = rsa_id
         self.fd = None
-        self.buffersize = 10240
+        self.buffersize = 2 ** 12
 
         self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
@@ -62,13 +62,17 @@ class TclClient:
         # reply format is
         #  [<io output>\r]<result><tcl return code>\r\n
         # where tcl_return code is exactly one byte
-        reply = str(self.fd.recv(self.buffersize).decode('utf-8'))
+        raw_reply = ''
+        for _ in range(16 * 100):
+            raw_reply += self.fd.recv(self.buffersize)
+            if raw_reply.endswith('\r\n'):
+                break
+            time.sleep(0.01)
+        reply = str(raw_reply.decode('utf-8'))
         self.logger.debug('received %s', reply.rstrip())
-        # print 'data=(%s) (%s)' % (data, data.encode('hex'))
         assert reply[-2:] == '\r\n'
 
         tcl_result = int(reply[-3])
-
         data = reply[:-3].rsplit('\r', 1)
         if len(data) == 2:
             io_output, result = data

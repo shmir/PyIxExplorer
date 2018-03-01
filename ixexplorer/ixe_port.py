@@ -7,7 +7,7 @@ from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeCaptureBuffer, IxeStreamsStats
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats
 
 
 class IxePhyMode(Enum):
@@ -120,9 +120,8 @@ class IxePort(IxeObject):
         TclMember('reedSolomonForceOff', type=int)
     ]
 
-    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setPhyMode',
-                        'setModeDefaults', 'setReceiveMode', 'setTransmitMode', 'setDefault', 'restartAutoNegotiation',
-                        'getPortState','isValidFeature']
+    __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
+                        'restartAutoNegotiation', 'getPortState', 'isValidFeature']
 
     LINK_STATE_DOWN = 0
     LINK_STATE_UP = 1
@@ -186,10 +185,10 @@ class IxePort(IxeObject):
         config_file_name = config_file_name.replace('\\', '/')
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
-            self.api.call_rc('port import {} {}'.format(config_file_name, self.uri))
+            self.api.call_rc('port import "{}" {}'.format(config_file_name, self.uri))
         elif ext == '.str':
             self.reset()
-            self.api.call_rc('stream import {} {}'.format(config_file_name, self.uri))
+            self.api.call_rc('stream import "{}" {}'.format(config_file_name, self.uri))
         else:
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
@@ -263,16 +262,17 @@ class IxePort(IxeObject):
         :return: list of captured frames.
         """
 
-        cap_buffer = IxeCaptureBuffer(parent=self, num_frames=-1)
         frames = []
         for frame_num in frame_nums:
-            cap_buffer.getframe(frame_num)
-            frames.append(cap_buffer.ix_command('cget', '-frame'))
+            if self.captureBuffer.getframe(frame_num) == '0':
+                frames.append(self.captureBuffer.frame)
+            else:
+                frames.append(None)
         return frames
 
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats).values()[0]
-    
+
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(stats)
 
@@ -283,7 +283,7 @@ class IxePort(IxeObject):
     def get_filterPallette(self):
         return self.get_object('_filterPallette', IxeFilterPalettePort)
     filterPallette = property(get_filterPallette)
-   
+
     def get_dataIntegrity(self):
         return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
     dataIntegrity = property(get_dataIntegrity)
@@ -296,11 +296,13 @@ class IxePort(IxeObject):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
-
     def get_capture(self):
-        return self.get_object('_capture', IxeCapturePort)
+        return self.get_object('_capture', IxeCapture)
     capture = property(get_capture)
 
+    def get_captureBuffer(self):
+        return self.get_object('_captureBuffer', IxeCaptureBuffer)
+    captureBuffer = property(get_captureBuffer)
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
@@ -342,7 +344,7 @@ class IxePort(IxeObject):
             stream.rx_ports = rx_ports
     rx_ports = property(fset=set_rx_ports)
 
-    def ix_set_list(self,optList):
+    def ix_set_list(self, optList):
         self.ix_get()
         for opt in optList:
             value = optList[opt]
@@ -353,7 +355,7 @@ class IxePort(IxeObject):
 class IxePortObj(IxeObject):
 
     def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri[:-2], parent=parent)
+        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
@@ -376,9 +378,6 @@ class IxeDataIntegrityPort(IxePortObj):
     __set_command__ = 'setRx'
     __tcl_commands__ = ['config', 'getCircuitRx', 'getQueueRx', 'setCircuitRx', 'setQueueRx']
 
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
-
 
 class IxePacketGroupPort(IxePortObj):
     __tcl_command__ = 'packetGroup'
@@ -388,98 +387,85 @@ class IxePacketGroupPort(IxePortObj):
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
 
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 class IxeFilterPort(IxePortObj):
     __tcl_command__ = 'filter'
     __tcl_members__ = [
             TclMember(''),
-        TclMember('captureTriggerDA'),
-        TclMember('captureTriggerSA'),
-        TclMember('captureTriggerPattern'),
-        TclMember('captureTriggerError'),
-        TclMember('captureTriggerFrameSizeEnable'),
-        TclMember('captureTriggerFrameSizeFrom'),
-        TclMember('captureTriggerFrameSizeTo'),
-        TclMember('captureTriggerCircuit'),
-        TclMember('captureFilterDA'),
-        TclMember('captureFilterSA'),
-        TclMember('captureFilterPattern'),
-        TclMember('captureFilterError'),
-        TclMember('captureFilterFrameSizeEnable'),
-        TclMember('captureFilterFrameSizeFrom'),
-        TclMember('captureFilterFrameSizeTo'),
-        TclMember('captureFilterCircuit'),
-        TclMember('userDefinedStat1DA'),
-        TclMember('userDefinedStat1SA'),
-        TclMember('userDefinedStat1Pattern'),
-        TclMember('userDefinedStat1Error'),
-        TclMember('userDefinedStat1FrameSizeEnable'),
-        TclMember('userDefinedStat1FrameSizeFrom'),
-        TclMember('userDefinedStat1FrameSizeTo'),
-        TclMember('userDefinedStat1Circuit'),
-        TclMember('userDefinedStat2DA'),
-        TclMember('userDefinedStat2SA'),
-        TclMember('userDefinedStat2Pattern'),
-        TclMember('userDefinedStat2Error'),
-        TclMember('userDefinedStat2FrameSizeEnable'),
-        TclMember('userDefinedStat2FrameSizeFrom'),
-        TclMember('userDefinedStat2FrameSizeTo'),
-        TclMember('userDefinedStat2Circuit'),
-        TclMember('asyncTrigger1DA'),
-        TclMember('asyncTrigger1SA'),
-        TclMember('asyncTrigger1Pattern'),
-        TclMember('asyncTrigger1Error'),
-        TclMember('asyncTrigger1FrameSizeEnable'),
-        TclMember('asyncTrigger1FrameSizeFrom'),
-        TclMember('asyncTrigger1FrameSizeTo'),
-        TclMember('asyncTrigger1Circuit'),
-        TclMember('asyncTrigger2DA'),
-        TclMember('asyncTrigger2SA'),
-        TclMember('asyncTrigger2Pattern'),
-        TclMember('asyncTrigger2Error'),
-        TclMember('asyncTrigger2FrameSizeEnable'),
-        TclMember('asyncTrigger2FrameSizeFrom'),
-        TclMember('asyncTrigger2FrameSizeTo'),
-        TclMember('asyncTrigger2Circuit'),
-        TclMember('captureTriggerEnable'),
-        TclMember('captureFilterEnable'),
-        TclMember('userDefinedStat1Enable'),
-        TclMember('userDefinedStat2Enable'),
-        TclMember('asyncTrigger1Enable'),
-        TclMember('asyncTrigger2Enable'),
-        TclMember('userDefinedStat1PatternExpressionEnable'),
-        TclMember('userDefinedStat2PatternExpressionEnable'),
-        TclMember('captureTriggerPatternExpressionEnable'),
-        TclMember('captureFilterPatternExpressionEnable'),
-        TclMember('asyncTrigger1PatternExpressionEnable'),
-        TclMember('asyncTrigger2PatternExpressionEnable'),
-        TclMember('userDefinedStat1PatternExpression'),
-        TclMember('userDefinedStat2PatternExpression'),
-        TclMember('captureTriggerPatternExpression'),
-        TclMember('captureFilterPatternExpression'),
-        TclMember('asyncTrigger1PatternExpression'),
-        TclMember('asyncTrigger2PatternExpression'),
+            TclMember('captureTriggerDA'),
+            TclMember('captureTriggerSA'),
+            TclMember('captureTriggerPattern'),
+            TclMember('captureTriggerError'),
+            TclMember('captureTriggerFrameSizeEnable'),
+            TclMember('captureTriggerFrameSizeFrom'),
+            TclMember('captureTriggerFrameSizeTo'),
+            TclMember('captureTriggerCircuit'),
+            TclMember('captureFilterDA'),
+            TclMember('captureFilterSA'),
+            TclMember('captureFilterPattern'),
+            TclMember('captureFilterError'),
+            TclMember('captureFilterFrameSizeEnable'),
+            TclMember('captureFilterFrameSizeFrom'),
+            TclMember('captureFilterFrameSizeTo'),
+            TclMember('captureFilterCircuit'),
+            TclMember('userDefinedStat1DA'),
+            TclMember('userDefinedStat1SA'),
+            TclMember('userDefinedStat1Pattern'),
+            TclMember('userDefinedStat1Error'),
+            TclMember('userDefinedStat1FrameSizeEnable'),
+            TclMember('userDefinedStat1FrameSizeFrom'),
+            TclMember('userDefinedStat1FrameSizeTo'),
+            TclMember('userDefinedStat1Circuit'),
+            TclMember('userDefinedStat2DA'),
+            TclMember('userDefinedStat2SA'),
+            TclMember('userDefinedStat2Pattern'),
+            TclMember('userDefinedStat2Error'),
+            TclMember('userDefinedStat2FrameSizeEnable'),
+            TclMember('userDefinedStat2FrameSizeFrom'),
+            TclMember('userDefinedStat2FrameSizeTo'),
+            TclMember('userDefinedStat2Circuit'),
+            TclMember('asyncTrigger1DA'),
+            TclMember('asyncTrigger1SA'),
+            TclMember('asyncTrigger1Pattern'),
+            TclMember('asyncTrigger1Error'),
+            TclMember('asyncTrigger1FrameSizeEnable'),
+            TclMember('asyncTrigger1FrameSizeFrom'),
+            TclMember('asyncTrigger1FrameSizeTo'),
+            TclMember('asyncTrigger1Circuit'),
+            TclMember('asyncTrigger2DA'),
+            TclMember('asyncTrigger2SA'),
+            TclMember('asyncTrigger2Pattern'),
+            TclMember('asyncTrigger2Error'),
+            TclMember('asyncTrigger2FrameSizeEnable'),
+            TclMember('asyncTrigger2FrameSizeFrom'),
+            TclMember('asyncTrigger2FrameSizeTo'),
+            TclMember('asyncTrigger2Circuit'),
+            TclMember('captureTriggerEnable'),
+            TclMember('captureFilterEnable'),
+            TclMember('userDefinedStat1Enable'),
+            TclMember('userDefinedStat2Enable'),
+            TclMember('asyncTrigger1Enable'),
+            TclMember('asyncTrigger2Enable'),
+            TclMember('userDefinedStat1PatternExpressionEnable'),
+            TclMember('userDefinedStat2PatternExpressionEnable'),
+            TclMember('captureTriggerPatternExpressionEnable'),
+            TclMember('captureFilterPatternExpressionEnable'),
+            TclMember('asyncTrigger1PatternExpressionEnable'),
+            TclMember('asyncTrigger2PatternExpressionEnable'),
+            TclMember('userDefinedStat1PatternExpression'),
+            TclMember('userDefinedStat2PatternExpression'),
+            TclMember('captureTriggerPatternExpression'),
+            TclMember('captureFilterPatternExpression'),
+            TclMember('asyncTrigger1PatternExpression'),
+            TclMember('asyncTrigger2PatternExpression'),
     ]
 
-    __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
 class IxeStreamRegion(IxePortObj):
     __tcl_command__ = 'streamRegion'
-    __tcl_members__ = [
-    ]
     __tcl_commands__ = ['generateWarningList']
 
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
-		
-		
+
 class IxeFilterPalettePort(IxePortObj):
     __tcl_command__ = 'filterPallette'
     __tcl_members__ = [
@@ -495,16 +481,12 @@ class IxeFilterPalettePort(IxePortObj):
         TclMember('patternMask1'),
         TclMember('pattern2'),
         TclMember('patternMask2'),
-        TclMember('patternOffset1',type=int),
-        TclMember('patternOffset2',type=int),
+        TclMember('patternOffset1', type=int),
+        TclMember('patternOffset2', type=int),
     ]
-    __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
-    def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
 
-class IxeCapturePort(IxePortObj):
+
+class IxeCapture(IxePortObj):
     __tcl_command__ = 'capture'
     __tcl_members__ = [
             TclMember('afterTriggerFilter'),
@@ -513,14 +495,25 @@ class IxeCapturePort(IxePortObj):
             TclMember('continuousFilter'),
             TclMember('enableSmallPacketCapture'),
             TclMember('fullAction'),
-            TclMember('nPackets', flags=FLAG_RDONLY),
+            TclMember('nPackets', type=int, flags=FLAG_RDONLY),
             TclMember('sliceSize'),
-            TclMember('triggerPosition'),
-
+            TclMember('triggerPosition')
     ]
-    __tcl_commands__ = ['setDefault']
-    __get_command__ = 'get'
-    __set_command__ = 'set'
+
+
+class IxeCaptureBuffer(IxeObject):
+    __tcl_command__ = 'captureBuffer'
+    __tcl_members__ = [
+            TclMember('frame', flags=FLAG_RDONLY),
+    ]
+    __tcl_commands__ = ['export', 'getframe']
 
     def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
+        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
+
+    def ix_command(self, command, *args, **kwargs):
+        return self.api.call(('captureBuffer {} ' + len(args) * ' {}').format(command, *args))
+
+    def ix_get(self, member=None, force=False):
+        pass

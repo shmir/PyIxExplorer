@@ -23,7 +23,7 @@ class IxeStat(IxeObject):
             TclMember('duplexMode', type=int, flags=FLAG_RDONLY),
             TclMember('link', type=int, flags=FLAG_RDONLY),
             TclMember('lineSpeed', type=int, flags=FLAG_RDONLY),
-            # TclMember('linkFaultState', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('linkFaultState', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
 
             TclMember('framesSent', type=int, flags=FLAG_RDONLY),
             TclMember('framesReceived', type=int, flags=FLAG_RDONLY),
@@ -140,31 +140,6 @@ class IxeStreamTxStats(IxeObject):
         super(self.__class__, self).__init__(uri=group_id, parent=parent)
 
 
-class IxeCapture(IxeObject):
-    __tcl_command__ = 'capture'
-    __tcl_members__ = [
-            TclMember('nPackets', type=int, flags=FLAG_RDONLY),
-    ]
-
-    def __init__(self, parent):
-        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
-
-
-class IxeCaptureBuffer(IxeObject):
-    __tcl_command__ = 'captureBuffer'
-    __tcl_commands__ = ['export', 'getframe']
-
-    def __init__(self, parent, num_frames):
-        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
-        self.num_frames = num_frames
-
-    def ix_command(self, command, *args, **kwargs):
-        return self.api.call(('captureBuffer {}' + len(args) * ' {}').format(command, *args))
-
-    def ix_get(self, member=None, force=False):
-        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.num_frames))
-
-
 class IxeStats(object):
 
     def __init__(self, session):
@@ -245,3 +220,4 @@ class IxeStreamsStats(IxeStats):
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[str(stream)] = stream_stats
         return self.statistics
+
