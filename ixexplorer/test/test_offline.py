@@ -8,6 +8,7 @@ from os import path
 
 from trafficgenerator.tgn_utils import TgnError
 
+from ixexplorer.api.tclproto import TclError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_port import StreamWarningsError
 from ixexplorer.test.test_base import IxeTestBase
@@ -18,7 +19,7 @@ class IxeTestOffline(IxeTestBase):
     def testLoadConfig(self):
 
         cfg1 = path.join(path.dirname(__file__), 'configs/test_config_1.prt')
-        cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.prt')
+        cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.str')
         self._load_config(cfg1, cfg2)
 
         assert(len(self.ports) == 2)
@@ -149,3 +150,19 @@ class IxeTestOffline(IxeTestBase):
         self._reserve_ports()
 
         print(self.ports[self.port1].packetGroup.signature)
+
+    def testDiscover(self):
+
+        chassis = list(self.ixia.chassis_chain.values())[0]
+        assert(chassis.obj_name() == chassis.ipAddress)
+        self.ixia.discover()
+        assert(len(chassis.cards) > 0)
+        assert(len(list(chassis.cards.values())[0].ports) > 0)
+        print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
+
+    def testNegative(self):
+
+        try:
+            self.ixia.session.api.call('invalid command')
+        except TclError as e:
+            print(e)

@@ -1,7 +1,6 @@
 
 import time
 
-from trafficgenerator.tgn_utils import ApiType, TgnError
 from trafficgenerator.tgn_app import TgnApp
 
 from ixexplorer.api.tclproto import TclClient
@@ -15,7 +14,7 @@ from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 def init_ixe(api, logger, host, port=4555, rsa_id=None):
     """ Connect to Tcl Server and Create IxExplorer object.
 
-    :param api: socket/tcl
+    :param api: socket/tcl - tcl not supported in this version.
     :type api: trafficgenerator.tgn_utils.ApiType
     :param logger: python logger object
     :param host: host (IxTclServer) IP address
@@ -23,9 +22,6 @@ def init_ixe(api, logger, host, port=4555, rsa_id=None):
     :param rsa_id: full path to RSA ID file for Linux based IxVM
     :return: IXE object
     """
-
-    if api == ApiType.tcl:
-        raise TgnError('Tcl API not supported in this version.')
 
     return IxeApp(logger, IxTclHalApi(TclClient(logger, host, port, rsa_id)))
 

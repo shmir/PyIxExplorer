@@ -30,9 +30,6 @@ class TclError(Exception):
     def __init__(self, result):
         self.result = result
 
-    def __repr__(self):
-        return '%s(result="%s")' % (self.__class__.__name__, self.result)
-
     def __str__(self):
         return '%s: %s' % (self.__class__.__name__, self.result)
 
@@ -108,10 +105,6 @@ class TclClient:
         else:
             return self.ssh_call(string, *args)
 
-    def _tcl_hal_version(self):
-        rsp = self.call('version cget -ixTclHALVersion')
-        return rsp[0].split('.')
-
     def connect(self):
         self.logger.debug('Opening connection to %s:%d', self.host, self.port)
 
@@ -129,14 +122,10 @@ class TclClient:
             fd.connect((self.host, self.port))
             self.fd = fd
 
-        rc = self.call('package req IxTclHal')
+        self.call('package req IxTclHal')
         self.call('enableEvents true')
 
     def close(self):
         self.logger.debug('Closing connection')
         self.fd.close()
         self.fd = None
-
-    def hal_version(self):
-        """Returns a tuple (major,minor) of the TCL HAL version."""
-        return tuple(self._tcl_hal_version()[0:2])

@@ -72,8 +72,10 @@ class IxeTestOnline(IxeTestBase):
         # Order matters to make sure nPackets is refreshed, so we read port2, port1 and then port1, port2
         nPackets = self.ports[self.port2].stop_capture()
         assert(nPackets == 0)
+        assert(not self.ports[self.port1].get_cap_file())
         nPackets = self.ports[self.port1].stop_capture()
         assert(nPackets == 800)
+        assert(not self.ports[self.port2].get_cap_file())
         print(self.ports[self.port1].get_cap_frames(1, 3, 5))
 
         self.ports[self.port1].clear_stats()

@@ -25,7 +25,7 @@ def main():
         logging.getLogger().setLevel(logging.INFO)
 
     if len(args) < 1:
-        print parser.format_help()
+        print(parser.format_help())
         sys.exit(1)
 
     host = args[0]
@@ -33,12 +33,12 @@ def main():
     tcl = TclClient(logging.getLogger('ixexplorer.api'), host, options.port, options.rsa_id)
     tcl.connect()
     if options.autoconnect:
-        print tcl.connect()
-        print tcl.call('chassis add ' + host)
-        print tcl.call('chassis config -id 1')
-        print tcl.call('chassis set ' + host)
+        print(tcl.connect())
+        print(tcl.call('chassis add ' + host))
+        print(tcl.call('chassis config -id 1'))
+        print(tcl.call('chassis set ' + host))
 
-    print "Enter command to send. Quit with 'q'."
+    print("Enter command to send. Quit with 'q'.")
     try:
         io = None
         while True:
