@@ -1,7 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env
+
 import sys
 import logging
 from optparse import OptionParser
+from six.moves import input
 
 from ixexplorer.api.tclproto import TclClient, TclError
 
@@ -42,22 +44,19 @@ def main():
     try:
         io = None
         while True:
-            cmd = raw_input('=> ')
+            cmd = input('=> ')
             if cmd == 'q':
                 break
             if len(cmd) > 0:
                 try:
-                    if options.port == 8022:
-                        res = tcl.call(cmd)
-                    else:
-                        (res, io) = tcl.call(cmd)
-                    print res.strip()
+                    res = tcl.call(cmd)
+                    print(res.strip())
                     if io is not None:
-                        print io
-                except TclError, e:
-                    print 'ERROR: %s' % e.result
+                        print(io)
+                except TclError as e:
+                    print('ERROR: %s' % e.result)
     except EOFError:
-        print 'exitting..'
+        print('exitting..')
 
 
 if __name__ == '__main__':
