@@ -62,7 +62,7 @@ def discover():
 
     ixia.add(ip)
     ixia.discover()
-    chassis = ixia.chassis_chain.values()[0]
+    chassis = list(ixia.chassis_chain.values())[0]
 
     print ('%-7s | %-32s | %-10s' % ('Chassis', 'Type', 'Version'))
     print ('--------+----------------------------------+--------------')

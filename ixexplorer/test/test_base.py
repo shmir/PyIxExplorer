@@ -27,7 +27,11 @@ class IxeTestBase(TgnTest):
         self.port1 = self.config.get('IXE', 'port1')
         self.port2 = self.config.get('IXE', 'port2')
 
+        self.ports = {}
+
     def tearDown(self):
+        for port in self.ports.values():
+            port.release()
         self.ixia.disconnect()
         super(IxeTestBase, self).tearDown()
 

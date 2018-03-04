@@ -85,7 +85,7 @@ class IxeStream(IxeObject):
             stream_object.ix_set_default()
 
     def read_stats(self, *stats):
-        return IxeStreamsStats(self.session, self).read_stats(*stats).values()[0]
+        return IxeStreamsStats(self.session, self).read_stats(*stats)[str(self)]
 
     def get_vlan(self):
         return self.get_object('_vlan', IxeVlan)

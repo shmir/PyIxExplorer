@@ -1,7 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env
+
 import sys
 import logging
 from optparse import OptionParser
+from six.moves import input
 
 from ixexplorer.api.tclproto import TclClient, TclError
 
@@ -25,7 +27,7 @@ def main():
         logging.getLogger().setLevel(logging.INFO)
 
     if len(args) < 1:
-        print parser.format_help()
+        print(parser.format_help())
         sys.exit(1)
 
     host = args[0]
@@ -33,31 +35,28 @@ def main():
     tcl = TclClient(logging.getLogger('ixexplorer.api'), host, options.port, options.rsa_id)
     tcl.connect()
     if options.autoconnect:
-        print tcl.connect()
-        print tcl.call('chassis add ' + host)
-        print tcl.call('chassis config -id 1')
-        print tcl.call('chassis set ' + host)
+        print(tcl.connect())
+        print(tcl.call('chassis add ' + host))
+        print(tcl.call('chassis config -id 1'))
+        print(tcl.call('chassis set ' + host))
 
-    print "Enter command to send. Quit with 'q'."
+    print("Enter command to send. Quit with 'q'.")
     try:
         io = None
         while True:
-            cmd = raw_input('=> ')
+            cmd = input('=> ')
             if cmd == 'q':
                 break
             if len(cmd) > 0:
                 try:
-                    if options.port == 8022:
-                        res = tcl.call(cmd)
-                    else:
-                        (res, io) = tcl.call(cmd)
-                    print res.strip()
+                    res = tcl.call(cmd)
+                    print(res.strip())
                     if io is not None:
-                        print io
-                except TclError, e:
-                    print 'ERROR: %s' % e.result
+                        print(io)
+                except TclError as e:
+                    print('ERROR: %s' % e.result)
     except EOFError:
-        print 'exitting..'
+        print('exitting..')
 
 
 if __name__ == '__main__':

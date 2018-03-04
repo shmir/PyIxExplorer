@@ -17,7 +17,8 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
     def __init__(self, **data):
         data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
         super(IxeObject, self).__init__(objType=self.__tcl_command__, **data)
-        self._data['name'] = self.uri.replace(' ', '/')
+        if 'name' not in data:
+            self._data['name'] = self.uri.replace(' ', '/')
         if self.parent:
             self.session = self.parent.session
         self.__class__.current_object = None

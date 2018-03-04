@@ -58,23 +58,11 @@ FLAG_RDONLY = 1
 FLAG_IGERR = 2
 
 
-def translate_ix_member_name(name):
-    _new_name = list()
-    for (n, c) in enumerate(name):
-        if c.isupper() and n != 0:
-            _new_name.append('_')
-        _new_name.append(c.lower())
-    return ''.join(_new_name)
-
-
 class MacStr(object):
     def __init__(self, mac):
         self.mac = mac
 
     def __str__(self):
-        return self.mac.replace(' ', ':')
-
-    def __repr__(self):
         return self.mac.replace(' ', ':')
 
 
@@ -90,9 +78,6 @@ class TclMember(object):
 class IxTclHalError(Exception):
     def __init__(self, rc):
         self.rc = rc
-
-    def __repr__(self):
-        return '%s(rc="%s")' % (self.__class__.__name__, self.rc)
 
     def __str__(self):
         return '%s: %s' % (self.__class__.__name__, self.rc)

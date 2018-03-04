@@ -5,6 +5,7 @@ Classes and utilities to manage IxExplorer statistics views.
 import time
 from collections import OrderedDict
 from enum import Enum
+from past.builtins import xrange
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject
@@ -176,7 +177,7 @@ class pg_stats_dict(OrderedDict):
         if key in self.keys():
             return OrderedDict.__getitem__(self, key)
         else:
-            return self.values()[0][key]
+            return list(self.values())[0][key]
 
 
 class IxeStreamsStats(IxeStats):
@@ -220,4 +221,3 @@ class IxeStreamsStats(IxeStats):
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[str(stream)] = stream_stats
         return self.statistics
-
