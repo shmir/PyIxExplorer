@@ -292,6 +292,10 @@ class IxePort(IxeObject):
         return self.get_object('_packetGroup', IxePacketGroupPort)
     packetGroup = property(get_packetGroup)
 
+    def get_autoDetectInstrumentation(self):
+        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentation)
+    autoDetectInstrumentation = property(get_autoDetectInstrumentation)
+
     def get_streamRegion(self):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
@@ -302,6 +306,7 @@ class IxePort(IxeObject):
 
     def get_captureBuffer(self):
         return self.get_object('_captureBuffer', IxeCaptureBuffer)
+
     def set_captureBuffer(self, value):
         self._captureBuffer = value
     captureBuffer = property(fget=get_captureBuffer, fset=set_captureBuffer)
@@ -385,10 +390,63 @@ class IxePacketGroupPort(IxePortObj):
     __tcl_command__ = 'packetGroup'
     __tcl_members__ = [
             TclMember('signature'),
+        TclMember('allocateUdf'),
+        TclMember('delayVariationMode'),
+        TclMember('enable128kBinMode'),
+        TclMember('enableGroupIdMask'),
+        TclMember('enableInsertPgid'),
+        TclMember('enableLastBitTimeStamp'),
+        TclMember('enableLatencyBins'),
+        TclMember('enableReArmFirstTimeStamp'),
+        TclMember('enableRxFilter'),
+        TclMember('enableSignatureMask'),
+        TclMember('enableTimeBins'),
+        TclMember('groupId'),
+        TclMember('groupIdMask'),
+        TclMember('groupIdMode'),
+        TclMember('groupIdOffset'),
+        TclMember('headerFilter'),
+        TclMember('headerFilterMask'),
+        TclMember('ignoreSignature'),
+        TclMember('insertSequenceSignature'),
+        TclMember('insertSignature'),
+        TclMember('latencyBinList'),
+        TclMember('latencyControl'),
+        TclMember('maxRxGroupId'),
+        TclMember('measurementMode'),
+        TclMember('multiSwitchedPathMode'),
+        TclMember('numPgidPerTimeBin'),
+        TclMember('numTimeBins'),
+        TclMember('preambleSize'),
+        TclMember('seqAdvTracking'),
+        TclMember('seqAdvTrackingLateThreshold'),
+        TclMember('sequenceErrorThreshold'),
+        TclMember('sequenceCheckingMode'),
+        TclMember('sequenceNumberOffset'),
+        TclMember('signature'),
+        TclMember('signatureMask'),
+        TclMember('signatureOffset'),
+        TclMember('timeBinDuration'),
     ]
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
 
+class IxeAutoDetectInstrumentation(IxePortObj):
+    __tcl_command__ = 'autoDetectInstrumentation'
+    __tcl_members__ = [
+            TclMember('enableSignatureMask', type=bool),
+            TclMember('enableTxAutomaticInstrumentation', type=bool),
+            TclMember('signature'),
+            TclMember('signatureMask'),
+            TclMember('startOfScan'),
+            TclMember('enableMisdirectedPacketMask', type=bool),
+            TclMember('misdirectedPacketMask'),
+            TclMember('enablePRBS', type=bool),
+    ]
+    __get_command__ = 'getRx'
+    __set_command__ = 'setRx'
+    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setDefaults',
+                        'setQueueTx', 'setRx', 'setTx']
 
 class IxeFilterPort(IxePortObj):
     __tcl_command__ = 'filter'
