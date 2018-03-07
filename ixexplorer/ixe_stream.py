@@ -152,7 +152,7 @@ class IxeStream(IxeObject):
     packetGroup = property(get_packetGroup)
 
     def get_autoDetectInstrumentation(self):
-        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentation)
+        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentationStream)
     autoDetectInstrumentation = property(get_autoDetectInstrumentation)
 
     def get_vlan(self):
@@ -456,7 +456,7 @@ class IxePacketGroupStream(IxeStreamTxObj):
     ]
 
 
-class IxeAutoDetectInstrumentation(IxeStreamTxObj):
+class IxeAutoDetectInstrumentationStream(IxeStreamTxObj):
     __tcl_command__ = 'autoDetectInstrumentation'
     __tcl_members__ = [
             TclMember('enableMisdirectedPacketMask', type=bool),

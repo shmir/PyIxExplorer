@@ -11,7 +11,7 @@ from trafficgenerator.tgn_utils import TgnError
 
 from ixexplorer.api.tclproto import TclError
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_port import StreamWarningsError
+from ixexplorer.ixe_port import IxeReceiveMode, StreamWarningsError
 from ixexplorer.test.test_base import IxeTestBase
 
 
@@ -163,6 +163,7 @@ class IxeTestOffline(IxeTestBase):
         assert(port.packetGroup.groupIdOffset == 52)
         assert(stream.packetGroup.groupIdOffset == 52)
 
+        port.set_receive_modes(IxeReceiveMode.widePacketGroup)
         stream.packetGroup.insertSignature = True
 
         port.autoDetectInstrumentation.signature = '{87 73 67 49 42 87 11 80 08 71 00 11}'
@@ -170,12 +171,15 @@ class IxeTestOffline(IxeTestBase):
         port.packetGroup.groupIdOffset = 152
         stream.packetGroup.groupIdOffset = 152
 
+        port.packetGroup.groupIdMode = 'packetGroupSplit'
+
         port.write()
         self.ixia.refresh()
 
         print(json.dumps(port.autoDetectInstrumentation.get_attributes(), indent=1))
-        print(json.dumps(stream.autoDetectInstrumentation.get_attributes(), indent=1))
         print(json.dumps(port.packetGroup.get_attributes(), indent=1))
+        print(json.dumps(port.splitPacketGroup.get_attributes(), indent=1))
+        print(json.dumps(stream.autoDetectInstrumentation.get_attributes(), indent=1))
         print(json.dumps(stream.packetGroup.get_attributes(), indent=1))
 
         assert(port.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')

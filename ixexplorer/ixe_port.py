@@ -328,7 +328,7 @@ class IxePort(IxeObject):
         return getattr(self, field)
 
     def get_autoDetectInstrumentation(self):
-        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentation)
+        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentationPort)
     autoDetectInstrumentation = property(get_autoDetectInstrumentation)
 
     def get_capture(self):
@@ -358,6 +358,10 @@ class IxePort(IxeObject):
         return self.get_object('_packetGroup', IxePacketGroupPort)
     packetGroup = property(get_packetGroup)
 
+    def get_splitPacketGroup(self):
+        return self.get_object('_splitPacketGroup', IxeSplitPacketGroup)
+    splitPacketGroup = property(get_splitPacketGroup)
+
     def get_streamRegion(self):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
@@ -378,6 +382,59 @@ class IxePortObj(IxeObject):
     def ix_set(self, member=None):
         super(IxePortObj, self).ix_set(member)
         self.parent.ix_set(member)
+
+
+class IxeCapture(IxePortObj):
+    __tcl_command__ = 'capture'
+    __tcl_members__ = [
+            TclMember('afterTriggerFilter'),
+            TclMember('beforeTriggerFilter'),
+            TclMember('captureMode'),
+            TclMember('continuousFilter'),
+            TclMember('enableSmallPacketCapture'),
+            TclMember('fullAction'),
+            TclMember('nPackets', type=int, flags=FLAG_RDONLY),
+            TclMember('sliceSize'),
+            TclMember('triggerPosition')
+    ]
+
+
+class IxeCaptureBuffer(IxeObject):
+    __tcl_command__ = 'captureBuffer'
+    __tcl_members__ = [
+            TclMember('frame', flags=FLAG_RDONLY),
+    ]
+    __tcl_commands__ = ['export', 'getframe']
+
+    def __init__(self, parent):
+        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
+        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
+
+    def ix_command(self, command, *args, **kwargs):
+        return self.api.call(('captureBuffer {} ' + len(args) * ' {}').format(command, *args))
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+
+class IxeFilterPalettePort(IxePortObj):
+    __tcl_command__ = 'filterPallette'
+    __tcl_members__ = [
+        TclMember('DA1'),
+        TclMember('DAMask1'),
+        TclMember('DA2'),
+        TclMember('DAMask2'),
+        TclMember('SA1'),
+        TclMember('SAMask1'),
+        TclMember('SA2'),
+        TclMember('SAMask2'),
+        TclMember('pattern1'),
+        TclMember('patternMask1'),
+        TclMember('pattern2'),
+        TclMember('patternMask2'),
+        TclMember('patternOffset1', type=int),
+        TclMember('patternOffset2', type=int)
+    ]
 
 
 class IxeFilterPort(IxePortObj):
@@ -453,62 +510,24 @@ class IxeFilterPort(IxePortObj):
     ]
 
 
+class IxeSplitPacketGroup(IxePortObj):
+    __tcl_command__ = 'splitPacketGroup'
+    __tcl_members__ = [
+        TclMember('groupIdOffset', type=int),
+        TclMember('groupIdOffsetBaseType'),
+        TclMember('groupIdWidth', type=int),
+        TclMember('groupIdMask')
+    ]
+
+    def __init__(self, parent):
+        super(self.__class__, self).__init__(parent)
+        self.ix_set_default()
+
+
 class IxeStreamRegion(IxePortObj):
     __tcl_command__ = 'streamRegion'
     __tcl_commands__ = ['generateWarningList']
 
-
-class IxeFilterPalettePort(IxePortObj):
-    __tcl_command__ = 'filterPallette'
-    __tcl_members__ = [
-        TclMember('DA1'),
-        TclMember('DAMask1'),
-        TclMember('DA2'),
-        TclMember('DAMask2'),
-        TclMember('SA1'),
-        TclMember('SAMask1'),
-        TclMember('SA2'),
-        TclMember('SAMask2'),
-        TclMember('pattern1'),
-        TclMember('patternMask1'),
-        TclMember('pattern2'),
-        TclMember('patternMask2'),
-        TclMember('patternOffset1', type=int),
-        TclMember('patternOffset2', type=int),
-    ]
-
-
-class IxeCapture(IxePortObj):
-    __tcl_command__ = 'capture'
-    __tcl_members__ = [
-            TclMember('afterTriggerFilter'),
-            TclMember('beforeTriggerFilter'),
-            TclMember('captureMode'),
-            TclMember('continuousFilter'),
-            TclMember('enableSmallPacketCapture'),
-            TclMember('fullAction'),
-            TclMember('nPackets', type=int, flags=FLAG_RDONLY),
-            TclMember('sliceSize'),
-            TclMember('triggerPosition')
-    ]
-
-
-class IxeCaptureBuffer(IxeObject):
-    __tcl_command__ = 'captureBuffer'
-    __tcl_members__ = [
-            TclMember('frame', flags=FLAG_RDONLY),
-    ]
-    __tcl_commands__ = ['export', 'getframe']
-
-    def __init__(self, parent):
-        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
-        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
-
-    def ix_command(self, command, *args, **kwargs):
-        return self.api.call(('captureBuffer {} ' + len(args) * ' {}').format(command, *args))
-
-    def ix_get(self, member=None, force=False):
-        pass
 
 #
 # RX port object classes.
@@ -519,7 +538,7 @@ class IxePortRxObj(IxePortObj):
     __set_command__ = 'setRx'
 
 
-class IxeAutoDetectInstrumentation(IxePortRxObj):
+class IxeAutoDetectInstrumentationPort(IxePortRxObj):
     __tcl_command__ = 'autoDetectInstrumentation'
     __tcl_members__ = [
             TclMember('enableMisdirectedPacketMask', type=bool),
