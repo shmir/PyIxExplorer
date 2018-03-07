@@ -554,10 +554,13 @@ class IxeAutoDetectInstrumentationPort(IxePortRxObj):
 class IxeDataIntegrityPort(IxePortRxObj):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
-            TclMember('enableTimeStamp'),
-            TclMember('insertSignature'),
+            TclMember('enableTimeStamp', type=bool),
+            TclMember('insertSignature', type=bool),
+            TclMember('floatingTimestampAndDataIntegrityMode'),
+            TclMember('numBytesFromEndOfFrame', type=int),
+            TclMember('payloadLength', type=int),
             TclMember('signature'),
-            TclMember('signatureOffset'),
+            TclMember('signatureOffset', type=int),
     ]
 
 

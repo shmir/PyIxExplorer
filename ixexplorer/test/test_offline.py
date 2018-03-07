@@ -162,14 +162,19 @@ class IxeTestOffline(IxeTestBase):
         assert(stream.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 18 05')
         assert(port.packetGroup.groupIdOffset == 52)
         assert(stream.packetGroup.groupIdOffset == 52)
+        assert(port.dataIntegrity.signatureOffset == 40)
+        assert(stream.dataIntegrity.signatureOffset == 40)
 
-        port.set_receive_modes(IxeReceiveMode.widePacketGroup)
+        port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.dataIntegrity)
         stream.packetGroup.insertSignature = True
+        stream.dataIntegrity.insertSignature = True
 
         port.autoDetectInstrumentation.signature = '{87 73 67 49 42 87 11 80 08 71 00 11}'
         stream.autoDetectInstrumentation.signature = '{87 73 67 49 42 87 11 80 08 71 00 11}'
         port.packetGroup.groupIdOffset = 152
         stream.packetGroup.groupIdOffset = 152
+        port.dataIntegrity.signatureOffset = 140
+        stream.dataIntegrity.signatureOffset = 140
 
         port.packetGroup.groupIdMode = 'packetGroupSplit'
 
@@ -179,13 +184,17 @@ class IxeTestOffline(IxeTestBase):
         print(json.dumps(port.autoDetectInstrumentation.get_attributes(), indent=1))
         print(json.dumps(port.packetGroup.get_attributes(), indent=1))
         print(json.dumps(port.splitPacketGroup.get_attributes(), indent=1))
+        print(json.dumps(port.dataIntegrity.get_attributes(), indent=1))
         print(json.dumps(stream.autoDetectInstrumentation.get_attributes(), indent=1))
         print(json.dumps(stream.packetGroup.get_attributes(), indent=1))
+        print(json.dumps(stream.dataIntegrity.get_attributes(), indent=1))
 
         assert(port.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')
         assert(stream.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')
         assert(port.packetGroup.groupIdOffset == 152)
         assert(stream.packetGroup.groupIdOffset == 152)
+        assert(port.dataIntegrity.signatureOffset == 140)
+        assert(stream.dataIntegrity.signatureOffset == 140)
 
     #
     # Negative tests.
