@@ -21,7 +21,7 @@ class IxeTestOnline(IxeTestBase):
     def testPortStats(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/stats_config_2.prt')
-        self._load_config(cfg1, cfg2)
+        self._reserver_and_load(cfg1, cfg2)
 
         self.ixia.session.start_transmit()
         port_stats = IxePortsStats(self.ixia.session)
@@ -42,7 +42,7 @@ class IxeTestOnline(IxeTestBase):
     def testStreamStats(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/stats_config_2.prt')
-        self._load_config(cfg1, cfg2)
+        self._reserver_and_load(cfg1, cfg2)
 
         self.ixia.session.start_transmit()
         time.sleep(2)
@@ -65,7 +65,7 @@ class IxeTestOnline(IxeTestBase):
     def testCapture(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
-        self._load_config(cfg1, cfg2)
+        self._reserver_and_load(cfg1, cfg2)
 
         self.ports[self.port1].start_capture()
         self.ports[self.port2].start_transmit(blocking=True)
@@ -119,7 +119,7 @@ class IxeTestOnline(IxeTestBase):
         cfg1 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
         try:
-            self._load_config(cfg1, cfg2)
+            self._reserver_and_load(cfg1, cfg2)
         except StreamWarningsError as _:
             pass
 

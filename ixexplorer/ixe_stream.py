@@ -87,13 +87,15 @@ class IxeStream(IxeObject):
     def read_stats(self, *stats):
         return IxeStreamsStats(self.session, self).read_stats(*stats)[str(self)]
 
-    def get_vlan(self):
-        return self.get_object('_vlan', IxeVlan)
-    vlan = property(get_vlan)
+    #
+    # Stream objects.
+    #
 
-    def get_stacked_vlan(self):
-        return self.get_object('_stackedVlan', IxeStackedVlan)
-    stackedVlan = property(get_stacked_vlan)
+    def get_object(self, field, ixe_object):
+        if not hasattr(self, field):
+            setattr(self, field, ixe_object(parent=self))
+            getattr(self, field).ix_set_default()
+        return getattr(self, field)
 
     def _set_ip(self, version):
         require_set = False
@@ -149,12 +151,21 @@ class IxeStream(IxeObject):
         return self.get_object('_packetGroup', IxePacketGroupStream)
     packetGroup = property(get_packetGroup)
 
-    def get_object(self, field, ixe_object):
-        if not hasattr(self, field):
-            setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_set_default()
-        return getattr(self, field)
+    def get_autoDetectInstrumentation(self):
+        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentation)
+    autoDetectInstrumentation = property(get_autoDetectInstrumentation)
 
+    def get_vlan(self):
+        return self.get_object('_vlan', IxeVlan)
+    vlan = property(get_vlan)
+
+    def get_stacked_vlan(self):
+        return self.get_object('_stackedVlan', IxeStackedVlan)
+    stackedVlan = property(get_stacked_vlan)
+
+#
+# Stream object classes.
+#
 
 class IxeStreamObj(IxeObject):
 
@@ -380,11 +391,19 @@ class IxeUdf(IxeStreamObj):
     def ix_set(self, member=None):
         pass
 
-    def set(self, index):
-        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
+#
+# TX stream object classes.
+#
+
+class IxeStreamTxObj(IxeStreamObj):
+    __get_command__ = 'getTx'
+    __set_command__ = 'setTx'
+
+    def __init__(self, parent):
+        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
 
 
-class IxeDataIntegrityStream(IxeStreamObj):
+class IxeDataIntegrityStream(IxeStreamTxObj):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
             TclMember('enableTimeStamp'),
@@ -392,21 +411,24 @@ class IxeDataIntegrityStream(IxeStreamObj):
             TclMember('signature'),
             TclMember('signatureOffset'),
     ]
-    __get_command__ = 'getTx'
-    __set_command__ = 'setTx'
-    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'setCircuitTx', 'setQueueTx']
-
-    def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
 
 
-class IxePacketGroupStream(IxeStreamObj):
+class IxePacketGroupStream(IxeStreamTxObj):
     __tcl_command__ = 'packetGroup'
     __tcl_members__ = [
             TclMember('groupId', type=int),
     ]
-    __get_command__ = 'getTx'
-    __set_command__ = 'setTx'
 
-    def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
+
+class IxeAutoDetectInstrumentation(IxeStreamTxObj):
+    __tcl_command__ = 'autoDetectInstrumentation'
+    __tcl_members__ = [
+            TclMember('enableMisdirectedPacketMask', type=bool),
+            TclMember('enablePRBS', type=bool),
+            TclMember('enableSignatureMask', type=bool),
+            TclMember('enableTxAutomaticInstrumentation', type=bool),
+            TclMember('misdirectedPacketMask'),
+            TclMember('signature'),
+            TclMember('signatureMask'),
+            TclMember('startOfScan', type=int),
+    ]

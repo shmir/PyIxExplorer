@@ -5,6 +5,7 @@ IxExplorer package tests that can run in offline mode.
 """
 
 from os import path
+import json
 
 from trafficgenerator.tgn_utils import TgnError
 
@@ -20,7 +21,7 @@ class IxeTestOffline(IxeTestBase):
 
         cfg1 = path.join(path.dirname(__file__), 'configs/test_config_1.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.str')
-        self._load_config(cfg1, cfg2)
+        self._reserver_and_load(cfg1, cfg2)
 
         assert(len(self.ports) == 2)
         assert(len(self.ports[self.port1].streams) == 2)
@@ -44,7 +45,7 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[1].sa == '44:44:44:44:44:44')
 
     def testBuildConfig(self):
-        self._reserve_ports()
+        self._reserve_ports(self.port1, self.port2)
 
         self.ports[self.port1].add_stream()
         self.ports[self.port1].streams[1].da = "22:22:22:22:22:11"
@@ -81,20 +82,6 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[1].sa == '11:11:11:11:11:11')
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
-
-    def testErrors(self):
-
-        cfg = path.join(path.dirname(__file__), 'configs/good_to_bad_config.prt')
-        port = list(self.ixia.session.reserve_ports([self.port1], force=True).values())[0]
-        self.ixia.session.login('anotherUser')
-        with self.assertRaises(TgnError):
-            assert(port.reserve())
-        self.ixia.session.login(self.config.get('IXE', 'user'))
-        port.reserve()
-        port.load_config(cfg)
-        port.streams[1].framesize = 64
-        with self.assertRaises(StreamWarningsError):
-            assert(port.write())
 
     def testWriteAfterWrite(self):
         self._reserve_ports()
@@ -159,6 +146,50 @@ class IxeTestOffline(IxeTestBase):
         assert(len(chassis.cards) > 0)
         assert(len(list(chassis.cards.values())[0].ports) > 0)
         print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
+
+    def testBuildStreamStats(self):
+
+        self._reserve_ports(self.port1)
+
+        #: :type port: ixexplorer.ixe_port.IxePort
+        port = self.ports[self.port1]
+
+        #: :type stream: ixexplorer.ixe_stream.IxeStream
+        stream = port.add_stream()
+
+        assert(port.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 18 05')
+        assert(stream.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 18 05')
+
+        stream.autoDetectInstrumentation.enableTxAutomaticInstrumentation = True
+
+        port.autoDetectInstrumentation.signature = '{87 73 67 49 42 87 11 80 08 71 00 11}'
+        stream.autoDetectInstrumentation.signature = '{87 73 67 49 42 87 11 80 08 71 00 11}'
+
+        port.write()
+        self.ixia.refresh()
+
+        print(json.dumps(port.autoDetectInstrumentation.get_attributes(), indent=1))
+        print(json.dumps(port.autoDetectInstrumentation.get_attributes(), indent=1))
+        assert(port.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')
+        assert(stream.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')
+
+    #
+    # Negative tests.
+    #
+
+    def testErrors(self):
+
+        cfg = path.join(path.dirname(__file__), 'configs/good_to_bad_config.prt')
+        port = list(self.ixia.session.reserve_ports([self.port1], force=True).values())[0]
+        self.ixia.session.login('anotherUser')
+        with self.assertRaises(TgnError):
+            assert(port.reserve())
+        self.ixia.session.login(self.config.get('IXE', 'user'))
+        port.reserve()
+        port.load_config(cfg)
+        port.streams[1].framesize = 64
+        with self.assertRaises(StreamWarningsError):
+            assert(port.write())
 
     def testNegative(self):
 

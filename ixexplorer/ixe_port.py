@@ -276,41 +276,6 @@ class IxePort(IxeObject):
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(stats)
 
-    def get_filter(self):
-        return self.get_object('_filter', IxeFilterPort)
-    filter = property(get_filter)
-
-    def get_filterPallette(self):
-        return self.get_object('_filterPallette', IxeFilterPalettePort)
-    filterPallette = property(get_filterPallette)
-
-    def get_dataIntegrity(self):
-        return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
-    dataIntegrity = property(get_dataIntegrity)
-
-    def get_packetGroup(self):
-        return self.get_object('_packetGroup', IxePacketGroupPort)
-    packetGroup = property(get_packetGroup)
-
-    def get_autoDetectInstrumentation(self):
-        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentation)
-    autoDetectInstrumentation = property(get_autoDetectInstrumentation)
-
-    def get_streamRegion(self):
-        return self.get_object('_streamRegion', IxeStreamRegion)
-    streamRegion = property(get_streamRegion)
-
-    def get_capture(self):
-        return self.get_object('_capture', IxeCapture)
-    capture = property(get_capture)
-
-    def get_captureBuffer(self):
-        return self.get_object('_captureBuffer', IxeCaptureBuffer)
-
-    def set_captureBuffer(self, value):
-        self._captureBuffer = value
-    captureBuffer = property(fget=get_captureBuffer, fset=set_captureBuffer)
-
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
 
@@ -340,12 +305,6 @@ class IxePort(IxeObject):
 
         self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
 
-    def get_object(self, field, ixe_object):
-        if not hasattr(self, field) or not getattr(self, field):
-            setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_get()
-        return getattr(self, field)
-
     def set_rx_ports(self, *rx_ports):
         for stream in self.get_objects_by_type('stream'):
             stream.rx_ports = rx_ports
@@ -358,6 +317,54 @@ class IxePort(IxeObject):
             self.api.call('%s config -%s %s' % (self.__tcl_command__, opt, value))
         self.ix_set()
 
+    #
+    # Port objects.
+    #
+
+    def get_object(self, field, ixe_object):
+        if not hasattr(self, field) or not getattr(self, field):
+            setattr(self, field, ixe_object(parent=self))
+            getattr(self, field).ix_get()
+        return getattr(self, field)
+
+    def get_autoDetectInstrumentation(self):
+        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentation)
+    autoDetectInstrumentation = property(get_autoDetectInstrumentation)
+
+    def get_capture(self):
+        return self.get_object('_capture', IxeCapture)
+    capture = property(get_capture)
+
+    def get_captureBuffer(self):
+        return self.get_object('_captureBuffer', IxeCaptureBuffer)
+
+    def set_captureBuffer(self, value):
+        self._captureBuffer = value
+    captureBuffer = property(fget=get_captureBuffer, fset=set_captureBuffer)
+
+    def get_dataIntegrity(self):
+        return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
+    dataIntegrity = property(get_dataIntegrity)
+
+    def get_filter(self):
+        return self.get_object('_filter', IxeFilterPort)
+    filter = property(get_filter)
+
+    def get_filterPallette(self):
+        return self.get_object('_filterPallette', IxeFilterPalettePort)
+    filterPallette = property(get_filterPallette)
+
+    def get_packetGroup(self):
+        return self.get_object('_packetGroup', IxePacketGroupPort)
+    packetGroup = property(get_packetGroup)
+
+    def get_streamRegion(self):
+        return self.get_object('_streamRegion', IxeStreamRegion)
+    streamRegion = property(get_streamRegion)
+
+#
+# Port object classes.
+#
 
 class IxePortObj(IxeObject):
 
@@ -372,81 +379,6 @@ class IxePortObj(IxeObject):
         super(IxePortObj, self).ix_set(member)
         self.parent.ix_set(member)
 
-
-class IxeDataIntegrityPort(IxePortObj):
-    __tcl_command__ = 'dataIntegrity'
-    __tcl_members__ = [
-            TclMember('enableTimeStamp'),
-            TclMember('insertSignature'),
-            TclMember('signature'),
-            TclMember('signatureOffset'),
-    ]
-    __get_command__ = 'getRx'
-    __set_command__ = 'setRx'
-    __tcl_commands__ = ['config', 'getCircuitRx', 'getQueueRx', 'setCircuitRx', 'setQueueRx']
-
-
-class IxePacketGroupPort(IxePortObj):
-    __tcl_command__ = 'packetGroup'
-    __tcl_members__ = [
-            TclMember('signature'),
-        TclMember('allocateUdf'),
-        TclMember('delayVariationMode'),
-        TclMember('enable128kBinMode'),
-        TclMember('enableGroupIdMask'),
-        TclMember('enableInsertPgid'),
-        TclMember('enableLastBitTimeStamp'),
-        TclMember('enableLatencyBins'),
-        TclMember('enableReArmFirstTimeStamp'),
-        TclMember('enableRxFilter'),
-        TclMember('enableSignatureMask'),
-        TclMember('enableTimeBins'),
-        TclMember('groupId'),
-        TclMember('groupIdMask'),
-        TclMember('groupIdMode'),
-        TclMember('groupIdOffset'),
-        TclMember('headerFilter'),
-        TclMember('headerFilterMask'),
-        TclMember('ignoreSignature'),
-        TclMember('insertSequenceSignature'),
-        TclMember('insertSignature'),
-        TclMember('latencyBinList'),
-        TclMember('latencyControl'),
-        TclMember('maxRxGroupId'),
-        TclMember('measurementMode'),
-        TclMember('multiSwitchedPathMode'),
-        TclMember('numPgidPerTimeBin'),
-        TclMember('numTimeBins'),
-        TclMember('preambleSize'),
-        TclMember('seqAdvTracking'),
-        TclMember('seqAdvTrackingLateThreshold'),
-        TclMember('sequenceErrorThreshold'),
-        TclMember('sequenceCheckingMode'),
-        TclMember('sequenceNumberOffset'),
-        TclMember('signature'),
-        TclMember('signatureMask'),
-        TclMember('signatureOffset'),
-        TclMember('timeBinDuration'),
-    ]
-    __get_command__ = 'getRx'
-    __set_command__ = 'setRx'
-
-class IxeAutoDetectInstrumentation(IxePortObj):
-    __tcl_command__ = 'autoDetectInstrumentation'
-    __tcl_members__ = [
-            TclMember('enableSignatureMask', type=bool),
-            TclMember('enableTxAutomaticInstrumentation', type=bool),
-            TclMember('signature'),
-            TclMember('signatureMask'),
-            TclMember('startOfScan'),
-            TclMember('enableMisdirectedPacketMask', type=bool),
-            TclMember('misdirectedPacketMask'),
-            TclMember('enablePRBS', type=bool),
-    ]
-    __get_command__ = 'getRx'
-    __set_command__ = 'setRx'
-    __tcl_commands__ = ['config', 'getCircuitTx', 'getQueueTx', 'getRx', 'getTx', 'setCircuitTx', 'setDefaults',
-                        'setQueueTx', 'setRx', 'setTx']
 
 class IxeFilterPort(IxePortObj):
     __tcl_command__ = 'filter'
@@ -577,3 +509,78 @@ class IxeCaptureBuffer(IxeObject):
 
     def ix_get(self, member=None, force=False):
         pass
+
+#
+# RX port object classes.
+#
+
+class IxePortRxObj(IxePortObj):
+    __get_command__ = 'getRx'
+    __set_command__ = 'setRx'
+
+
+class IxeAutoDetectInstrumentation(IxePortRxObj):
+    __tcl_command__ = 'autoDetectInstrumentation'
+    __tcl_members__ = [
+            TclMember('enableMisdirectedPacketMask', type=bool),
+            TclMember('enablePRBS', type=bool),
+            TclMember('enableSignatureMask', type=bool),
+            TclMember('misdirectedPacketMask'),
+            TclMember('signature'),
+            TclMember('signatureMask'),
+            TclMember('startOfScan', type=int),
+    ]
+
+
+class IxeDataIntegrityPort(IxePortRxObj):
+    __tcl_command__ = 'dataIntegrity'
+    __tcl_members__ = [
+            TclMember('enableTimeStamp'),
+            TclMember('insertSignature'),
+            TclMember('signature'),
+            TclMember('signatureOffset'),
+    ]
+
+
+class IxePacketGroupPort(IxePortRxObj):
+    __tcl_command__ = 'packetGroup'
+    __tcl_members__ = [
+            TclMember('signature'),
+            TclMember('allocateUdf'),
+            TclMember('delayVariationMode'),
+            TclMember('enable128kBinMode'),
+            TclMember('enableGroupIdMask'),
+            TclMember('enableInsertPgid'),
+            TclMember('enableLastBitTimeStamp'),
+            TclMember('enableLatencyBins'),
+            TclMember('enableReArmFirstTimeStamp'),
+            TclMember('enableRxFilter'),
+            TclMember('enableSignatureMask'),
+            TclMember('enableTimeBins'),
+            TclMember('groupId'),
+            TclMember('groupIdMask'),
+            TclMember('groupIdMode'),
+            TclMember('groupIdOffset'),
+            TclMember('headerFilter'),
+            TclMember('headerFilterMask'),
+            TclMember('ignoreSignature'),
+            TclMember('insertSequenceSignature'),
+            TclMember('insertSignature'),
+            TclMember('latencyBinList'),
+            TclMember('latencyControl'),
+            TclMember('maxRxGroupId'),
+            TclMember('measurementMode'),
+            TclMember('multiSwitchedPathMode'),
+            TclMember('numPgidPerTimeBin'),
+            TclMember('numTimeBins'),
+            TclMember('preambleSize'),
+            TclMember('seqAdvTracking'),
+            TclMember('seqAdvTrackingLateThreshold'),
+            TclMember('sequenceErrorThreshold'),
+            TclMember('sequenceCheckingMode'),
+            TclMember('sequenceNumberOffset'),
+            TclMember('signature'),
+            TclMember('signatureMask'),
+            TclMember('signatureOffset'),
+            TclMember('timeBinDuration'),
+    ]

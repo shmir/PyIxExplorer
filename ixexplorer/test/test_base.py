@@ -38,10 +38,13 @@ class IxeTestBase(TgnTest):
     def testHelloWorld(self):
         pass
 
-    def _reserve_ports(self):
-        self.ports = self.ixia.session.reserve_ports([self.port1, self.port2], force=True)
+    def _reserve_ports(self, *ports):
+        self.ports = self.ixia.session.reserve_ports(ports, force=True)
 
-    def _load_config(self, cfg1, cfg2):
-        self._reserve_ports()
-        self.ports[self.port1].load_config(cfg1)
-        self.ports[self.port2].load_config(cfg2)
+    def _load_configs(self, *cfgs):
+        for port, cfg in zip(self.ports.values(), cfgs):
+            port.load_config(cfg)
+
+    def _reserver_and_load(self, *cfgs):
+        self._reserve_ports([self.port1, self.port2])
+        self._load_configs(*cfgs)
