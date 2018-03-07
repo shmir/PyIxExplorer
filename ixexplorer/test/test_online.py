@@ -92,6 +92,29 @@ class IxeTestOnline(IxeTestBase):
             print(port.cap_file_name)
             print(port.get_cap_file())
 
+    def testCaptureContent(self):
+        self._reserve_ports()
+
+        self.ports[self.port1].loopback = 1
+        self.ports[self.port1].add_stream()
+        self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
+        self.ports[self.port1].streams[1].dma = 2
+        self.ports[self.port1].streams[1].numFrames = 1
+        self.ports[self.port1].write()
+        self.ixia.session.start_capture()
+        self.ixia.session.start_transmit(blocking=True)
+        self.ixia.session.stop_capture()
+        assert("11 11 11 11 11 11" in str(self.ports[self.port1].get_cap_frames(1)))
+
+        self.ports[self.port1].streams[1].sa = "22:22:22:22:22:22"
+        self.ports[self.port1].streams[1].numFrames = 2
+        self.ports[self.port1].write()
+        self.ixia.session.start_capture()
+        self.ixia.session.start_transmit(blocking=True)
+        self.ixia.session.stop_capture()
+        assert("11 11 11 11 11 11" not in str(self.ports[self.port1].get_cap_frames(2)))
+        assert("22 22 22 22 22 22" in str(self.ports[self.port1].get_cap_frames(2)))
+
     def testLongCapture(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')

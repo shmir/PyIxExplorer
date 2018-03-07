@@ -302,7 +302,9 @@ class IxePort(IxeObject):
 
     def get_captureBuffer(self):
         return self.get_object('_captureBuffer', IxeCaptureBuffer)
-    captureBuffer = property(get_captureBuffer)
+    def set_captureBuffer(self, value):
+        self._captureBuffer = value
+    captureBuffer = property(fget=get_captureBuffer, fset=set_captureBuffer)
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
@@ -334,7 +336,7 @@ class IxePort(IxeObject):
         self.api.call_rc('port setTransmitMode {} {}'.format(mode, self.uri))
 
     def get_object(self, field, ixe_object):
-        if not hasattr(self, field):
+        if not hasattr(self, field) or not getattr(self, field):
             setattr(self, field, ixe_object(parent=self))
             getattr(self, field).ix_get()
         return getattr(self, field)
