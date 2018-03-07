@@ -46,5 +46,5 @@ class IxeTestBase(TgnTest):
             port.load_config(cfg)
 
     def _reserver_and_load(self, *cfgs):
-        self._reserve_ports([self.port1, self.port2])
+        self._reserve_ports(self.port1, self.port2)
         self._load_configs(*cfgs)

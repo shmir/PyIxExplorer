@@ -84,7 +84,7 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
 
     def testWriteAfterWrite(self):
-        self._reserve_ports()
+        self._reserve_ports(self.port1, self.port2)
         port1 = self.ports[self.port1]
         port2 = self.ports[self.port2]
 
@@ -134,7 +134,7 @@ class IxeTestOffline(IxeTestBase):
         assert(port2_stream1.ip.destIpAddr == '1.1.1.2')
 
     def testPortAndStreamObjects(self):
-        self._reserve_ports()
+        self._reserve_ports(self.port1)
 
         print(self.ports[self.port1].packetGroup.signature)
 
@@ -153,6 +153,9 @@ class IxeTestOffline(IxeTestBase):
 
         #: :type port: ixexplorer.ixe_port.IxePort
         port = self.ports[self.port1]
+        if not int(port.isValidFeature('portFeatureRxDataIntegrity')):
+            self.skipTest('Port not supporting RxDataIntegrity')
+            return
 
         #: :type stream: ixexplorer.ixe_stream.IxeStream
         stream = port.add_stream()

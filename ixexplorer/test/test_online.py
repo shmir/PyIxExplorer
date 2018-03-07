@@ -93,7 +93,7 @@ class IxeTestOnline(IxeTestBase):
             print(port.get_cap_file())
 
     def testCaptureContent(self):
-        self._reserve_ports()
+        self._reserve_ports(self.port1, self.port2)
 
         self.ports[self.port1].loopback = 1
         self.ports[self.port1].add_stream()
