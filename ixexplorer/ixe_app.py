@@ -235,16 +235,15 @@ class IxeSession(IxeObject):
             modes = []
             if int(port.isValidFeature('portFeatureRxWidePacketGroups')):
                 modes.append(IxeReceiveMode.widePacketGroup)
+                port.packetGroup.groupIdOffset = start_offset
+                port.packetGroup.signatureOffset = start_offset + 4
             if int(port.isValidFeature('portFeatureRxSequenceChecking')):
                 modes.append(IxeReceiveMode.sequenceChecking)
+                port.packetGroup.sequenceNumberOffset = start_offset + 8
             if int(port.isValidFeature('portFeatureRxDataIntegrity')):
                 modes.append(IxeReceiveMode.dataIntegrity)
+                port.dataIntegrity.signatureOffset = start_offset + 12
             port.set_receive_modes(*modes)
-
-            port.packetGroup.groupIdOffset = start_offset
-            port.packetGroup.signatureOffset = start_offset + 4
-            port.packetGroup.sequenceNumberOffset = start_offset + 8
-            port.dataIntegrity.signatureOffset = start_offset + 12
 
             port.write()
 

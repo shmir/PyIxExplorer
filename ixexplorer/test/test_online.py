@@ -95,7 +95,6 @@ class IxeTestOnline(IxeTestBase):
     def testCaptureContent(self):
         self._reserve_ports(self.port1, self.port2)
 
-        self.ports[self.port1].loopback = 1
         self.ports[self.port1].add_stream()
         self.ports[self.port1].streams[1].sa = "11:11:11:11:11:11"
         self.ports[self.port1].streams[1].dma = 2
@@ -104,7 +103,7 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit(blocking=True)
         self.ixia.session.stop_capture()
-        assert("11 11 11 11 11 11" in str(self.ports[self.port1].get_cap_frames(1)))
+        assert("11 11 11 11 11 11" in str(self.ports[self.port2].get_cap_frames(1)))
 
         self.ports[self.port1].streams[1].sa = "22:22:22:22:22:22"
         self.ports[self.port1].streams[1].numFrames = 2
@@ -112,8 +111,8 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit(blocking=True)
         self.ixia.session.stop_capture()
-        assert("11 11 11 11 11 11" not in str(self.ports[self.port1].get_cap_frames(2)))
-        assert("22 22 22 22 22 22" in str(self.ports[self.port1].get_cap_frames(2)))
+        assert("11 11 11 11 11 11" not in str(self.ports[self.port2].get_cap_frames(2)))
+        assert("22 22 22 22 22 22" in str(self.ports[self.port2].get_cap_frames(2)))
 
     def testLongCapture(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
@@ -132,6 +131,11 @@ class IxeTestOnline(IxeTestBase):
     def testStreamStatsAbstractLayer(self):
 
         self._reserve_ports(self.port1, self.port2)
+
+        for port in self.ports.values():
+            if not int(port.isValidFeature('portFeatureRxDataIntegrity')):
+                self.skipTest('Port not supporting RxDataIntegrity')
+                return
 
         for port in self.ports.values():
             port.transmitMode = IxeTransmitMode.advancedScheduler.value
