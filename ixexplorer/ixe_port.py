@@ -17,22 +17,23 @@ class IxePhyMode(Enum):
 
 
 class IxeReceiveMode(Enum):
-    capture = '$::portCapture'
-    packetGroup = '$::portPacketGroup'
-    tcpSessions = '$::portRxTcpSessions'
-    tcpRoundTrip = '$::portRxTcpRoundTrip'
-    dataIntegrity = '$::portRxDataIntegrity'
-    firstTimeStamp = '$::portRxFirstTimeStamp'
-    sequenceChecking = '$::portRxSequenceChecking'
-    bert = '$::portRxModeBert'
-    isl = '$::portRxModeIsl'
-    bertChannelized = '$::portRxModeBertChannelized'
-    echo = '$::portRxModeEcho'
-    dcc = '$::portRxModeDcc'
-    widePacketGroup = '$::portRxModeWidePacketGroup'
-    prbs = '$::portRxModePrbs'
-    ratingMonitoring = '$::portRxModeRateMonitoring'
-    perFlowErrorStats = '$::portRxModePerFlowErrorStats'
+    none = 0x0000
+    capture = 0x0001
+    packetGroup = 0x0002
+    tcpSessions = 0x0004
+    tcpRoundTrip = 0x0008
+    dataIntegrity = 0x0010
+    firstTimeStamp = 0x0020
+    sequenceChecking = 0x0040
+    bert = 0x0080
+    isl = 0x0100
+    bertChannelized = 0x0200
+    echo = 0x0400
+    dcc = 0x0800
+    widePacketGroup = 0x1000
+    prbs = 0x2000
+    rateMonitoring = 0x4000
+    perFlowErrorStats = 0x8000
 
 
 class IxeTransmitMode(Enum):
@@ -161,9 +162,15 @@ class IxePort(IxeObject):
             self.api.call_rc('ixPortTakeOwnership {} force'.format(self.uri))
 
     def release(self):
+        """ Release port. """
         self.api.call_rc('ixPortClearOwnership {}'.format(self.uri))
 
     def write(self):
+        """ Write configuration to chassis.
+
+        Raise StreamWarningsError if configuration warnings found.
+        """
+
         self.ix_command('write')
         stream_warnings = self.streamRegion.generateWarningList()
         warnings_list = (self.api.call('join ' + ' {' + stream_warnings + '} ' + ' LiStSeP').split('LiStSeP')
@@ -286,7 +293,7 @@ class IxePort(IxeObject):
             self.api.call_rc('port setPhyMode {} {}'.format(mode.value, self.uri))
 
     def set_receive_modes(self, *modes):
-        """ set port receive mode
+        """ Set port receive modes (overwrite existing value).
 
         :param modes: requested receive modes
         :type modes: list of ixexplorer.ixe_port.IxeReceiveMode
@@ -295,6 +302,15 @@ class IxePort(IxeObject):
         mode_values = [mode.value for mode in modes]
         mode_list = "[ expr " + " | ".join(mode_values) + " ]"
         self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
+
+    def add_receive_modes(self, mode, enable=True):
+        """ Enable/Disable single receive mode.
+
+        :param mode: receive mode to set
+        :param enable: True - enable, False - disable
+        """
+
+        modes = self.get_attribute()
 
     def set_transmit_mode(self, mode):
         """ set port transmit mode
@@ -316,6 +332,9 @@ class IxePort(IxeObject):
             value = optList[opt]
             self.api.call('%s config -%s %s' % (self.__tcl_command__, opt, value))
         self.ix_set()
+
+    def set_wide_packet_group(self):
+        self.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.dataIntegrity)
 
     #
     # Port objects.
@@ -567,41 +586,40 @@ class IxeDataIntegrityPort(IxePortRxObj):
 class IxePacketGroupPort(IxePortRxObj):
     __tcl_command__ = 'packetGroup'
     __tcl_members__ = [
-            TclMember('signature'),
-            TclMember('allocateUdf'),
+            TclMember('allocateUdf', type=bool),
             TclMember('delayVariationMode'),
-            TclMember('enable128kBinMode'),
-            TclMember('enableGroupIdMask'),
-            TclMember('enableInsertPgid'),
-            TclMember('enableLastBitTimeStamp'),
-            TclMember('enableLatencyBins'),
-            TclMember('enableReArmFirstTimeStamp'),
-            TclMember('enableRxFilter'),
-            TclMember('enableSignatureMask'),
-            TclMember('enableTimeBins'),
+            TclMember('enable128kBinMode', type=bool),
+            TclMember('enableGroupIdMask', type=bool),
+            TclMember('enableInsertPgid', type=bool),
+            TclMember('enableLastBitTimeStamp', type=bool),
+            TclMember('enableLatencyBins', type=bool),
+            TclMember('enableReArmFirstTimeStamp', type=bool),
+            TclMember('enableRxFilter', type=bool),
+            TclMember('enableSignatureMask', type=bool),
+            TclMember('enableTimeBins', type=bool),
             TclMember('groupId', type=int),
             TclMember('groupIdMask'),
             TclMember('groupIdMode'),
             TclMember('groupIdOffset', type=int),
             TclMember('headerFilter'),
             TclMember('headerFilterMask'),
-            TclMember('ignoreSignature'),
-            TclMember('insertSequenceSignature'),
-            TclMember('insertSignature'),
+            TclMember('ignoreSignature', type=bool),
+            TclMember('insertSequenceSignature', type=bool),
+            TclMember('insertSignature', type=bool),
             TclMember('latencyBinList'),
             TclMember('latencyControl'),
-            TclMember('maxRxGroupId'),
+            TclMember('maxRxGroupId', type=int),
             TclMember('measurementMode'),
             TclMember('multiSwitchedPathMode'),
-            TclMember('numPgidPerTimeBin'),
-            TclMember('numTimeBins'),
-            TclMember('preambleSize'),
-            TclMember('seqAdvTrackingLateThreshold'),
-            TclMember('sequenceErrorThreshold'),
+            TclMember('numPgidPerTimeBin', type=int),
+            TclMember('numTimeBins', type=int),
+            TclMember('preambleSize', type=int),
+            TclMember('seqAdvTrackingLateThreshold', type=int),
+            TclMember('sequenceErrorThreshold', type=int),
             TclMember('sequenceCheckingMode'),
-            TclMember('sequenceNumberOffset'),
+            TclMember('sequenceNumberOffset', type=int),
             TclMember('signature'),
             TclMember('signatureMask'),
-            TclMember('signatureOffset'),
-            TclMember('timeBinDuration'),
+            TclMember('signatureOffset', type=int),
+            TclMember('timeBinDuration', type=int),
     ]

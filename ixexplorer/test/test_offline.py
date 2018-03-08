@@ -165,7 +165,7 @@ class IxeTestOffline(IxeTestBase):
         assert(port.dataIntegrity.signatureOffset == 40)
         assert(stream.dataIntegrity.signatureOffset == 40)
 
-        port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.dataIntegrity)
+        port.receiveMode = IxeReceiveMode.widePacketGroup.value | IxeReceiveMode.dataIntegrity.value
         stream.packetGroup.insertSignature = True
         stream.dataIntegrity.insertSignature = True
 
@@ -181,13 +181,13 @@ class IxeTestOffline(IxeTestBase):
         port.write()
         self.ixia.refresh()
 
-        print(json.dumps(port.autoDetectInstrumentation.get_attributes(), indent=1))
-        print(json.dumps(port.packetGroup.get_attributes(), indent=1))
-        print(json.dumps(port.splitPacketGroup.get_attributes(), indent=1))
-        print(json.dumps(port.dataIntegrity.get_attributes(), indent=1))
-        print(json.dumps(stream.autoDetectInstrumentation.get_attributes(), indent=1))
-        print(json.dumps(stream.packetGroup.get_attributes(), indent=1))
-        print(json.dumps(stream.dataIntegrity.get_attributes(), indent=1))
+        print(json.dumps(port.autoDetectInstrumentation.get_attributes(), indent=4))
+        print(json.dumps(port.packetGroup.get_attributes(), indent=4))
+        print(json.dumps(port.splitPacketGroup.get_attributes(), indent=4))
+        print(json.dumps(port.dataIntegrity.get_attributes(), indent=4))
+        print(json.dumps(stream.autoDetectInstrumentation.get_attributes(), indent=4))
+        print(json.dumps(stream.packetGroup.get_attributes(), indent=4))
+        print(json.dumps(stream.dataIntegrity.get_attributes(), indent=4))
 
         assert(port.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')
         assert(stream.autoDetectInstrumentation.signature == '87 73 67 49 42 87 11 80 08 71 00 11')
