@@ -148,6 +148,7 @@ class IxeTestOnline(IxeTestBase):
 
         self.ixia.session.set_stream_stats()
 
+        time.sleep(2)
         self.ixia.session.start_transmit()
         time.sleep(2)
         print(json.dumps(self.ports[self.port1].streams[1].read_stats(), indent=1, sort_keys=True))
