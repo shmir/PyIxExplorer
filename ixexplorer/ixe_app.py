@@ -246,7 +246,7 @@ class IxeSession(IxeObject):
 
             port.write()
 
-        for streams in tx_ports.values():
+        for port, streams in tx_ports.items():
             for stream in streams:
 
                 stream.packetGroup.insertSignature = True

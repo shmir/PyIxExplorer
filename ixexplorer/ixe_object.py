@@ -51,7 +51,7 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         if not attributes:
             attributes = [m.attrname for m in self.__tcl_members__]
         for member in self.__tcl_members__:
-            if (not member.flags or member.flags & flags) and member.name in attributes:
+            if member.flags & flags and member.name in attributes:
                 attrs_values[member.attrname] = getattr(self, member.attrname)
         return attrs_values
 

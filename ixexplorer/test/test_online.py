@@ -131,26 +131,31 @@ class IxeTestOnline(IxeTestBase):
 
     def testStreamStatsAbstractLayer(self):
 
-        self._reserve_ports(self.port1)
+        self._reserve_ports(self.port1, self.port2)
 
-        port = self.ports[self.port1]
-        port.loopback = 'portLoopback'
-        port.transmitMode = IxeTransmitMode.advancedScheduler
-        port.add_stream('yoram')
-        port.add_stream()
-        for stream in port.streams.values():
-            stream.framesize = 64
-            stream.dma = 'contPacket'
-            stream.numFrames = 1000
-            stream.rateMode = 'streamRateModeFps'
+        for port in self.ports.values():
+            port.transmitMode = IxeTransmitMode.advancedScheduler.value
+            port.add_stream()
+            port.add_stream()
+            for stream in port.streams.values():
+                stream.framesize = 64
+                stream.dma = 'contPacket'
+                stream.numFrames = 1000
+                stream.rateMode = 'streamRateModeFps'
+
+        self.ports[self.port1].streams[1].rx_ports = [self.ports[self.port2]]
+        self.ports[self.port2].streams[1].rx_ports = [self.ports[self.port1]]
 
         self.ixia.session.set_stream_stats()
 
         self.ixia.session.start_transmit()
         time.sleep(2)
-        print(json.dumps(port.streams[1].read_stats(), indent=1, sort_keys=True))
+        print(json.dumps(self.ports[self.port1].streams[1].read_stats(), indent=1, sort_keys=True))
         self.ixia.session.stop_transmit()
 
         stream_stats = IxeStreamsStats(self.ixia.session)
         stream_stats.read_stats()
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
+
+        assert(len(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx']) == 1)
+        assert(len(stream_stats.statistics[str(self.ports[self.port1].streams[2])]['rx']) == 2)
