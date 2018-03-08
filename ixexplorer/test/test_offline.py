@@ -147,7 +147,7 @@ class IxeTestOffline(IxeTestBase):
         assert(len(list(chassis.cards.values())[0].ports) > 0)
         print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
 
-    def testBuildStreamStats(self):
+    def testStreamStatsObjects(self):
 
         self._reserve_ports(self.port1)
 

@@ -98,13 +98,13 @@ class IxePort(IxeObject):
         TclMember('pmaClock', type=int),
         TclMember('portMode', type=int),
         TclMember('preEmphasis'),
-        TclMember('receiveMode'),
+        TclMember('receiveMode', type=int),
         TclMember('rxTxMode', type=int),
         TclMember('speed', type=int),
         TclMember('timeoutEnable'),
         TclMember('transmitClockDeviation', type=bool),
         TclMember('transmitClockMode', type=int),
-        TclMember('transmitMode', type=int),
+        TclMember('transmitMode'),
         TclMember('txRxSyncInterval', type=int),
         TclMember('type', flags=FLAG_RDONLY),
         TclMember('typeName', flags=FLAG_RDONLY),
@@ -216,10 +216,7 @@ class IxePort(IxeObject):
 
     def add_stream(self, name=None):
         stream = IxeStream(self, self.uri + '/' + str(int(self.getStreamCount()) + 1))
-        stream.ix_set_default()
-        if not name:
-            name = str(stream)
-        stream.name = '{' + name.replace('%', '%%').replace('\\', '\\\\') + '}'
+        stream.create(name)
         return stream
 
     def get_streams(self):
@@ -296,21 +293,25 @@ class IxePort(IxeObject):
         """ Set port receive modes (overwrite existing value).
 
         :param modes: requested receive modes
-        :type modes: list of ixexplorer.ixe_port.IxeReceiveMode
+        :type modes: list[ixexplorer.ixe_port.IxeReceiveMode]
         """
 
-        mode_values = [mode.value for mode in modes]
-        mode_list = "[ expr " + " | ".join(mode_values) + " ]"
-        self.api.call_rc('port setReceiveMode {} {}'.format(mode_list, self.uri))
+        self._set_receive_modes(0, *modes)
 
-    def add_receive_modes(self, mode, enable=True):
-        """ Enable/Disable single receive mode.
+    def add_receive_modes(self, *modes):
+        """ Add port receive modes to exiting modes.
 
-        :param mode: receive mode to set
-        :param enable: True - enable, False - disable
+        :param modes: requested receive modes
+        :type modes: list[ixexplorer.ixe_port.IxeReceiveMode]
         """
 
-        modes = self.get_attribute()
+        self._set_receive_modes(self.receiveMode, *modes)
+
+    def _set_receive_modes(self, receiveMode, *modes):
+
+        for mode in modes:
+            receiveMode += mode.value
+        self.receiveMode = receiveMode
 
     def set_transmit_mode(self, mode):
         """ set port transmit mode

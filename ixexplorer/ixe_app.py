@@ -7,7 +7,7 @@ from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
-from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer
+from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
@@ -212,3 +212,50 @@ class IxeSession(IxeObject):
         if port_list not in self.port_lists:
             self.api.call(('set {} [ list ' + len(port_uris) * '[list {}] ' + ']').format(port_list, *port_uris))
         return port_list
+
+    def set_stream_stats(self, rx_ports=[], tx_ports={}, start_offset=44):
+        """ Set TX ports and RX streams for stream statistics.
+
+        :param ports: list of ports to set RX pgs. If empty set for all ports.
+        :type ports: list[ixexplorer.ixe_port.IxePort]
+        :param tx_ports: list of streams to set TX pgs. If empty set for all streams.
+        :type tx_ports:  dict[ixexplorer.ixe_port.IxePort, list[ixexplorer.ixe_stream.IxeStream]]
+        :param start_offset: start offset for signatures (group ID, signature, sequence)
+        """
+
+        if not rx_ports:
+            rx_ports = self.ports.values()
+
+        if not tx_ports:
+            for port in self.ports.values():
+                tx_ports[port] = port.streams.values()
+
+        for port in rx_ports:
+            modes = []
+            if int(port.isValidFeature('portFeatureRxWidePacketGroups')):
+                modes.append(IxeReceiveMode.widePacketGroup)
+            if int(port.isValidFeature('portFeatureRxSequenceChecking')):
+                modes.append(IxeReceiveMode.sequenceChecking)
+            if int(port.isValidFeature('portFeatureRxDataIntegrity')):
+                modes.append(IxeReceiveMode.dataIntegrity)
+            port.set_receive_modes(*modes)
+
+            port.packetGroup.groupIdOffset = start_offset
+            port.packetGroup.sequenceNumberOffset = start_offset + 8
+            port.dataIntegrity.signatureOffset = start_offset + 4
+
+            port.write()
+
+        for streams in tx_ports.values():
+            for stream in streams:
+
+                stream.packetGroup.insertSignature = True
+                stream.packetGroup.insertSequenceSignature = True
+                stream.dataIntegrity.insertSignature = True
+
+                stream.packetGroup.groupIdOffset = start_offset
+                stream.packetGroup.sequenceNumberOffset = start_offset + 8
+                stream.dataIntegrity.signatureOffset = start_offset + 4
+
+            port.write()
+

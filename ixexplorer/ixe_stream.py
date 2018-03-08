@@ -55,7 +55,7 @@ class IxeStream(IxeObject):
             TclMember('preambleData'),
             TclMember('preambleSize', type=int),
             TclMember('priorityGroup', type=int),
-            TclMember('rateMode', type=int),
+            TclMember('rateMode'),
             TclMember('returnToId', type=int),
             TclMember('rxTriggerEnable'),
             TclMember('sa', type=MacStr),
@@ -70,9 +70,19 @@ class IxeStream(IxeObject):
 
     __tcl_commands__ = ['export', 'write']
 
+    next_group_id = 0
+
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
         self.rx_ports = []
+
+    def create(self, name):
+        self.ix_set_default()
+        if not name:
+            name = self.obj_name()
+        self.name = '{' + name.replace('%', '%%').replace('\\', '\\\\') + '}'
+        self.packetGroup.groupId = IxeStream.next_group_id
+        IxeStream.next_group_id += 1
 
     def remove(self):
         self.ix_command('remove')

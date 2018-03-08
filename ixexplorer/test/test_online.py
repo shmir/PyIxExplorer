@@ -13,7 +13,7 @@ import json
 
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
 from ixexplorer.test.test_base import IxeTestBase
-from ixexplorer.ixe_port import StreamWarningsError
+from ixexplorer.ixe_port import StreamWarningsError, IxeTransmitMode
 
 
 class IxeTestOnline(IxeTestBase):
@@ -128,3 +128,29 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.stop_capture(cap_file_name=None, cap_file_format=IxeCapFileFormat.mem)
         for p in range(1, self.ports[self.port2].capture.nPackets + 1):
             print('frame len = {}'.format(len(self.ports[self.port2].get_cap_frames(p)[0]) / 3 + 1))
+
+    def testStreamStatsAbstractLayer(self):
+
+        self._reserve_ports(self.port1)
+
+        port = self.ports[self.port1]
+        port.loopback = 'portLoopback'
+        port.transmitMode = IxeTransmitMode.advancedScheduler
+        port.add_stream('yoram')
+        port.add_stream()
+        for stream in port.streams.values():
+            stream.framesize = 64
+            stream.dma = 'contPacket'
+            stream.numFrames = 1000
+            stream.rateMode = 'streamRateModeFps'
+
+        self.ixia.session.set_stream_stats()
+
+        self.ixia.session.start_transmit()
+        time.sleep(2)
+        print(json.dumps(port.streams[1].read_stats(), indent=1, sort_keys=True))
+        self.ixia.session.stop_transmit()
+
+        stream_stats = IxeStreamsStats(self.ixia.session)
+        stream_stats.read_stats()
+        print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
