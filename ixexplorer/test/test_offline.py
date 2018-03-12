@@ -38,6 +38,9 @@ class IxeTestOffline(IxeTestBase):
         self.ports[self.port1].streams[2].ip.destIpAddr = '2.2.2.2'
         self.ports[self.port1].write()
 
+        print(json.dumps(self.ports[self.port1].get_attributes(), indent=4))
+        print(json.dumps(self.ports[self.port1].streams[1].get_attributes(), indent=4))
+
         self.ixia.refresh()
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')

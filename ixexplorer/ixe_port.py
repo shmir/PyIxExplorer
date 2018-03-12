@@ -88,7 +88,7 @@ class IxePort(IxeObject):
         TclMember('masterSlave', type=bool),
         TclMember('multicastPauseAddress'),
         TclMember('negotiateMasterSlave', type=bool),
-        TclMember('operationModeList', type=int),
+        TclMember('operationModeList'),
         TclMember('owner'),
         TclMember('packetFlowFileName'),
         TclMember('pfcEnableValueList'),
@@ -112,14 +112,6 @@ class IxePort(IxeObject):
         TclMember('usePacketFlowImageFile', type=bool),
         TclMember('enableRsFec', type=bool),
         TclMember('ieeeL1Defaults', type=int),
-        TclMember('firecodeRequest', type=int),
-        TclMember('firecodeAdvertise', type=int),
-        TclMember('firecodeForceOn', type=int),
-        TclMember('firecodeForceOff', type=int),
-        TclMember('reedSolomonRequest', type=int),
-        TclMember('reedSolomonAdvertise', type=int),
-        TclMember('reedSolomonForceOn', type=int),
-        TclMember('reedSolomonForceOff', type=int)
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
@@ -396,6 +388,7 @@ class IxePort(IxeObject):
 # Port object classes.
 #
 
+
 class IxePortObj(IxeObject):
 
     def __init__(self, parent):
@@ -434,6 +427,8 @@ class IxeCaptureBuffer(IxeObject):
 
     def __init__(self, parent):
         super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
+        if not self.parent.capture.nPackets:
+            return
         self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
 
     def ix_command(self, command, *args, **kwargs):

@@ -12,20 +12,23 @@ api = ApiType.socket
 
 # IxTclServer address.
 host = '192.168.42.61'
+host = 'localhost'
 
 # Windows - 4555, Linux - 8022
+tcp_port = 8022
 tcp_port = 4555
 
 # Chassis IP address
-ip = '192.168.28.7'
 ip = '192.168.42.175'
 ip = '192.168.42.61'
+ip = '192.168.28.7'
+ip = 'localhost'
 
 user = 'pyixexplorer'
 
 # Required only for Linux servers
 rsa_id = '/opt/ixia/ixos-api/8.30.0.10/lib/ixTcl1.0/id_rsa'
-rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.30-EA/TclScripts/lib/ixTcl1.0/id_rsa'
+rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.40-EA/TclScripts/lib/ixTcl1.0/id_rsa'
 
 vModule = '10.10.10.3'
 mac = '00:00:00:00:00:00'
@@ -47,7 +50,7 @@ def connect():
     global ixia
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(api, logger, host, tcp_port, rsa_id)

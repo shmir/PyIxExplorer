@@ -7,7 +7,6 @@ from ixexplorer.ixe_statistics_view import IxeStreamsStats
 class IxeStream(IxeObject):
     __tcl_command__ = 'stream'
     __tcl_members__ = [
-            TclMember('adjustMask'),
             TclMember('asyncIntEnable'),
             TclMember('bpsRate', type=float),
             TclMember('da', type=MacStr),
@@ -176,6 +175,7 @@ class IxeStream(IxeObject):
 #
 # Stream object classes.
 #
+
 
 class IxeStreamObj(IxeObject):
 
@@ -404,6 +404,7 @@ class IxeUdf(IxeStreamObj):
 #
 # TX stream object classes.
 #
+
 
 class IxeStreamTxObj(IxeStreamObj):
     __get_command__ = 'getTx'
