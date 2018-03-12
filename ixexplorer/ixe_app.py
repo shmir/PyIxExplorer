@@ -110,7 +110,7 @@ class IxeSession(IxeObject):
                 port.set_phy_mode(phy_mode)
                 port.reset()
                 port.write()
-                port.clear_stats()
+                port.clear_all_stats()
 
         return self.ports
 
@@ -120,6 +120,7 @@ class IxeSession(IxeObject):
         :param ports: list of ports to wait for.
         :return:
         """
+
         port_list = self.set_ports_list(*ports)
         for _ in range(16):
             if self.api.call('ixCheckLinkState {}'.format(port_list)) == '0':
@@ -127,13 +128,16 @@ class IxeSession(IxeObject):
             time.sleep(1)
         raise TgnError('Failed to reach up state. Port {} is down after 16 seconds'.format(self))
 
-    def get_ports(self):
-        """
-        :return: dictionary {name: object} of all reserved ports.
+    def clear_all_stats(self, *ports):
+        """ Clear all statistic counters (port, streams and packet groups) on list of ports.
+
+        :param ports: list of ports to clear.
         """
 
-        return OrderedDict({str(p): p for p in self.get_objects_by_type('port')})
-    ports = property(get_ports)
+        port_list = self.set_ports_list(*ports)
+        self.api.call_rc('ixClearStats {}'.format(port_list))
+        # It seems there is a bug in IxExplorer GUI and Packet Group Statistics View is not updated after this command.
+        self.api.call_rc('ixClearPacketGroups {}'.format(port_list))
 
     def start_transmit(self, blocking=False, *ports):
         """ Start transmit on ports.
@@ -275,3 +279,15 @@ class IxeSession(IxeObject):
                 stream.dataIntegrity.signatureOffset = start_offset + 12
 
             port.write()
+
+    #
+    # Properties.
+    #
+
+    def get_ports(self):
+        """
+        :return: dictionary {name: object} of all reserved ports.
+        """
+
+        return OrderedDict({str(p): p for p in self.get_objects_by_type('port')})
+    ports = property(get_ports)

@@ -132,6 +132,7 @@ class IxeTestOnline(IxeTestBase):
     def testStreamStatsAbstractLayer(self):
 
         self._reserve_ports(self.port1, self.port2)
+
         iteration = 1
         for port_name in [self.port1, self.port2]:
             port = self.ports[port_name]
@@ -151,6 +152,7 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_transmit()
         time.sleep(2)
         self.ixia.session.stop_transmit()
+        time.sleep(2)
 
         stream_stats = IxeStreamsStats(self.ixia.session)
         stream_stats.read_stats()
@@ -163,3 +165,39 @@ class IxeTestOnline(IxeTestBase):
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
+
+    def testClearStats(self):
+
+        self.testStreamStatsAbstractLayer()
+        port_stats = IxePortsStats(self.ixia.session)
+        stream_stats = IxeStreamsStats(self.ixia.session)
+
+        port_stats.read_stats()
+        print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
+        self.ports[self.port1].clear_port_stats()
+        port_stats.read_stats()
+        print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
+
+        self.ports[self.port1].clear_all_stats()
+        stream_stats.read_stats()
+        print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 0)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
+
+        self.ixia.session.clear_all_stats()
+        stream_stats.read_stats()
+        print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 0)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 0)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
+
+        # self.ports[self.port1].clear_port_stats()
+        #
+        # self.ixia.session.api.call('stat setDefault')
+        # self.ixia.session.api.call('stat write 1 12 13')
+        #
+        # self.ixia.session.api.call('packetGroupStats clear 1 12 12 {{2}}')
+        assert(True)

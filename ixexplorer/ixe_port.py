@@ -8,7 +8,7 @@ from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_stream import IxeStream
-from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats
+from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats, IxeStat
 
 
 class IxePhyMode(Enum):
@@ -204,27 +204,6 @@ class IxePort(IxeObject):
         for stream_id in range(1, int(self.getStreamCount()) + 1):
             IxeStream(self, self.uri + '/' + str(stream_id))
 
-    def clear_port_stats(self):
-        self.api.call_rc('ixClearPortStats {}'.format(self.uri))
-
-    def clear_stats(self):
-        self.api.call_rc('ixClearPortStats {}'.format(self.uri))
-        self.api.call_rc('ixClearPortPacketGroups {}'.format(self.uri))
-        self.api.call_rc('ixClearPerStreamTxStats {}'.format(self.session.set_ports_list(self)))
-
-    def add_stream(self, name=None):
-        stream = IxeStream(self, self.uri + '/' + str(int(self.getStreamCount()) + 1))
-        stream.create(name)
-        return stream
-
-    def get_streams(self):
-        """
-        :return: dictionary {stream id: object} of all streams.
-        """
-
-        return {int(s.uri.split()[-1]): s for s in self.get_objects_by_type('stream')}
-    streams = property(get_streams)
-
     def start_transmit(self, blocking=False):
         """ Start transmit on port.
 
@@ -272,11 +251,29 @@ class IxePort(IxeObject):
                 frames.append(None)
         return frames
 
+    #
+    # Statistics.
+    #
+
+    def clear_port_stats(self):
+        """ Clear only port stats (lease stream and packet group stats). """
+        stat = IxeStat(self)
+        stat.ix_set_default()
+        stat.write()
+
+    def clear_all_stats(self):
+        """ Clear all statistic counters (port, streams and packet groups) on list of ports. """
+        self.session.clear_all_stats(self)
+
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats)[str(self)]
 
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(stats)
+
+    #
+    # Others...
+    #
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
@@ -305,12 +302,6 @@ class IxePort(IxeObject):
 
         self._set_receive_modes(self.receiveMode, *modes)
 
-    def _set_receive_modes(self, receiveMode, *modes):
-
-        for mode in modes:
-            receiveMode += mode.value
-        self.receiveMode = receiveMode
-
     def set_transmit_mode(self, mode):
         """ set port transmit mode
 
@@ -334,6 +325,11 @@ class IxePort(IxeObject):
 
     def set_wide_packet_group(self):
         self.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.dataIntegrity)
+
+    def add_stream(self, name=None):
+        stream = IxeStream(self, self.uri + '/' + str(int(self.getStreamCount()) + 1))
+        stream.create(name)
+        return stream
 
     #
     # Port objects.
@@ -383,6 +379,27 @@ class IxePort(IxeObject):
     def get_streamRegion(self):
         return self.get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
+
+    #
+    # Properties.
+    #
+
+    def get_streams(self):
+        """
+        :return: dictionary {stream id: object} of all streams.
+        """
+
+        return {int(s.uri.split()[-1]): s for s in self.get_objects_by_type('stream')}
+    streams = property(get_streams)
+
+    #
+    # Private methods.
+    #
+
+    def _set_receive_modes(self, receiveMode, *modes):
+        for mode in modes:
+            receiveMode += mode.value
+        self.receiveMode = receiveMode
 
 #
 # Port object classes.
