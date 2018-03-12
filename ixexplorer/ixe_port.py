@@ -1,6 +1,7 @@
 
 from os import path
 import re
+import time
 from enum import Enum
 
 from trafficgenerator.tgn_utils import TgnError
@@ -200,6 +201,11 @@ class IxePort(IxeObject):
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
         self.discover()
+
+    def wait_for_up(self):
+        """ Wait until port is up and running. """
+
+        self.session.wait_for_up(self)
 
     def discover(self):
         self.logger.info('Discover port {}'.format(self.obj_name()))

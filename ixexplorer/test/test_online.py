@@ -132,31 +132,34 @@ class IxeTestOnline(IxeTestBase):
     def testStreamStatsAbstractLayer(self):
 
         self._reserve_ports(self.port1, self.port2)
-
-        for port in self.ports.values():
+        iteration = 1
+        for port_name in [self.port1, self.port2]:
+            port = self.ports[port_name]
             port.transmitMode = IxeTransmitMode.advancedScheduler.value
             port.add_stream()
             port.add_stream()
             for stream in port.streams.values():
                 stream.framesize = 64
-                stream.dma = 'contPacket'
-                stream.numFrames = 1000
+                stream.dma = 'stopStream'
+                stream.numFrames = iteration
                 stream.rateMode = 'streamRateModeFps'
-
-        self.ports[self.port1].streams[1].rx_ports = [self.ports[self.port2]]
-        self.ports[self.port2].streams[1].rx_ports = [self.ports[self.port1]]
+                iteration += 1
 
         self.ixia.session.set_stream_stats()
+        self.ixia.session.wait_for_up(*self.ports.values())
 
-        time.sleep(2)
         self.ixia.session.start_transmit()
         time.sleep(2)
-        print(json.dumps(self.ports[self.port1].streams[1].read_stats(), indent=1, sort_keys=True))
         self.ixia.session.stop_transmit()
 
         stream_stats = IxeStreamsStats(self.ixia.session)
         stream_stats.read_stats()
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
 
-        assert(len(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx']) == 1)
-        assert(len(stream_stats.statistics[str(self.ports[self.port1].streams[2])]['rx']) == 2)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)

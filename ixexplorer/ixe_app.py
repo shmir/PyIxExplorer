@@ -1,7 +1,9 @@
 
 import time
+from collections import OrderedDict
 
 from trafficgenerator.tgn_app import TgnApp
+from trafficgenerator.tgn_utils import TgnError
 
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
@@ -112,12 +114,25 @@ class IxeSession(IxeObject):
 
         return self.ports
 
+    def wait_for_up(self, *ports):
+        """ Wait until ports reach up state.
+
+        :param ports: list of ports to wait for.
+        :return:
+        """
+        port_list = self.set_ports_list(*ports)
+        for _ in range(16):
+            if self.api.call('ixCheckLinkState {}'.format(port_list)) == '0':
+                return
+            time.sleep(1)
+        raise TgnError('Failed to reach up state. Port {} is down after 16 seconds'.format(self))
+
     def get_ports(self):
         """
         :return: dictionary {name: object} of all reserved ports.
         """
 
-        return {str(p): p for p in self.get_objects_by_type('port')}
+        return OrderedDict({str(p): p for p in self.get_objects_by_type('port')})
     ports = property(get_ports)
 
     def start_transmit(self, blocking=False, *ports):

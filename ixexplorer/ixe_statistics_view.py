@@ -7,7 +7,7 @@ from collections import OrderedDict
 from enum import Enum
 from past.builtins import xrange
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, FLAG_IGERR
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, FLAG_IGERR, IxTclHalError
 from ixexplorer.ixe_object import IxeObject
 
 
@@ -142,18 +142,32 @@ class IxePgStats(IxeObject):
             TclMember('totalFrames', type=int, flags=FLAG_RDONLY),
             TclMember('totalSequenceError', type=int, flags=FLAG_RDONLY),
     ]
+    __get_command__ = 'getGroup'
 
-    def __init__(self, parent, pg_id):
-        super(self.__class__, self).__init__(uri=parent.uri + ' ' + str(pg_id) + ' ' + str(pg_id), parent=parent)
+    def __init__(self, parent, group_id):
+        super(self.__class__, self).__init__(uri=group_id, parent=parent)
+
+    def read_stats(self, *stats):
+        if not stats:
+            stats = [m.attrname for m in self.__tcl_members__ if m.flags & FLAG_RDONLY]
+        stats_values = OrderedDict(zip(stats, [-1] * len(stats)))
+        try:
+            if int(self.get_attribute('totalFrames')):
+                return self.get_attributes(FLAG_RDONLY, *stats)
+        except IxTclHalError as _:
+            pass
+
+        # No group or not packets on group.
+        return stats_values
 
 
 class IxeStreamTxStats(IxeObject):
     __tcl_command__ = 'streamTransmitStats'
-    __get_command__ = 'getGroup'
     __tcl_members__ = [
             TclMember('framesSent', type=int, flags=FLAG_RDONLY),
             TclMember('frameRate', type=int, flags=FLAG_RDONLY),
     ]
+    __get_command__ = 'getGroup'
 
     def __init__(self, parent, group_id):
         super(self.__class__, self).__init__(uri=group_id, parent=parent)
@@ -227,6 +241,7 @@ class IxeStreamsStats(IxeStats):
         for port_tx, streams in self.ports_streams.items():
             for stream in streams:
                 stream_stats = OrderedDict()
+                port_tx.api.call_rc('streamTransmitStats get {} 1 4096'.format(port_tx.uri))
                 stream_tx_stats = IxeStreamTxStats(port_tx, stream.uri.split()[-1])
                 stream_stats_tx = {c: v for c, v in stream_tx_stats.get_attributes(FLAG_RDONLY).items()}
                 stream_stats['tx'] = stream_stats_tx
@@ -234,8 +249,9 @@ class IxeStreamsStats(IxeStats):
                 stream_stats_pg = pg_stats_dict()
                 for port_rx in self.session.ports.values():
                     if not stream.rx_ports or port_rx in stream.rx_ports:
+                        port_rx.api.call_rc('packetGroupStats get {} 0 65536'.format(port_rx.uri))
                         pg_stats = IxePgStats(port_rx, stream_stat_pgid)
-                        stream_stats_pg[str(port_rx)] = pg_stats.get_attributes(FLAG_RDONLY, *stats)
+                        stream_stats_pg[str(port_rx)] = pg_stats.read_stats(*stats)
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[str(stream)] = stream_stats
         return self.statistics
