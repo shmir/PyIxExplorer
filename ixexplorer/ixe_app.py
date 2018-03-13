@@ -123,7 +123,8 @@ class IxeSession(IxeObject):
         """
 
         port_list = self.set_ports_list(*ports)
-        for _ in range(int(timeout)):
+        t_end = time.time() + timeout
+        while time.time() < t_end:
             if self.api.call('ixCheckLinkState {}'.format(port_list)) == '0':
                 return
             time.sleep(1)
