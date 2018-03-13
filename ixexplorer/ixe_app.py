@@ -9,7 +9,7 @@ from ixexplorer.api.tclproto import TclClient
 from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
-from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode
+from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode, StreamWarningsError
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
@@ -265,8 +265,10 @@ class IxeSession(IxeObject):
                 modes.append(IxeReceiveMode.dataIntegrity)
                 port.dataIntegrity.signatureOffset = start_offset + 12
             port.set_receive_modes(*modes)
-
+        try:
             port.write()
+        except StreamWarningsError as e:
+            print(str(e))
 
         for port, streams in tx_ports.items():
             for stream in streams:
@@ -280,7 +282,10 @@ class IxeSession(IxeObject):
                 stream.packetGroup.sequenceNumberOffset = start_offset + 8
                 stream.dataIntegrity.signatureOffset = start_offset + 12
 
-            port.write()
+            try:
+                port.write()
+            except StreamWarningsError as e:
+                print(str(e))
 
     #
     # Properties.
