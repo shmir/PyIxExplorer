@@ -255,15 +255,23 @@ class IxePort(IxeObject):
     # Statistics.
     #
 
+    # def clear_port_stats(self):
+    #     """ Clear only port stats (lease stream and packet group stats). """
+    #     stat = IxeStat(self)
+    #     stat.ix_set_default()
+    #     stat.write()
+
     def clear_port_stats(self):
-        """ Clear only port stats (lease stream and packet group stats). """
-        stat = IxeStat(self)
-        stat.ix_set_default()
-        stat.write()
+        self.api.call_rc('ixClearPortStats {}'.format(self.uri))
 
     def clear_all_stats(self):
-        """ Clear all statistic counters (port, streams and packet groups) on list of ports. """
-        self.session.clear_all_stats(self)
+        self.api.call_rc('ixClearPortStats {}'.format(self.uri))
+        self.api.call_rc('ixClearPortPacketGroups {}'.format(self.uri))
+        self.api.call_rc('ixClearPerStreamTxStats {}'.format(self.session.set_ports_list(self)))
+
+    # def clear_all_stats(self):
+    #     """ Clear all statistic counters (port, streams and packet groups) on list of ports. """
+    #     self.session.clear_all_stats(self)
 
     def read_stats(self, *stats):
         return IxePortsStats(self.session, self).read_stats(*stats)[str(self)]
