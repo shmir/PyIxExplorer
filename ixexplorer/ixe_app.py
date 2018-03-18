@@ -105,12 +105,7 @@ class IxeSession(IxeObject):
             port._data['name'] = port_location
             port.reserve(force=force)
             if clear:
-                port.ix_set_default()
-                port.setFactoryDefaults()
-                port.set_phy_mode(phy_mode)
-                port.reset()
-                port.write()
-                port.clear_all_stats()
+                port.clear()
 
         return self.ports
 
@@ -136,7 +131,6 @@ class IxeSession(IxeObject):
 
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixClearStats {}'.format(port_list))
-        # It seems there is a bug in IxExplorer GUI and Packet Group Statistics View is not updated after this command.
         self.api.call_rc('ixClearPacketGroups {}'.format(port_list))
 
     def start_transmit(self, blocking=False, *ports):

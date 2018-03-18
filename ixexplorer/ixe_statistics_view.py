@@ -35,47 +35,47 @@ class IxeStat(IxeObject):
             TclMember('captureFilter', type=int, flags=FLAG_RDONLY),
             TclMember('userDefinedStat1', type=int, flags=FLAG_RDONLY),
             TclMember('userDefinedStat2', type=int, flags=FLAG_RDONLY),
-            TclMember('vlanTaggedFramesRx', type=int, flags=FLAG_RDONLY),
+            TclMember('vlanTaggedFramesRx', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('ipPackets', type=int, flags=FLAG_RDONLY),
             TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
 
             TclMember('asynchronousFramesSent', type=int, flags=FLAG_RDONLY),
-            TclMember('alignmentErrors', type=int, flags=FLAG_RDONLY),
+            TclMember('alignmentErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('bitsSent', type=int, flags=FLAG_RDONLY),
             TclMember('captureFilter', type=int, flags=FLAG_RDONLY),
             TclMember('captureTrigger', type=int, flags=FLAG_RDONLY),
             TclMember('collisionFrames', type=int, flags=FLAG_RDONLY),
             TclMember('collisions', type=int, flags=FLAG_RDONLY),
-            TclMember('dataIntegrityErrors', type=int, flags=FLAG_RDONLY),
-            TclMember('dataIntegrityFrames', type=int, flags=FLAG_RDONLY),
-            TclMember('dribbleErrors', type=int, flags=FLAG_RDONLY),
-            TclMember('droppedFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('dataIntegrityErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('dataIntegrityFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('dribbleErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('droppedFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('excessiveCollisionFrames', type=int, flags=FLAG_RDONLY),
             TclMember('fcsErrors', type=int, flags=FLAG_RDONLY),
-            TclMember('flowControlFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('flowControlFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('fragments', type=int, flags=FLAG_RDONLY),
             TclMember('ipChecksumErrors', type=int, flags=FLAG_RDONLY),
             TclMember('ipPackets', type=int, flags=FLAG_RDONLY),
             TclMember('lateCollisions', type=int, flags=FLAG_RDONLY),
             TclMember('oversize', type=int, flags=FLAG_RDONLY),
             TclMember('oversizeAndCrcErrors', type=int, flags=FLAG_RDONLY),
-            TclMember('pauseAcknowledge', type=int, flags=FLAG_RDONLY),
-            TclMember('pauseEndFrames', type=int, flags=FLAG_RDONLY),
-            TclMember('pauseOverwrite', type=int, flags=FLAG_RDONLY),
-            TclMember('prbsErroredBits', type=int, flags=FLAG_RDONLY),
-            TclMember('rxPingReply', type=int, flags=FLAG_RDONLY),
-            TclMember('rxPingRequest', type=int, flags=FLAG_RDONLY),
+            TclMember('pauseAcknowledge', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('pauseEndFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('pauseOverwrite', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('prbsErroredBits', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('rxPingReply', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('rxPingRequest', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('scheduledFramesSent', type=int, flags=FLAG_RDONLY),
             TclMember('sequenceErrors', type=int, flags=FLAG_RDONLY),
             TclMember('sequenceFrames', type=int, flags=FLAG_RDONLY),
-            TclMember('symbolErrorFrames', type=int, flags=FLAG_RDONLY),
-            TclMember('symbolErrors', type=int, flags=FLAG_RDONLY),
-            TclMember('synchErrorFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('symbolErrorFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('symbolErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('synchErrorFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('tcpChecksumErrors', type=int, flags=FLAG_RDONLY),
             TclMember('tcpPackets', type=int, flags=FLAG_RDONLY),
-            TclMember('transmitDuration', type=int, flags=FLAG_RDONLY),
-            TclMember('txPingReply', type=int, flags=FLAG_RDONLY),
-            TclMember('txPingRequest', type=int, flags=FLAG_RDONLY),
+            TclMember('transmitDuration', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('txPingReply', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('txPingRequest', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('udpChecksumErrors', type=int, flags=FLAG_RDONLY),
             TclMember('udpPackets', type=int, flags=FLAG_RDONLY),
             TclMember('undersize', type=int, flags=FLAG_RDONLY),
@@ -102,6 +102,14 @@ class IxeStat(IxeObject):
     def set_attributes(self, **attributes):
         super(IxeStat, self).set_attributes(**attributes)
         self.write()
+
+    def read_stats(self, *stats):
+        if not stats:
+            stats = [m.attrname for m in self.__tcl_members__ if m.flags & FLAG_RDONLY]
+        stats_values = OrderedDict(zip(stats, [-1] * len(stats)))
+        for stat in stats:
+            stats_values[stat] = getattr(self, stat)
+        return stats_values
 
 
 class IxeStatTotal(IxeStat):
@@ -157,7 +165,7 @@ class IxePgStats(IxeObject):
         except IxTclHalError as _:
             pass
 
-        # No group or not packets on group.
+        # No group or no packets on group.
         return stats_values
 
 
@@ -205,6 +213,7 @@ class IxePortsStats(IxeStats):
 
 
 class pg_stats_dict(OrderedDict):
+    """ If only one RX port - no need to specify port name. """
     def __getitem__(self, key):
         if key in self.keys():
             return OrderedDict.__getitem__(self, key)
@@ -215,14 +224,25 @@ class pg_stats_dict(OrderedDict):
 class IxeStreamsStats(IxeStats):
 
     def __init__(self, session, *streams):
+        """ Read stream statistics from chassis.
+
+        :param session: Ixia session object.
+        :param streams: list of requested streams. If empty - read statistics for all streams.
+        """
+        from ixexplorer.ixe_port import IxeReceiveMode
+
         super(self.__class__, self).__init__(session)
-        self.ports_streams = dict(zip(self.session.ports.values(), [[] for _ in xrange(len(self.session.ports))]))
+
+        self.tx_ports_streams = dict(zip(self.session.ports.values(), [[] for _ in xrange(len(self.session.ports))]))
         if streams:
             for stream in streams:
-                self.ports_streams[stream.parent].append(stream)
+                self.tx_ports_streams[stream.parent].append(stream)
         else:
             for port in self.session.ports.values():
-                self.ports_streams[port] = port.streams.values()
+                self.tx_ports_streams[port] = port.streams.values()
+
+        self.rx_ports = [p for p in self.session.ports.values() if
+                         p.receiveMode & int(IxeReceiveMode.widePacketGroup.value)]
 
     def read_stats(self, *stats):
         """ Read stream statistics from chassis.
@@ -231,27 +251,33 @@ class IxeStreamsStats(IxeStats):
         """
         from ixexplorer.ixe_stream import IxePacketGroupStream
 
-        for port in self.session.ports.values():
-            port.api.call_rc('packetGroupStats get {} 0 65536'.format(port.uri))
-            if len(port.streams):
-                port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
+        if not stats:
+            stats = [m.attrname for m in IxePgStats.__tcl_members__ if m.flags & FLAG_RDONLY]
+
+        # Read twice to refresh rate statistics.
+        for port in self.tx_ports_streams:
+            port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
+        for rx_port in self.rx_ports:
+            rx_port.api.call_rc('packetGroupStats get {} 0 65536'.format(rx_port.uri))
         time.sleep(1)
 
         self.statistics = OrderedDict()
-        for port_tx, streams in self.ports_streams.items():
+        for tx_port, streams in self.tx_ports_streams.items():
             for stream in streams:
                 stream_stats = OrderedDict()
-                port_tx.api.call_rc('streamTransmitStats get {} 1 4096'.format(port_tx.uri))
-                stream_tx_stats = IxeStreamTxStats(port_tx, stream.uri.split()[-1])
+                tx_port.api.call_rc('streamTransmitStats get {} 1 4096'.format(tx_port.uri))
+                stream_tx_stats = IxeStreamTxStats(tx_port, stream.uri.split()[-1])
                 stream_stats_tx = {c: v for c, v in stream_tx_stats.get_attributes(FLAG_RDONLY).items()}
                 stream_stats['tx'] = stream_stats_tx
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId
                 stream_stats_pg = pg_stats_dict()
-                for port_rx in self.session.ports.values():
-                    if not stream.rx_ports or port_rx in stream.rx_ports:
-                        port_rx.api.call_rc('packetGroupStats get {} 0 65536'.format(port_rx.uri))
-                        pg_stats = IxePgStats(port_rx, stream_stat_pgid)
-                        stream_stats_pg[str(port_rx)] = pg_stats.read_stats(*stats)
+                for port in self.session.ports.values():
+                    stream_stats_pg[str(port)] = OrderedDict(zip(stats, [-1] * len(stats)))
+                for rx_port in self.rx_ports:
+                    if not stream.rx_ports or rx_port in stream.rx_ports:
+                        rx_port.api.call_rc('packetGroupStats get {} 0 65536'.format(rx_port.uri))
+                        pg_stats = IxePgStats(rx_port, stream_stat_pgid)
+                        stream_stats_pg[str(rx_port)] = pg_stats.read_stats(*stats)
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[str(stream)] = stream_stats
         return self.statistics

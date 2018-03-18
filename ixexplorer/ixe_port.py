@@ -172,6 +172,15 @@ class IxePort(IxeObject):
             if warning:
                 raise StreamWarningsError(warning)
 
+    def clear(self, phy_mode=IxePhyMode.ignore):
+        self.ix_set_default()
+        self.setFactoryDefaults()
+        self.set_phy_mode(phy_mode)
+        self.reset()
+        self.clear_port_stats()
+        self.write()
+        self.clear_all_stats()
+
     def load_config(self, config_file_name):
         """ Load configuration file from prt or str.
 
@@ -256,9 +265,14 @@ class IxePort(IxeObject):
     #
 
     def clear_port_stats(self):
-        """ Clear only port stats (lease stream and packet group stats). """
+        """ Clear only port stats (leave stream and packet group stats).
+
+        Do not use - still working with Ixia to resolve.
+        """
         stat = IxeStat(self)
         stat.ix_set_default()
+        stat.enableValidStats = True
+        stat.ix_set()
         stat.write()
 
     def clear_all_stats(self):
