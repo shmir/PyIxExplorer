@@ -254,7 +254,7 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_transmit()
         time.sleep(2)
         self.ixia.session.stop_transmit()
-        time.sleep(4)
+        time.sleep(2)
 
         stream_stats = IxeStreamsStats(self.ixia.session)
         stream_stats.read_stats()

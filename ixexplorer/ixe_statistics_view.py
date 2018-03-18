@@ -124,7 +124,7 @@ class IxePgStats(IxeObject):
     __tcl_command__ = 'packetGroupStats'
     __tcl_members__ = [
             TclMember('averageLatency', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-            TclMember('bigSequenceError', type=int, flags=FLAG_RDONLY),
+            TclMember('bigSequenceError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('bitRate', type=int, flags=FLAG_RDONLY),
             TclMember('byteRate', type=int, flags=FLAG_RDONLY),
             TclMember('duplicateFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
@@ -142,13 +142,13 @@ class IxePgStats(IxeObject):
             TclMember('prbsBitsReceived', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('prbsErroredBits', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('readTimeStamp', type=int, flags=FLAG_RDONLY),
-            TclMember('reverseSequenceError', type=int, flags=FLAG_RDONLY),
-            TclMember('sequenceGaps', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-            TclMember('smallSequenceError', type=int, flags=FLAG_RDONLY),
+            TclMember('reverseSequenceError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('sequenceGaps', type=int, flags=FLAG_RDONLY | FLAG_IGERR | FLAG_IGERR),
+            TclMember('smallSequenceError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('standardDeviation', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('totalByteCount', type=int, flags=FLAG_RDONLY),
             TclMember('totalFrames', type=int, flags=FLAG_RDONLY),
-            TclMember('totalSequenceError', type=int, flags=FLAG_RDONLY),
+            TclMember('totalSequenceError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
     ]
     __get_command__ = 'getGroup'
 

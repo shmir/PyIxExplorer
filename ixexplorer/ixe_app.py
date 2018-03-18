@@ -226,7 +226,8 @@ class IxeSession(IxeObject):
             self.api.call(('set {} [ list ' + len(port_uris) * '[list {}] ' + ']').format(port_list, *port_uris))
         return port_list
 
-    def set_stream_stats(self, rx_ports=None, tx_ports=None, start_offset=40):
+    def set_stream_stats(self, rx_ports=None, tx_ports=None, start_offset=40,
+                         sequence_checking=True, data_integrity=True):
         """ Set TX ports and RX streams for stream statistics.
 
         :param ports: list of ports to set RX pgs. If empty set for all ports.
@@ -244,18 +245,26 @@ class IxeSession(IxeObject):
             for port in self.ports.values():
                 tx_ports[port] = port.streams.values()
 
+        groupIdOffset = start_offset
+        signatureOffset = start_offset + 4
+        next_offset = start_offset + 8
+        if sequence_checking:
+            sequenceNumberOffset = next_offset
+            next_offset += 4
+        if data_integrity:
+            di_signatureOffset = next_offset
+
         for port in rx_ports:
             modes = []
-            if int(port.isValidFeature('portFeatureRxWidePacketGroups')):
-                modes.append(IxeReceiveMode.widePacketGroup)
-                port.packetGroup.groupIdOffset = start_offset
-                port.packetGroup.signatureOffset = start_offset + 4
-            if int(port.isValidFeature('portFeatureRxSequenceChecking')):
+            modes.append(IxeReceiveMode.widePacketGroup)
+            port.packetGroup.groupIdOffset = groupIdOffset
+            port.packetGroup.signatureOffset = signatureOffset
+            if sequence_checking and int(port.isValidFeature('portFeatureRxSequenceChecking')):
                 modes.append(IxeReceiveMode.sequenceChecking)
-                port.packetGroup.sequenceNumberOffset = start_offset + 8
-            if int(port.isValidFeature('portFeatureRxDataIntegrity')):
+                port.packetGroup.sequenceNumberOffset = sequenceNumberOffset
+            if data_integrity and int(port.isValidFeature('portFeatureRxDataIntegrity')):
                 modes.append(IxeReceiveMode.dataIntegrity)
-                port.dataIntegrity.signatureOffset = start_offset + 12
+                port.dataIntegrity.signatureOffset = di_signatureOffset
             port.set_receive_modes(*modes)
 
             port.write()
@@ -264,13 +273,16 @@ class IxeSession(IxeObject):
             for stream in streams:
 
                 stream.packetGroup.insertSignature = True
-                stream.packetGroup.insertSequenceSignature = True
-                stream.dataIntegrity.insertSignature = True
+                stream.packetGroup.groupIdOffset = groupIdOffset
+                stream.packetGroup.signatureOffset = signatureOffset
 
-                stream.packetGroup.groupIdOffset = start_offset
-                stream.packetGroup.signatureOffset = start_offset + 4
-                stream.packetGroup.sequenceNumberOffset = start_offset + 8
-                stream.dataIntegrity.signatureOffset = start_offset + 12
+                if sequence_checking:
+                    stream.packetGroup.insertSequenceSignature = True
+                    stream.packetGroup.sequenceNumberOffset = sequenceNumberOffset
+
+                if data_integrity:
+                    stream.dataIntegrity.insertSignature = True
+                    stream.dataIntegrity.signatureOffset = di_signatureOffset
 
             port.write()
 
