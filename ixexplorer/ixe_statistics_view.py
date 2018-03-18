@@ -123,7 +123,7 @@ class IxeStatRate(IxeStat):
 class IxePgStats(IxeObject):
     __tcl_command__ = 'packetGroupStats'
     __tcl_members__ = [
-            TclMember('averageLatency', type=int, flags=FLAG_RDONLY),
+            TclMember('averageLatency', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('bigSequenceError', type=int, flags=FLAG_RDONLY),
             TclMember('bitRate', type=int, flags=FLAG_RDONLY),
             TclMember('byteRate', type=int, flags=FLAG_RDONLY),
@@ -132,13 +132,13 @@ class IxePgStats(IxeObject):
             TclMember('frameRate', type=int, flags=FLAG_RDONLY),
             TclMember('lastTimeStamp', type=int, flags=FLAG_RDONLY),
             TclMember('maxDelayVariation', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-            TclMember('maxLatency', type=int, flags=FLAG_RDONLY),
+            TclMember('maxLatency', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('maxMinDelayVariation', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-            TclMember('maxminInterval', type=int, flags=FLAG_RDONLY),
+            TclMember('maxminInterval', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('minDelayVariation', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-            TclMember('minLatency', type=int, flags=FLAG_RDONLY),
+            TclMember('minLatency', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('numGroups', type=int, flags=FLAG_RDONLY),
-            TclMember('prbsBerRatio', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('prbsBerRatio', type=float, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('prbsBitsReceived', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('prbsErroredBits', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('readTimeStamp', type=int, flags=FLAG_RDONLY),

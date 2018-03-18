@@ -153,6 +153,43 @@ class IxeTestOnline(IxeTestBase):
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
 
+    def test_prbs(self):
+
+        stats = self._config_and_run_stream_stats_test(rx_ports=[])
+
+        assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['averageLatency'] != -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['prbsBitsReceived'] == -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['averageLatency'] != -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBitsReceived'] == -1)
+
+        self.ixia.session.set_prbs()
+        self.ixia.session.wait_for_up(*self.ports.values())
+
+        self.ixia.session.clear_all_stats()
+        self.ixia.session.start_transmit()
+        time.sleep(2)
+        self.ixia.session.stop_transmit()
+        time.sleep(2)
+
+        stream_stats = IxeStreamsStats(self.ixia.session)
+        stream_stats.read_stats()
+        print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
+        stats = stream_stats.statistics
+
+        assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['averageLatency'] == -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['prbsBitsReceived'] != -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['averageLatency'] == -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBitsReceived'] != -1)
+
+
     def test_clear_all_stats(self):
 
         stats = self._config_and_run_stream_stats_test(rx_ports=[])
@@ -194,24 +231,6 @@ class IxeTestOnline(IxeTestBase):
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 0)
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
 
-    def test_clear_stream_stats(self):
-
-        stats = self._config_and_run_stream_stats_test(rx_ports=[])
-
-        assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
-        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
-        assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
-        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
-
-        stream11_stat = self.ports[self.port1].streams[1].read_stats()
-        stream22_stat = self.ports[self.port2].streams[2].read_stats()
-        assert(stream11_stat['tx']['framesSent'] == 1)
-        assert(stream11_stat['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
-        assert(stream22_stat['tx']['framesSent'] == 4)
-        assert(stream22_stat['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
-
-        # self.ixia.session.api.call('packetGroupStats clear 1 12 12 {{2}}')
-
     def _config_and_run_stream_stats_test(self, rx_ports):
 
         self._reserve_ports(self.port1, self.port2)
@@ -235,7 +254,7 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_transmit()
         time.sleep(2)
         self.ixia.session.stop_transmit()
-        time.sleep(2)
+        time.sleep(4)
 
         stream_stats = IxeStreamsStats(self.ixia.session)
         stream_stats.read_stats()
