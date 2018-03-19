@@ -13,7 +13,7 @@ import json
 
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
 from ixexplorer.test.test_base import IxeTestBase
-from ixexplorer.ixe_port import StreamWarningsError, IxeTransmitMode
+from ixexplorer.ixe_port import StreamWarningsError
 
 
 class IxeTestOnline(IxeTestBase):
@@ -78,8 +78,8 @@ class IxeTestOnline(IxeTestBase):
         assert(not self.ports[self.port2].get_cap_file())
         print(self.ports[self.port1].get_cap_frames(1, 3, 5))
 
-        self.ports[self.port1].clear_stats()
-        self.ports[self.port2].clear_stats()
+        self.ports[self.port1].clear_all_stats()
+        self.ports[self.port2].clear_all_stats()
 
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit()
@@ -159,12 +159,12 @@ class IxeTestOnline(IxeTestBase):
 
         assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
         assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
-        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['averageLatency'] != -1)
-        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['prbsBitsReceived'] == -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['minLatency'] != -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['prbsBerRatio'] == -1)
         assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
-        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['averageLatency'] != -1)
-        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBitsReceived'] == -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['minLatency'] != -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBerRatio'] == -1)
 
         self.ixia.session.set_prbs()
         self.ixia.session.wait_for_up(*self.ports.values())
@@ -180,15 +180,19 @@ class IxeTestOnline(IxeTestBase):
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
         stats = stream_stats.statistics
 
+        for port in self.ports.values():
+            if not int(port.isValidFeature('portFeaturePrbs')):
+                self.skipTest('Port not supporting Prbs')
+                return
+
         assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
         assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
-        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['averageLatency'] == -1)
-        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['prbsBitsReceived'] != -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['minLatency'] == -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['prbsBerRatio'] != -1)
         assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
-        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['averageLatency'] == -1)
-        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBitsReceived'] != -1)
-
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['minLatency'] == -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBerRatio'] != -1)
 
     def test_clear_all_stats(self):
 
@@ -238,12 +242,11 @@ class IxeTestOnline(IxeTestBase):
         iteration = 1
         for port_name in [self.port1, self.port2]:
             port = self.ports[port_name]
-            port.transmitMode = IxeTransmitMode.advancedScheduler.value
             port.add_stream()
             port.add_stream()
             for stream in port.streams.values():
                 stream.framesize = 64
-                stream.dma = 'stopStream'
+                stream.dma = 'advance'
                 stream.numFrames = iteration
                 stream.rateMode = 'streamRateModeFps'
                 iteration += 1
