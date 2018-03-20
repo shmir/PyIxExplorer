@@ -104,7 +104,7 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit(blocking=True)
         self.ixia.session.stop_capture()
-        assert("11 11 11 11 11 11" in str(self.ports[self.port1].get_cap_frames(1)))
+        assert("11 11 11 11 11 11" in str(self.ports[self.port2].get_cap_frames(1)))
 
         self.ports[self.port1].streams[1].sa = "22:22:22:22:22:22"
         self.ports[self.port1].streams[1].numFrames = 2
@@ -112,8 +112,8 @@ class IxeTestOnline(IxeTestBase):
         self.ixia.session.start_capture()
         self.ixia.session.start_transmit(blocking=True)
         self.ixia.session.stop_capture()
-        assert("11 11 11 11 11 11" not in str(self.ports[self.port1].get_cap_frames(2)))
-        assert("22 22 22 22 22 22" in str(self.ports[self.port1].get_cap_frames(2)))
+        assert("11 11 11 11 11 11" not in str(self.ports[self.port2].get_cap_frames(2)))
+        assert("22 22 22 22 22 22" in str(self.ports[self.port2].get_cap_frames(2)))
 
     def testLongCapture(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
@@ -211,7 +211,8 @@ class IxeTestOnline(IxeTestBase):
         assert(port_stats.statistics[str(self.ports[self.port1])]['framesSent'] == 3)
         assert(port_stats.statistics[str(self.ports[self.port2])]['framesSent'] == 7)
 
-        self.ports[self.port1].clear_all_stats()
+        self.ports[self.port1].clear_port_stats()
+        time.sleep(2)
         port_stats.read_stats('framesSent')
         print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
         assert(port_stats.statistics[str(self.ports[self.port1])]['framesSent'] == 0)
@@ -219,11 +220,12 @@ class IxeTestOnline(IxeTestBase):
         stream_stats.read_stats('totalFrames')
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
         assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 0)
-        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)  # noqa
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
-        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)  # noqa
 
         self.ixia.session.clear_all_stats()
+        time.sleep(2)
         port_stats.read_stats('framesSent')
         print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
         assert(port_stats.statistics[str(self.ports[self.port1])]['framesSent'] == 0)
@@ -231,9 +233,9 @@ class IxeTestOnline(IxeTestBase):
         stream_stats.read_stats('totalFrames')
         print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
         assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 0)
-        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
+        assert(stream_stats.statistics[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)  # noqa
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 0)
-        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
+        assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)  # noqa
 
     def _config_and_run_stream_stats_test(self, rx_ports):
 
