@@ -306,8 +306,8 @@ class IxeSession(IxeObject):
                 tx_ports[port] = port.streams.values()
 
         for port in rx_ports:
-            port.enableAutoDetectInstrumentation = True
             port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.sequenceChecking, IxeReceiveMode.prbs)
+            port.enableAutoDetectInstrumentation = True
             port.autoDetectInstrumentation.ix_set_default()
             port.write()
 
