@@ -109,7 +109,7 @@ class IxeSession(IxeObject):
 
         return self.ports
 
-    def wait_for_up(self, timeout=16, *ports):
+    def wait_for_up(self, timeout=16, ports=None):
         """ Wait until ports reach up state.
 
         :param timeout: seconds to wait.
@@ -120,6 +120,7 @@ class IxeSession(IxeObject):
         port_list = self.set_ports_list(*ports)
         t_end = time.time() + timeout
         while time.time() < t_end:
+            # ixCheckLinkState can take few seconds on some ports when link is down.
             if self.api.call('ixCheckLinkState {}'.format(port_list)) == '0':
                 return
             time.sleep(1)
@@ -208,6 +209,7 @@ class IxeSession(IxeObject):
 
     def get_cap_files(self, *ports):
         """
+        :param ports: list of ports to get capture files names for.
         :return: dictionary (port, capture file)
         """
         cap_files = {}
@@ -229,13 +231,16 @@ class IxeSession(IxeObject):
         return port_list
 
     def set_stream_stats(self, rx_ports=None, tx_ports=None, start_offset=40,
-                         sequence_checking=True, data_integrity=True):
+                         sequence_checking=True, data_integrity=True, timestamp=True):
         """ Set TX ports and RX streams for stream statistics.
 
         :param ports: list of ports to set RX pgs. If empty set for all ports.
         :type ports: list[ixexplorer.ixe_port.IxePort]
         :param tx_ports: list of streams to set TX pgs. If empty set for all streams.
         :type tx_ports:  dict[ixexplorer.ixe_port.IxePort, list[ixexplorer.ixe_stream.IxeStream]]
+        :param sequence_checking: True - enable sequence checkbox, False - disable
+        :param data_integrity: True - enable data integrity checkbox, False - disable
+        :param timestamp: True - enable timestamp checkbox, False - disable
         :param start_offset: start offset for signatures (group ID, signature, sequence)
         """
 
@@ -267,24 +272,25 @@ class IxeSession(IxeObject):
             if data_integrity and int(port.isValidFeature('portFeatureRxDataIntegrity')):
                 modes.append(IxeReceiveMode.dataIntegrity)
                 port.dataIntegrity.signatureOffset = di_signatureOffset
+            if timestamp and int(port.isValidFeature('portFeatureRxFirstTimeStamp')):
+                port.dataIntegrity.enableTimeStamp = True
             port.set_receive_modes(*modes)
 
             port.write()
 
         for port, streams in tx_ports.items():
             for stream in streams:
-
                 stream.packetGroup.insertSignature = True
                 stream.packetGroup.groupIdOffset = groupIdOffset
                 stream.packetGroup.signatureOffset = signatureOffset
-
                 if sequence_checking:
                     stream.packetGroup.insertSequenceSignature = True
                     stream.packetGroup.sequenceNumberOffset = sequenceNumberOffset
-
-                if data_integrity and int(port.isValidFeature('portFeatureRxDataIntegrity')):
+                if data_integrity:
                     stream.dataIntegrity.insertSignature = True
                     stream.dataIntegrity.signatureOffset = di_signatureOffset
+                if timestamp:
+                    stream.enableTimeStamp = True
 
             port.write()
 
