@@ -58,8 +58,8 @@ class IxeStat(IxeObject):
             TclMember('rxPingReply', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('rxPingRequest', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('scheduledFramesSent', type=int, flags=FLAG_RDONLY),
-            TclMember('sequenceErrors', type=int, flags=FLAG_RDONLY),
-            TclMember('sequenceFrames', type=int, flags=FLAG_RDONLY),
+            TclMember('sequenceErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('sequenceFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('symbolErrorFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('symbolErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('synchErrorFrames', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
@@ -74,7 +74,6 @@ class IxeStat(IxeObject):
             TclMember('userDefinedStat1', type=int, flags=FLAG_RDONLY),
             TclMember('userDefinedStat2', type=int, flags=FLAG_RDONLY),
             TclMember('vlanTaggedFramesRx', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-
 
             TclMember('enableArpStats'),
             TclMember('enableDhcpStats'),
