@@ -203,10 +203,13 @@ class IxePort(IxeObject):
         self.write()
         self.discover()
 
-    def wait_for_up(self):
-        """ Wait until port is up and running. """
+    def wait_for_up(self, timeout=16):
+        """ Wait until port is up and running.
 
-        self.session.wait_for_up(self)
+        :param timeout: seconds to wait.
+        """
+
+        self.session.wait_for_up(timeout, [self])
 
     def discover(self):
         self.logger.info('Discover port {}'.format(self.obj_name()))

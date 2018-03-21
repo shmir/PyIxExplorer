@@ -136,6 +136,7 @@ class IxeTestOnline(IxeTestBase):
         assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
         assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
         assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['sequenceGaps'] == 0)
 
         assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
@@ -148,6 +149,19 @@ class IxeTestOnline(IxeTestBase):
         assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
         assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
         assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
+
+        assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
+        assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == 4)
+
+    def test_stream_stats_abstract_layer_flags(self):
+
+        stats = self._config_and_run_stream_stats_test(rx_ports=[], sc=False, di=False, ts=False)
+
+        assert(stats[str(self.ports[self.port1].streams[1])]['tx']['framesSent'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['totalFrames'] == 1)
+        assert(stats[str(self.ports[self.port1].streams[1])]['rx'][str(self.ports[self.port2])]['sequenceGaps'] == -1)
 
         assert(stats[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 4)
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port2])]['totalFrames'] == -1)
@@ -167,7 +181,9 @@ class IxeTestOnline(IxeTestBase):
         assert(stats[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['prbsBerRatio'] == -1)
 
         self.ixia.session.set_prbs()
-        self.ixia.session.wait_for_up(*self.ports.values())
+        # For coverage we call port.wait_for_up instead of session.wait_for_up.
+        self.ports[self.port1].wait_for_up()
+        self.ports[self.port2].wait_for_up()
 
         self.ixia.session.clear_all_stats()
         self.ixia.session.start_transmit()
@@ -237,7 +253,7 @@ class IxeTestOnline(IxeTestBase):
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['tx']['framesSent'] == 0)
         assert(stream_stats.statistics[str(self.ports[self.port2].streams[2])]['rx'][str(self.ports[self.port1])]['totalFrames'] == -1)  # noqa
 
-    def _config_and_run_stream_stats_test(self, rx_ports):
+    def _config_and_run_stream_stats_test(self, rx_ports, sc=True, di=True, ts=True):
 
         self._reserve_ports(self.port1, self.port2)
 
@@ -247,14 +263,15 @@ class IxeTestOnline(IxeTestBase):
             port.add_stream()
             port.add_stream()
             for stream in port.streams.values():
-                stream.framesize = 64
+                stream.framesize = 68
                 stream.dma = 'advance'
                 stream.numFrames = iteration
                 stream.rateMode = 'streamRateModeFps'
                 iteration += 1
 
-        self.ixia.session.set_stream_stats(rx_ports=[self.ports[r] for r in rx_ports])
-        self.ixia.session.wait_for_up(*self.ports.values())
+        self.ixia.session.set_stream_stats(rx_ports=[self.ports[r] for r in rx_ports],
+                                           sequence_checking=sc, data_integrity=di, timestamp=ts)
+        self.ixia.session.wait_for_up(ports=self.ports.values())
 
         self.ixia.session.start_transmit()
         time.sleep(2)
