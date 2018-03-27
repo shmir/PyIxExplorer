@@ -403,7 +403,7 @@ class IxeStreamTxObj(IxeStreamObj):
 class IxeDataIntegrityStream(IxeStreamTxObj):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
-            TclMember('enableTimeStamp', type=bool),
+            TclMember('enableTimestamp', type=bool),
             TclMember('insertSignature', type=bool),
             TclMember('floatingTimestampAndDataIntegrityMode'),
             TclMember('numBytesFromEndOfFrame', type=int),

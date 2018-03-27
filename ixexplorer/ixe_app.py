@@ -290,7 +290,7 @@ class IxeSession(IxeObject):
                     stream.dataIntegrity.insertSignature = True
                     stream.dataIntegrity.signatureOffset = di_signatureOffset
                 if timestamp:
-                    stream.enableTimeStamp = True
+                    stream.enableTimestamp = True
 
             port.write()
 
