@@ -286,7 +286,7 @@ class IxeSession(IxeObject):
                 if sequence_checking:
                     stream.packetGroup.insertSequenceSignature = True
                     stream.packetGroup.sequenceNumberOffset = sequenceNumberOffset
-                if data_integrity:
+                if data_integrity and int(port.isValidFeature('portFeatureRxDataIntegrity')):
                     stream.dataIntegrity.insertSignature = True
                     stream.dataIntegrity.signatureOffset = di_signatureOffset
                 if timestamp:
@@ -312,7 +312,8 @@ class IxeSession(IxeObject):
                 tx_ports[port] = port.streams.values()
 
         for port in rx_ports:
-            port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.sequenceChecking, IxeReceiveMode.prbs)
+            port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.sequenceChecking,
+                                   IxeReceiveMode.prbs)
             port.enableAutoDetectInstrumentation = True
             port.autoDetectInstrumentation.ix_set_default()
             port.write()

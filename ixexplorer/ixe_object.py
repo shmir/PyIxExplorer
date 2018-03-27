@@ -75,11 +75,6 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
             self.ix_set()
         IxeObject.set_auto_set(auto_set)
 
-    def _reset_current_object(self):
-        self.__class__.current_object = None
-        for child in self.objects.values():
-            child._reset_current_object()
-
     @classmethod
     def get_auto_set(cls):
         return _MetaIxTclApi.auto_set
@@ -87,3 +82,25 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
     @classmethod
     def set_auto_set(cls, auto_set):
         _MetaIxTclApi.auto_set = auto_set
+
+    def _reset_current_object(self):
+        self.__class__.current_object = None
+        for child in self.objects.values():
+            child._reset_current_object()
+
+    def _get_object(self, field, ixe_object):
+        if not hasattr(self, field) or not getattr(self, field):
+            setattr(self, field, ixe_object(parent=self))
+            getattr(self, field).ix_get()
+        return getattr(self, field)
+
+
+class IxeObjectObj(IxeObject):
+
+    def ix_get(self, member=None, force=False):
+        self.parent.ix_get(member, force)
+        super(IxeObjectObj, self).ix_get(member, force)
+
+    def ix_set(self, member=None):
+        super(IxeObjectObj, self).ix_set(member)
+        self.parent.ix_set(member)

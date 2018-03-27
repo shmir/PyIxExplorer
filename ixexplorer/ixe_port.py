@@ -1,12 +1,11 @@
 
 from os import path
 import re
-import time
 from enum import Enum
 
 from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
-from ixexplorer.ixe_object import IxeObject
+from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats, IxeStat
 
@@ -352,49 +351,43 @@ class IxePort(IxeObject):
     # Port objects.
     #
 
-    def get_object(self, field, ixe_object):
-        if not hasattr(self, field) or not getattr(self, field):
-            setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_get()
-        return getattr(self, field)
-
     def get_autoDetectInstrumentation(self):
-        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentationPort)
+        return self._get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentationPort)
     autoDetectInstrumentation = property(get_autoDetectInstrumentation)
 
     def get_capture(self):
-        return self.get_object('_capture', IxeCapture)
+        return self._get_object('_capture', IxeCapture)
     capture = property(get_capture)
 
     def get_captureBuffer(self):
-        return self.get_object('_captureBuffer', IxeCaptureBuffer)
+        return self._get_object('_captureBuffer', IxeCaptureBuffer)
 
     def set_captureBuffer(self, value):
         self._captureBuffer = value
     captureBuffer = property(fget=get_captureBuffer, fset=set_captureBuffer)
 
     def get_dataIntegrity(self):
-        return self.get_object('_dataIntegrity', IxeDataIntegrityPort)
+        return self._get_object('_dataIntegrity', IxeDataIntegrityPort)
     dataIntegrity = property(get_dataIntegrity)
 
     def get_filter(self):
-        return self.get_object('_filter', IxeFilterPort)
+        return self._get_object('_filter', IxeFilterPort)
     filter = property(get_filter)
 
     def get_filterPallette(self):
-        return self.get_object('_filterPallette', IxeFilterPalettePort)
+        return self._get_object('_filterPallette', IxeFilterPalettePort)
     filterPallette = property(get_filterPallette)
 
     def get_packetGroup(self):
-        return self.get_object('_packetGroup', IxePacketGroupPort)
+        return self._get_object('_packetGroup', IxePacketGroupPort)
     packetGroup = property(get_packetGroup)
 
     def get_splitPacketGroup(self):
-        return self.get_object('_splitPacketGroup', IxeSplitPacketGroup)
+        return self._get_object('_splitPacketGroup', IxeSplitPacketGroup)
     splitPacketGroup = property(get_splitPacketGroup)
 
     def get_streamRegion(self):
-        return self.get_object('_streamRegion', IxeStreamRegion)
+        return self._get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
     #
@@ -423,18 +416,10 @@ class IxePort(IxeObject):
 #
 
 
-class IxePortObj(IxeObject):
+class IxePortObj(IxeObjectObj):
 
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
-
-    def ix_get(self, member=None, force=False):
-        self.parent.ix_get(member, force)
-        super(IxePortObj, self).ix_get(member, force)
-
-    def ix_set(self, member=None):
-        super(IxePortObj, self).ix_set(member)
-        self.parent.ix_set(member)
 
 
 class IxeCapture(IxePortObj):
@@ -659,4 +644,3 @@ class IxePacketGroupPort(IxePortRxObj):
             TclMember('signatureOffset', type=int),
             TclMember('timeBinDuration', type=int),
     ]
-

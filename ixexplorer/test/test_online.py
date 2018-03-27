@@ -264,6 +264,7 @@ class IxeTestOnline(IxeTestBase):
             port.add_stream()
             for stream in port.streams.values():
                 stream.framesize = 68
+                stream.vlan.vlanId = 33
                 stream.dma = 'advance'
                 stream.numFrames = iteration
                 stream.rateMode = 'streamRateModeFps'

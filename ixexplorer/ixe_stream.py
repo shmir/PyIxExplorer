@@ -1,6 +1,6 @@
 
 from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY
-from ixexplorer.ixe_object import IxeObject
+from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_statistics_view import IxeStreamsStats
 
 
@@ -100,12 +100,6 @@ class IxeStream(IxeObject):
     # Stream objects.
     #
 
-    def get_object(self, field, ixe_object):
-        if not hasattr(self, field):
-            setattr(self, field, ixe_object(parent=self))
-            getattr(self, field).ix_set_default()
-        return getattr(self, field)
-
     def _set_ip(self, version):
         require_set = False
         if self.protocol.ethernetType == '0':
@@ -120,56 +114,56 @@ class IxeStream(IxeObject):
 
     def get_ip(self):
         self._set_ip(4)
-        return self.get_object('_ip', IxeIp)
+        return self._get_object('_ip', IxeIp)
     ip = property(get_ip)
 
     def get_ipV6(self):
         self._set_ip(31)
-        return self.get_object('_ipV6', IxeIpv6)
+        return self._get_object('_ipV6', IxeIpv6)
     ipV6 = property(get_ipV6)
 
     def get_tcp(self):
-        return self.get_object('_tcp', IxeTcp)
+        return self._get_object('_tcp', IxeTcp)
     tcp = property(get_tcp)
 
     def get_udp(self):
-        return self.get_object('_udp', IxeUdp)
+        return self._get_object('_udp', IxeUdp)
     udp = property(get_udp)
 
     def get_protocol(self):
-        return self.get_object('_protocol', IxeProtocol)
+        return self._get_object('_protocol', IxeProtocol)
     protocol = property(get_protocol)
 
     def get_protocolOffset(self):
-        return self.get_object('_protocolOffset', IxeProtocolOffset)
+        return self._get_object('_protocolOffset', IxeProtocolOffset)
     protocolOffset = property(get_protocolOffset)
 
     def get_weightedRandomFramesize(self):
-        return self.get_object('_weightedRandomFramesize', IxeWeightedRandomFramesize)
+        return self._get_object('_weightedRandomFramesize', IxeWeightedRandomFramesize)
     weightedRandomFramesize = property(get_weightedRandomFramesize)
 
     def get_udf(self):
-        return self.get_object('_udf', IxeUdf)
+        return self._get_object('_udf', IxeUdf)
     udf = property(get_udf)
 
     def get_dataIntegrity(self):
-        return self.get_object('_dataIntegrity', IxeDataIntegrityStream)
+        return self._get_object('_dataIntegrity', IxeDataIntegrityStream)
     dataIntegrity = property(get_dataIntegrity)
 
     def get_packetGroup(self):
-        return self.get_object('_packetGroup', IxePacketGroupStream)
+        return self._get_object('_packetGroup', IxePacketGroupStream)
     packetGroup = property(get_packetGroup)
 
     def get_autoDetectInstrumentation(self):
-        return self.get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentationStream)
+        return self._get_object('_autoDetectInstrumentation', IxeAutoDetectInstrumentationStream)
     autoDetectInstrumentation = property(get_autoDetectInstrumentation)
 
     def get_vlan(self):
-        return self.get_object('_vlan', IxeVlan)
+        return self._get_object('_vlan', IxeVlan)
     vlan = property(get_vlan)
 
     def get_stacked_vlan(self):
-        return self.get_object('_stackedVlan', IxeStackedVlan)
+        return self._get_object('_stackedVlan', IxeStackedVlan)
     stackedVlan = property(get_stacked_vlan)
 
 #
@@ -177,23 +171,15 @@ class IxeStream(IxeObject):
 #
 
 
-class IxeStreamObj(IxeObject):
+class IxeStreamObj(IxeObjectObj):
 
     def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=parent.uri[:-2], parent=parent)
+        super(IxeStreamObj, self).__init__(uri=' '.join(parent.uri.split()[:-1]), parent=parent)
 
     def ix_command(self, command, *args, **kwargs):
         rc = self.api.call(('{} {}' + len(args) * ' {}').format(self.__tcl_command__, command, *args))
         self.ix_set()
         return rc
-
-    def ix_get(self, member=None, force=False):
-        self.parent.ix_get(member, force)
-        super(IxeStreamObj, self).ix_get(member, force)
-
-    def ix_set(self, member=None):
-        super(IxeStreamObj, self).ix_set(member)
-        self.parent.ix_set(member)
 
 
 class IxeProtocol(IxeStreamObj):

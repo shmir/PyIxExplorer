@@ -1,6 +1,8 @@
 
+from trafficgenerator.tgn_tcl import tcl_list_2_py_list
+
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
-from ixexplorer.ixe_object import IxeObject
+from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_port import IxePort
 
 
@@ -14,6 +16,7 @@ class IxeCard(IxeObject):
             TclMember('fpgaVersion', type=int, flags=FLAG_RDONLY),
             TclMember('hwVersion', type=int, flags=FLAG_RDONLY),
             TclMember('portCount', type=int, flags=FLAG_RDONLY),
+            TclMember('resourceGroupInfoList', flags=FLAG_RDONLY),
             TclMember('serialNumber', flags=FLAG_RDONLY),
             TclMember('txFrequencyDeviation', type=int),
             TclMember('type', type=int, flags=FLAG_RDONLY),
@@ -29,6 +32,10 @@ class IxeCard(IxeObject):
         self.logger.info('Discover card {}'.format(self.obj_name()))
         for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + '/' + str(pid))
+        resourceGroupInfoList = self.resourceGroupInfoList
+        rg_info_list = (self.api.call('join ' + resourceGroupInfoList + ' LiStSeP').split('LiStSeP') if
+                        resourceGroupInfoList else []())
+        print(rg_info_list)
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -39,6 +46,18 @@ class IxeCard(IxeObject):
     def remove_vm_port(self, card):
         self._api.call_rc('chassis removeVMCard {} {}'.format(self.host, card.id))
 
+    #
+    # Card objects.
+    #
+
+    def get_resource_group(self):
+        return self._get_object('_resourceGroup', IxeResourceGroup)
+    resourceGroup = property(get_resource_group)
+
+    #
+    # Properties.
+    #
+
     def get_ports(self):
         """
         :return: dictionary {name: object} of all ports.
@@ -46,6 +65,14 @@ class IxeCard(IxeObject):
 
         return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
+
+    def get_resource_groups(self):
+        """
+        :return: dictionary {resource group id: object} of all resource groups.
+        """
+
+        return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
+    resource_groups = property(get_resource_groups)
 
 
 class IxeChassis(IxeObject):
@@ -146,3 +173,31 @@ class IxeChassis(IxeObject):
 
         return {int(c.uri.split()[-1]): c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)
+
+#
+# Stream object classes.
+#
+
+
+class IxeCardObj(IxeObjectObj):
+
+    def __init__(self, parent, uri):
+        super(IxeCardObj, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+
+    #
+    # Properties.
+    #
+
+    def get_ports(self):
+        """
+        :return: dictionary {name: object} of all ports.
+        """
+
+        return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
+    ports = property(get_ports)
+
+
+class IxeResourceGroup(IxeCardObj):
+    __tcl_command__ = 'resourceGroupEx'
+    __tcl_members__ = [
+    ]
