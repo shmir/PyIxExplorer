@@ -388,6 +388,8 @@ class IxeUdf(IxeStreamObj):
     def ix_set(self, member=None):
         pass
 
+    def set(self,index):
+        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__,index))
 #
 # TX stream object classes.
 #
