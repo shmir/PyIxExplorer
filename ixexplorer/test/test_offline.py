@@ -146,7 +146,18 @@ class IxeTestOffline(IxeTestBase):
 
         chassis = list(self.ixia.chassis_chain.values())[0]
         assert(chassis.obj_name() == chassis.ipAddress)
+        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(3))
+        card.discover()
+        # Omri's case
+        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(23))
+        card.discover()
         card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(63))
+        card.discover()
+        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(73))
+        card.discover()
+        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(83))
+        card.discover()
+        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(103))
         card.discover()
 
     def testDiscover(self):

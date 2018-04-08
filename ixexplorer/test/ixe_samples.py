@@ -4,7 +4,7 @@ import logging
 import sys
 
 from trafficgenerator.tgn_utils import ApiType
-from ixexplorer.ixe_port import IxePort
+from ixexplorer.ixe_port import IxeLinkState, IxePort
 from ixexplorer.ixe_app import init_ixe
 
 # API type = tcl or socket, currently supports only socket.
@@ -37,20 +37,16 @@ ixia = None
 
 
 def link_state_str(link_state):
-    prefix = 'LINK_STATE_'
-    for attr in dir(IxePort):
-        if attr.startswith(prefix):
-            val = getattr(IxePort, attr)
-            if val == link_state:
-                return attr[len(prefix):]
-    return link_state
+    if link_state in list(map(int, [e.value for e in IxeLinkState])):
+        return IxeLinkState(link_state).name
+    return str(link_state)
 
 
 def connect():
     global ixia
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(api, logger, host, tcp_port, rsa_id)

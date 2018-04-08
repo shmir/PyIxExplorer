@@ -87,6 +87,9 @@ class IxTclHalApi(object):
     def __init__(self, tcl_handler):
         self._tcl_handler = tcl_handler
 
+    def eval(self, cmd, *args):
+        return self.call(cmd, *args)
+
     def call(self, cmd, *args):
         return self._tcl_handler.call(cmd, *args)
 

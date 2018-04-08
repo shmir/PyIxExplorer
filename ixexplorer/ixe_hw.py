@@ -1,4 +1,7 @@
 
+import re
+from collections import OrderedDict
+
 from trafficgenerator.tgn_tcl import tcl_list_2_py_list
 
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
@@ -9,7 +12,7 @@ from ixexplorer.ixe_port import IxePort
 class IxeCard(IxeObject):
     __tcl_command__ = 'card'
     __tcl_members__ = [
-            TclMember('cardOperationMode', type=int, flags=FLAG_RDONLY),
+            TclMember('operationMode', type=int, flags=FLAG_RDONLY),
             TclMember('clockRxRisingEdge', type=int),
             TclMember('clockSelect', type=int),
             TclMember('clockTxRisingEdge', type=int),
@@ -20,10 +23,12 @@ class IxeCard(IxeObject):
             TclMember('serialNumber', flags=FLAG_RDONLY),
             TclMember('txFrequencyDeviation', type=int),
             TclMember('type', type=int, flags=FLAG_RDONLY),
-            TclMember('typeName'),
+            TclMember('typeName', flags=FLAG_RDONLY),
     ]
 
     TYPE_NONE = 0
+
+    regex = r'RG([\d]+)\s*mode\s*([\d]+)\s*ppm\s*([-]*[\d]+)\s*active ports\s\{([\s\d]*)\}\s*active capture ports\s\{([\s\d]*)\}\s*resource ports\s*\{([\s\d]*)\}'  # noqa
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
@@ -32,10 +37,14 @@ class IxeCard(IxeObject):
         self.logger.info('Discover card {}'.format(self.obj_name()))
         for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + '/' + str(pid))
-        resourceGroupInfoList = self.resourceGroupInfoList
-        rg_info_list = (self.api.call('join ' + resourceGroupInfoList + ' LiStSeP').split('LiStSeP') if
-                        resourceGroupInfoList else []())
-        print(rg_info_list)
+        rg_info_list = tcl_list_2_py_list(self.resourceGroupInfoList, within_tcl_str=True)
+        for entry in rg_info_list:
+            matches = re.finditer(self.regex, entry.strip())
+            for match in matches:
+                IxeResourceGroup(self, match.group(1), match.group(2), match.group(3), match.group(4).strip().split(),
+                                 match.group(5).strip().split(), match.group(6).strip().split())
+        for resource_group in self.resource_groups:
+            print(resource_group)
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -71,7 +80,8 @@ class IxeCard(IxeObject):
         :return: dictionary {resource group id: object} of all resource groups.
         """
 
-        return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
+        resource_groups = {int(r.uri.split()[-1]): r for r in self.get_objects_by_type('resourceGroupEx')}
+        return OrderedDict(sorted(resource_groups.items()))
     resource_groups = property(get_resource_groups)
 
 
@@ -175,7 +185,7 @@ class IxeChassis(IxeObject):
     cards = property(get_cards)
 
 #
-# Stream object classes.
+# Card object classes.
 #
 
 
@@ -201,3 +211,11 @@ class IxeResourceGroup(IxeCardObj):
     __tcl_command__ = 'resourceGroupEx'
     __tcl_members__ = [
     ]
+
+    def __init__(self, parent, rg_num, mode, ppm, active_ports, capture_ports, resource_ports):
+        super(IxeCardObj, self).__init__(uri=parent.uri.replace('/', ' ') + ' ' + str(rg_num), parent=parent)
+        self.mode = mode
+        self.ppm = ppm
+        self.active_ports = active_ports
+        self.capture_ports = capture_ports
+        self.resource_ports = resource_ports

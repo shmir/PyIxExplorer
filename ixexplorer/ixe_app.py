@@ -2,6 +2,7 @@
 import time
 from collections import OrderedDict
 
+import trafficgenerator.tgn_tcl
 from trafficgenerator.tgn_app import TgnApp
 from trafficgenerator.tgn_utils import TgnError
 
@@ -32,6 +33,7 @@ class IxeApp(TgnApp):
 
     def __init__(self, logger, api_wrapper):
         super(self.__class__, self).__init__(logger, api_wrapper)
+        trafficgenerator.tgn_tcl.tcl_interp_g = self.api
         self.session = IxeSession(self.logger, self.api)
         self.chassis_chain = {}
 

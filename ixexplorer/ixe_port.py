@@ -51,6 +51,24 @@ class IxeTransmitMode(Enum):
     streamsCoarse = 'portTxModePacketStreamsCoarse'
 
 
+class IxeLinkState(Enum):
+    linkDown = 0
+    linkUp = 1
+    linkLoopback = 2
+    noTransceiver = 7
+    invalidAddress = 8
+    noGbicModule = 13
+    lossOfFrame = 24
+    lossOfSignal = 25
+    forcedLinkUp = 34
+    noXenpakModule = 40
+    demoMode = 42
+    noXFPModule = 45
+    inactive = 47
+    noX2Module = 48
+    ethernetOamLoopback = 54
+
+
 class StreamWarningsError(TgnError):
     pass
 
@@ -115,22 +133,6 @@ class IxePort(IxeObject):
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
                         'restartAutoNegotiation', 'getPortState', 'isValidFeature']
-
-    LINK_STATE_DOWN = 0
-    LINK_STATE_UP = 1
-    LINK_STATE_LOOPBACK = 2
-    LINK_STATE_MII_WRITE = 3
-    LINK_STATE_RESTART_AUTO = 4
-    LINK_STATE_AUTO_NEGOTIATING = 5
-    LINK_STATE_MII_FAIL = 6
-    LINK_STATE_NO_TRANSCEIVER = 7
-    LINK_STATE_INVALID_ADDRESS = 8
-    LINK_STATE_READ_LINK_PARTNER = 9
-    LINK_STATE_NO_LINK_PARTNER = 10
-    LINK_STATE_RESTART_AUTO_END = 11
-    LINK_STATE_FPGA_DOWNLOAD_FAILED = 12
-    LINK_STATE_LOSS_OF_FRAME = 24
-    LINK_STATE_LOSS_OF_SIGNAL = 25
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
