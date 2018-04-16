@@ -24,7 +24,7 @@ class IxeStat(IxeObject):
             TclMember('duplexMode', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('link', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('lineSpeed', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
-            TclMember('linkFaultState', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+            TclMember('linkFaultState', flags=FLAG_RDONLY | FLAG_IGERR),
 
             TclMember('alignmentErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
             TclMember('asynchronousFramesSent', type=int, flags=FLAG_RDONLY | FLAG_IGERR),

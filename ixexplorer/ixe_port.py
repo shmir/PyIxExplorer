@@ -84,7 +84,7 @@ class IxePort(IxeObject):
         TclMember('linkState', type=int, flags=FLAG_RDONLY),
         TclMember('loopback'),
         TclMember('MacAddress', type=MacStr),
-        TclMember('masterSlave', type=bool),
+        TclMember('masterSlave'),
         TclMember('multicastPauseAddress'),
         TclMember('negotiateMasterSlave', type=bool),
         TclMember('operationModeList'),
