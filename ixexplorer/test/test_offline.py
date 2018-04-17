@@ -9,7 +9,6 @@ import json
 
 from trafficgenerator.tgn_utils import TgnError
 
-from ixexplorer.ixe_hw import IxeCard
 from ixexplorer.api.tclproto import TclError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_port import IxeReceiveMode, StreamWarningsError
@@ -141,24 +140,6 @@ class IxeTestOffline(IxeTestBase):
         self._reserve_ports(self.port1)
 
         print(self.ports[self.port1].packetGroup.signature)
-
-    def testDiscoverCard(self):
-
-        chassis = list(self.ixia.chassis_chain.values())[0]
-        assert(chassis.obj_name() == chassis.ipAddress)
-        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(3))
-        card.discover()
-        # Omri's case
-        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(23))
-        card.discover()
-        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(63))
-        card.discover()
-        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(73))
-        card.discover()
-        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(83))
-        card.discover()
-        card = IxeCard(chassis, str(chassis.chassis_id) + '/' + str(103))
-        card.discover()
 
     def testDiscover(self):
 

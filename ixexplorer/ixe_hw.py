@@ -41,10 +41,19 @@ class IxeCard(IxeObject):
         for entry in rg_info_list:
             matches = re.finditer(self.regex, entry.strip())
             for match in matches:
-                IxeResourceGroup(self, match.group(1), match.group(2), match.group(3), match.group(4).strip().split(),
-                                 match.group(5).strip().split(), match.group(6).strip().split())
-        for resource_group in self.resource_groups:
-            print(resource_group)
+                IxeResourceGroup(self, match.group(1), match.group(2), match.group(3),
+                                 [int(p) for p in match.group(4).strip().split()],
+                                 [int(p) for p in match.group(5).strip().split()],
+                                 [int(p) for p in match.group(6).strip().split()])
+        if self.type == 110:
+            operationMode = self.operationMode
+            if operationMode == 2:
+                ports = [13]
+                operationMode = '10000'
+            else:
+                ports = range(1, 13)
+                operationMode = '1000'
+            IxeResourceGroup(self, 1, operationMode, -1, ports, ports, ports)
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -69,10 +78,10 @@ class IxeCard(IxeObject):
 
     def get_ports(self):
         """
-        :return: dictionary {name: object} of all ports.
+        :return: dictionary {index: object} of all ports.
         """
 
-        return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
+        return {p.index: p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
     def get_resource_groups(self):
@@ -80,9 +89,24 @@ class IxeCard(IxeObject):
         :return: dictionary {resource group id: object} of all resource groups.
         """
 
-        resource_groups = {int(r.uri.split()[-1]): r for r in self.get_objects_by_type('resourceGroupEx')}
+        resource_groups = {r.index: r for r in self.get_objects_by_type('resourceGroupEx')}
         return OrderedDict(sorted(resource_groups.items()))
     resource_groups = property(get_resource_groups)
+
+    def get_active_ports(self):
+        """
+        :return: dictionary {index: object} of all ports.
+        """
+
+        if not self.resource_groups:
+            return self.ports
+        else:
+            active_ports = OrderedDict()
+            for resource_group in self.resource_groups.values():
+                for active_port in resource_group.active_ports:
+                    active_ports[active_port] = self.ports[active_port]
+            return active_ports
+    active_ports = property(get_active_ports)
 
 
 class IxeChassis(IxeObject):
@@ -181,7 +205,7 @@ class IxeChassis(IxeObject):
         :return: dictionary {name: object} of all cards.
         """
 
-        return {int(c.uri.split()[-1]): c for c in self.get_objects_by_type('card')}
+        return {c.index: c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)
 
 #
@@ -200,10 +224,10 @@ class IxeCardObj(IxeObjectObj):
 
     def get_ports(self):
         """
-        :return: dictionary {name: object} of all ports.
+        :return: dictionary {index: object} of all ports.
         """
 
-        return {int(p.uri.split()[-1]): p for p in self.get_objects_by_type('port')}
+        return {p.index: p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
 

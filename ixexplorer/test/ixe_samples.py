@@ -4,7 +4,7 @@ import logging
 import sys
 
 from trafficgenerator.tgn_utils import ApiType
-from ixexplorer.ixe_port import IxeLinkState, IxePort
+from ixexplorer.ixe_port import IxeLinkState
 from ixexplorer.ixe_app import init_ixe
 
 # API type = tcl or socket, currently supports only socket.
@@ -81,7 +81,7 @@ def discover():
     for card in chassis.cards.values():
         if card is None:
             continue
-        for port in card.ports.values():
+        for port in card.active_ports.values():
             print ('%-8s | %-8s | %-10s | %-s' % (port, port.owner.strip(), link_state_str(port.linkState),
                                                   port.supported_speeds()))
 

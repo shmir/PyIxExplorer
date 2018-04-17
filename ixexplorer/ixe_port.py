@@ -134,12 +134,33 @@ class IxePort(IxeObject):
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
                         'restartAutoNegotiation', 'getPortState', 'isValidFeature']
 
+    mode_2_speed = {'0': '10000',
+                    '5': '100000',
+                    '6': '40000',
+                    '7': '100000',
+                    '8': '40000',
+                    '9': '10000',
+                    '10': '10000',
+                    '18': '25000',
+                    '19': '50000',
+                    '20': '25000'}
+
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
         self.cap_file_name = None
 
     def supported_speeds(self):
-        return re.findall(r'\d+', self.getFeature('ethernetLineRate'))
+        supported_speeds = []
+        if self.parent.active_ports == self.parent.ports:
+            supported_speeds = re.findall(r'\d+', self.getFeature('ethernetLineRate'))
+        # Either active_ports != self.parent.ports or empty supported speeds for whatever reason...
+        if not supported_speeds:
+            for rg in self.parent.resource_groups.values():
+                if self.index in rg.active_ports:
+                    speed = rg.mode if int(rg.mode) >= 1000 else self.mode_2_speed.get(rg.mode, rg.mode)
+                    supported_speeds = [speed]
+                    break
+        return supported_speeds
 
     def reserve(self, force=False):
         """ Reserve port.
@@ -401,7 +422,7 @@ class IxePort(IxeObject):
         :return: dictionary {stream id: object} of all streams.
         """
 
-        return {int(s.uri.split()[-1]): s for s in self.get_objects_by_type('stream')}
+        return {s.index: s for s in self.get_objects_by_type('stream')}
     streams = property(get_streams)
 
     #

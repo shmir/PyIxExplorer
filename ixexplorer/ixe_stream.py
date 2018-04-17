@@ -80,6 +80,7 @@ class IxeStream(IxeObject):
         if not name:
             name = self.obj_name()
         self.name = '{' + name.replace('%', '%%').replace('\\', '\\\\') + '}'
+        self.ix_set()
         self.packetGroup.groupId = IxeStream.next_group_id
         IxeStream.next_group_id += 1
 
