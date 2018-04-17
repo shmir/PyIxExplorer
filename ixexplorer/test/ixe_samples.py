@@ -3,12 +3,8 @@
 import logging
 import sys
 
-from trafficgenerator.tgn_utils import ApiType
 from ixexplorer.ixe_port import IxeLinkState
 from ixexplorer.ixe_app import init_ixe
-
-# API type = tcl or socket, currently supports only socket.
-api = ApiType.socket
 
 # IxTclServer address.
 host = '192.168.42.61'
@@ -49,7 +45,7 @@ def connect():
     logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
-    ixia = init_ixe(api, logger, host, tcp_port, rsa_id)
+    ixia = init_ixe(logger, host, tcp_port, rsa_id)
     ixia.connect(user)
 
 

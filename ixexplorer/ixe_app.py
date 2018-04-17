@@ -14,11 +14,9 @@ from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffe
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 
-def init_ixe(api, logger, host, port=4555, rsa_id=None):
+def init_ixe(logger, host, port=4555, rsa_id=None):
     """ Connect to Tcl Server and Create IxExplorer object.
 
-    :param api: socket/tcl - tcl not supported in this version.
-    :type api: trafficgenerator.tgn_utils.ApiType
     :param logger: python logger object
     :param host: host (IxTclServer) IP address
     :param port: Tcl Server port

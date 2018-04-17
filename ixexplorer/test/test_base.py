@@ -18,9 +18,8 @@ class IxeTestBase(TgnTest):
 
     def setUp(self):
         super(IxeTestBase, self).setUp()
-        self.ixia = init_ixe(ApiType[self.config.get('IXE', 'api')], self.logger,
-                             host=self.config.get('IXE', 'server'), port=self.config.getint('IXE', 'tcp_port'),
-                             rsa_id=self.config.get('IXE', 'rsa_id'))
+        self.ixia = init_ixe(self.logger, host=self.config.get('IXE', 'server'),
+                             port=self.config.getint('IXE', 'tcp_port'), rsa_id=self.config.get('IXE', 'rsa_id'))
         self.ixia.connect(self.config.get('IXE', 'user'))
         self.ixia.add(self.config.get('IXE', 'chassis'))
 
