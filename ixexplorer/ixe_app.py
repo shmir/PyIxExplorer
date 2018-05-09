@@ -116,15 +116,28 @@ class IxeSession(IxeObject):
         :param ports: list of ports to wait for.
         :return:
         """
-
-        port_list = self.set_ports_list(*ports)
+        port_list = []
+        for port in ports:
+            port_list.append(self.set_ports_list(port))
         t_end = time.time() + timeout
+        ports_not_in_up = []
+        ports_in_up = []
         while time.time() < t_end:
             # ixCheckLinkState can take few seconds on some ports when link is down.
-            if self.api.call('ixCheckLinkState {}'.format(port_list)) == '0':
+            for port in port_list:
+                call = self.api.call('ixCheckLinkState {}'.format(port))
+                if call == '0':
+                    ports_in_up.append("{}".format(port))
+                else:
+                    pass
+            ports_in_up = list(set(ports_in_up))
+            if len(port_list) == len(ports_in_up):
                 return
             time.sleep(1)
-        raise TgnError('Failed to reach up state. Port {} is down after {} seconds'.format(self, timeout))
+        for port in port_list:
+            if port not in ports_in_up:
+                ports_not_in_up.append(port)
+        raise TgnError('{}'.format(ports_not_in_up))
 
     def clear_all_stats(self, *ports):
         """ Clear all statistic counters (port, streams and packet groups) on list of ports.
