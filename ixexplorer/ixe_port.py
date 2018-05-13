@@ -244,7 +244,7 @@ class IxePort(IxeObject):
         :param blocking: True - wait for traffic end, False - return after traffic start.
         """
 
-        self.session.start_transmit(blocking, self)
+        self.session.start_transmit(blocking, False, self)
 
     def stop_transmit(self):
         """ Stop traffic on port. """
