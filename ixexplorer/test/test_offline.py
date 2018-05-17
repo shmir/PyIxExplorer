@@ -226,3 +226,20 @@ class IxeTestOffline(IxeTestBase):
             self.ixia.session.api.call('invalid command')
         except TclError as e:
             print(e)
+
+    def test_port_clear(self):
+
+        self._reserve_ports(self.port1)
+        port = self.ports[self.port1]
+
+        stream = port.add_stream()
+        stream.protocol.enable802dot1qTag = 1
+        stream.vlan.vlanID = 33
+        stream.write()
+        port.write()
+
+        port.clear()
+
+        port.add_stream()
+        port.write()
+        # Make sure stream has no VLAN.

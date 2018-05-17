@@ -77,6 +77,8 @@ class IxeStream(IxeObject):
 
     def create(self, name):
         self.ix_set_default()
+        self.protocol.ix_set_default()
+        self.vlan.ix_set_default()
         if not name:
             name = self.obj_name()
         self.name = '{' + name.replace('%', '%%').replace('\\', '\\\\') + '}'
