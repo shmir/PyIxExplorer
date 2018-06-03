@@ -245,16 +245,17 @@ class IxeStreamsStats(IxeStats):
         :param stats: list of requested statistics to read, if empty - read all statistics.
         """
         from ixexplorer.ixe_stream import IxePacketGroupStream
-
+        sleep_time = 0.1  # in cases we only want few counters but very fast we need a smaller sleep time
         if not stats:
             stats = [m.attrname for m in IxePgStats.__tcl_members__ if m.flags & FLAG_RDONLY]
+            sleep_time = 1
 
         # Read twice to refresh rate statistics.
         for port in self.tx_ports_streams:
             port.api.call_rc('streamTransmitStats get {} 1 4096'.format(port.uri))
         for rx_port in self.rx_ports:
             rx_port.api.call_rc('packetGroupStats get {} 0 65536'.format(rx_port.uri))
-        time.sleep(1)
+        time.sleep(sleep_time)
 
         self.statistics = OrderedDict()
         for tx_port, streams in self.tx_ports_streams.items():
