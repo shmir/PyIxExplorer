@@ -19,6 +19,7 @@ ip = '192.168.42.175'
 ip = '192.168.42.61'
 ip = '192.168.28.7'
 ip = 'localhost'
+#ip = '10.5.224.94'
 
 user = 'pyixexplorer'
 
@@ -42,11 +43,12 @@ def connect():
     global ixia
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(logger, host, tcp_port, rsa_id)
     ixia.connect(user)
+
 
 
 def disconnect():
@@ -89,7 +91,41 @@ def build_ixvm():
     card.add_vm_port(2, 'eth2', mac)
 
 
+
+
+def test_split_modes():
+    chassis = list(ixia.chassis_chain.values())[0]
+    workingPort1 = "10.5.224.94/4/6"
+    ixia.session.reserve_ports([workingPort1], clear=True, force=True)
+
+    rg1 = chassis.cards[4].resource_groups[6]
+
+    rg1.change_mode(100000)
+    apl = rg1.activePortList
+    rg1.change_mode(25000)
+    apl = rg1.activePortList
+    rg1.change_mode(50000)
+    apl = rg1.activePortList
+    rg1.change_mode(40000)
+    apl = rg1.activePortList
+    pass
+
+def test_capture_rg():
+    chassis = list(ixia.chassis_chain.values())[0]
+    workingPort1 = "10.5.224.94/4/6"
+    ixia.session.reserve_ports([workingPort1], clear=True, force=True)
+
+    rg7 = chassis.cards[4].resource_groups[7]
+    rg6 = chassis.cards[4].resource_groups[6]
+
+    rg6.enable_capture_state(False,True)
+    rg7.enable_capture_state(True,True)
+    rg7.enable_capture_state(False,True)
+    rg6.enable_capture_state(True,True)
+
+
 if __name__ == '__main__':
     connect()
     discover()
+    #test_capture_rg()
     disconnect()
