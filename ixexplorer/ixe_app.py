@@ -303,6 +303,8 @@ class IxeSession(IxeObject):
                 port.dataIntegrity.signatureOffset = di_signatureOffset
             if timestamp and int(port.isValidFeature('portFeatureRxFirstTimeStamp')):
                 port.dataIntegrity.enableTimeStamp = True
+            else:
+                port.dataIntegrity.enableTimeStamp = False
             port.set_receive_modes(*modes)
 
             port.write()
@@ -320,6 +322,8 @@ class IxeSession(IxeObject):
                     stream.dataIntegrity.signatureOffset = di_signatureOffset
                 if timestamp:
                     stream.enableTimestamp = True
+                else:
+                    stream.enableTimestamp = False
 
             port.write()
 
