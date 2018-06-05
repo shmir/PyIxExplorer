@@ -242,10 +242,10 @@ class IxePort(IxeObject):
         config_file_name = config_file_name.replace('\\', '/')
         ext = path.splitext(config_file_name)[-1].lower()
         if ext == '.prt':
-            self.api.call_rc('port export {} "{}"'.format(self.uri, config_file_name))
+            self.api.call_rc('port export "{}" {}'.format(config_file_name, self.uri))
         elif ext == '.str':
             # self.reset()
-            self.api.call_rc('stream export {} "{}"'.format(self.uri, config_file_name))
+            self.api.call_rc('stream export "{}" {}'.format(config_file_name, self.uri))
         else:
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         # self.write()
