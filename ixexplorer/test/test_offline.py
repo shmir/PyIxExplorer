@@ -148,7 +148,7 @@ class IxeTestOffline(IxeTestBase):
         self.ixia.discover()
         assert(len(chassis.cards) > 0)
         assert(len(list(chassis.cards.values())[0].ports) > 0)
-        print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
+        print(list(list(chassis.cards.values())[0].ports.values())[0].supported_forced_speeds())
 
     def testStreamStatsObjects(self):
 

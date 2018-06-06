@@ -32,6 +32,7 @@ class IxeCard(IxeObject):
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+
     def discover(self):
         self.logger.info('Discover card {}'.format(self.obj_name()))
         for pid in range(1, self.portCount + 1):

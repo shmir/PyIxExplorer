@@ -43,12 +43,11 @@ def connect():
     global ixia
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(logger, host, tcp_port, rsa_id)
     ixia.connect(user)
-
 
 
 def disconnect():
@@ -128,4 +127,5 @@ if __name__ == '__main__':
     connect()
     discover()
     #test_capture_rg()
+    #test_split_modes()
     disconnect()
