@@ -168,7 +168,7 @@ class IxeSession(IxeObject):
             self.api.call_rc('ixClearTimeStamp {}'.format(port_list_for_packet_groups))
             self.api.call_rc('ixStartPacketGroups {}'.format(port_list_for_packet_groups))
         self.api.call_rc('ixStartTransmit {}'.format(port_list))
-        time.sleep(2)
+        time.sleep(0.2)
 
         if blocking:
             self.wait_transmit(*ports)
@@ -192,7 +192,7 @@ class IxeSession(IxeObject):
 
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStopTransmit {}'.format(port_list))
-        time.sleep(2)
+        time.sleep(0.2)
 
     def wait_transmit(self, *ports):
         """ Wait for traffic end on ports.
