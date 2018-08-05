@@ -6,7 +6,6 @@ Base class for all IxExplorer package tests.
 
 from os import path
 
-from trafficgenerator.tgn_utils import ApiType
 from trafficgenerator.test.test_tgn import TgnTest
 
 from ixexplorer.ixe_app import init_ixe

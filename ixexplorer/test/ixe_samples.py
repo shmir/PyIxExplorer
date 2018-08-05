@@ -2,13 +2,17 @@
 
 import logging
 import sys
+import time
+import json
 
 from ixexplorer.ixe_port import IxeLinkState
 from ixexplorer.ixe_app import init_ixe
 
+log_level = logging.INFO
+
 # IxTclServer address.
-host = '192.168.42.61'
 host = 'localhost'
+host = '192.168.42.61'
 
 # Windows - 4555, Linux - 8022
 tcp_port = 8022
@@ -17,8 +21,10 @@ tcp_port = 4555
 # Chassis IP address
 ip = '192.168.42.175'
 ip = '192.168.42.61'
-ip = '192.168.28.7'
-ip = 'localhost'
+
+# Ports
+port1 = '{}/1/1'.format(ip)
+port2 = '{}/1/2'.format(ip)
 
 user = 'pyixexplorer'
 
@@ -42,7 +48,7 @@ def connect():
     global ixia
 
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(log_level)
     logger.addHandler(logging.StreamHandler(sys.stdout))
 
     ixia = init_ixe(logger, host, tcp_port, rsa_id)
@@ -82,6 +88,32 @@ def discover():
                                                   port.supported_speeds()))
 
 
+def build():
+    ports = ixia.session.reserve_ports([port1, port2], force=True)
+    stream11 = ports[port1].add_stream()
+    stream11.rateMode = 'streamRateModePercentRate'
+    stream11.percentPacketRate = 95
+    stream12 = ports[port2].add_stream()
+    stream12.rateMode = 'streamRateModePercentRate'
+    stream12.percentPacketRate = 95
+
+    ports[port1].write()
+    ports[port2].write()
+
+    ports[port1].clear_all_stats()
+    ports[port2].clear_all_stats()
+    ixia.session.start_transmit()
+    time.sleep(4)
+    ixia.session.stop_transmit()
+    port1_stats = ports[port1].read_stats()
+    port2_stats = ports[port2].read_stats()
+
+    print(json.dumps(port1_stats, indent=2))
+    print(json.dumps(port1_stats, indent=2))
+
+    assert(port1_stats['framesSent'], port2_stats['framesReceived'])
+
+
 def build_ixvm():
 
     card = ixia.chassis.add_vm_card(vModule, 2)
@@ -92,4 +124,5 @@ def build_ixvm():
 if __name__ == '__main__':
     connect()
     discover()
+    build()
     disconnect()
