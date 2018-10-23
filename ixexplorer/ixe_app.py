@@ -39,6 +39,10 @@ class IxeApp(TgnApp):
     def connected(self):
         return True if self.api._tcl_handler.fd else False
 
+    @property
+    def sesssion(self):
+        return self.session
+
     def connect(self, user=None):
         """ Connect to host.
 

@@ -131,7 +131,7 @@ class IxePort(IxeObject):
         TclMember('typeName', flags=FLAG_RDONLY),
         TclMember('usePacketFlowImageFile', type=bool),
         TclMember('enableRsFec', type=bool),
-        TclMember('ieeeL1Defaults', type=int),
+        TclMember('ieeeL1Defaults', type=int, flags=FLAG_IGERR)
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',

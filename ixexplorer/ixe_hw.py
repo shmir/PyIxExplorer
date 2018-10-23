@@ -297,6 +297,17 @@ class IxeResourceGroup(IxeCardObj):
             self.activeCapturePortList = "{{""}}"
         if (writeToHw):
             self.ix_command('write')
+        try :
+            if state:
+                activePorts = self.rePortInList.findall(self.activePortList)
+                self.activeCapturePortList = "{{"+activePorts[0]+"}}"
+            else:
+                self.activeCapturePortList = "{{""}}"
+            if (writeToHw):
+                self.ix_command('write')
+            return True
+        except Exception as e:
+            return False
 
 
     def change_mode(self, mode, writeToHw=False):
