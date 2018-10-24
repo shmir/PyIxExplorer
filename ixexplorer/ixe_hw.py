@@ -28,7 +28,7 @@ class IxeCard(IxeObject):
 
     TYPE_NONE = 0
 
-    regex = r'RG([\d]+)\s*mode\s*([\d]+)\s*ppm\s*([-]*[\d]+)\s*active ports\s\{([\s\d]*)\}\s*active capture ports\s\{([\s\d]*)\}\s*resource ports\s*\{([\s\d]*)\}'  # noqa
+    regex = r'RG([\d]+)\s*mode\s*([\d]+)\s*ppm\s*([-]*[\d]*)\s*active ports\s\{([\s\d]*)\}\s*active capture ports\s\{([\s\d]*)\}\s*resource ports\s*\{([\s\d]*)\}'  # noqa
 
     def __init__(self, parent, uri):
         super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
@@ -37,23 +37,27 @@ class IxeCard(IxeObject):
         self.logger.info('Discover card {}'.format(self.obj_name()))
         for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + '/' + str(pid))
-        rg_info_list = tcl_list_2_py_list(self.resourceGroupInfoList, within_tcl_str=True)
-        for entry in rg_info_list:
-            matches = re.finditer(self.regex, entry.strip())
-            for match in matches:
-                IxeResourceGroup(self, match.group(1), match.group(2), match.group(3),
-                                 [int(p) for p in match.group(4).strip().split()],
-                                 [int(p) for p in match.group(5).strip().split()],
-                                 [int(p) for p in match.group(6).strip().split()])
-        if self.type == 110:
-            operationMode = self.operationMode
-            if operationMode == 2:
-                ports = [13]
-                operationMode = '10000'
-            else:
-                ports = range(1, 13)
-                operationMode = '1000'
-            IxeResourceGroup(self, 1, operationMode, -1, ports, ports, ports)
+        try:
+            rg_info_list = tcl_list_2_py_list(self.resourceGroupInfoList, within_tcl_str=True)
+            for entry in rg_info_list:
+                matches = re.finditer(self.regex, entry.strip())
+                for match in matches:
+                    IxeResourceGroup(self,str(int(match.group(1))+1), match.group(2), match.group(3),
+                                     [int(p) for p in match.group(4).strip().split()],
+                                     [int(p) for p in match.group(5).strip().split()],
+                                     [int(p) for p in match.group(6).strip().split()])
+            if self.type == 110:
+                operationMode = self.operationMode
+                if operationMode == 2:
+                    ports = [13]
+                    operationMode = '10000'
+                else:
+                    ports = range(1, 13)
+                    operationMode = '1000'
+                IxeResourceGroup(self, 1, operationMode, -1, ports, ports, ports)
+        except Exception as e:
+            print("no resource group support")
+
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -72,6 +76,8 @@ class IxeCard(IxeObject):
         return self._get_object('_resourceGroup', IxeResourceGroup)
     resourceGroup = property(get_resource_group)
 
+    def write(self):
+        self.ix_command('write')
     #
     # Properties.
     #
@@ -180,18 +186,30 @@ class IxeChassis(IxeObject):
     def disconnect(self):
         self.ix_command('del')
 
+    def add_card(self,cid):
+        # unfortunately there is no config option which cards are used. So
+        # we have to iterate over all possible card ids and check if we are
+        # able to get a handle.
+        card = IxeCard(self, str(self.chassis_id) + '/' + str(cid))
+        try:
+            card.discover()
+        except IxTclHalError:
+            self.logger.info('slot {} is empty'.format(cid))
+            card.del_object_from_parent()
+
     def discover(self):
         self.logger.info('Discover chassis {}'.format(self.obj_name()))
         for cid in range(1, self.maxCardCount + 1):
+            self.add_card(cid)
             # unfortunately there is no config option which cards are used. So
             # we have to iterate over all possible card ids and check if we are
             # able to get a handle.
-            card = IxeCard(self, str(self.chassis_id) + '/' + str(cid))
-            try:
-                card.discover()
-            except IxTclHalError:
-                self.logger.info('slot {} is empty'.format(cid))
-                card.del_object_from_parent()
+            # card = IxeCard(self, str(self.chassis_id) + '/' + str(cid))
+            # try:
+            #     card.discover()
+            # except IxTclHalError:
+            #     self.logger.info('slot {} is empty'.format(cid))
+            #     card.del_object_from_parent()
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
         self._api.call_rc('chassis addVirtualCard {} {} {} {}'.format(self.host, card_ip, card_id, keep_alive))
@@ -208,6 +226,9 @@ class IxeChassis(IxeObject):
         return {c.index: c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)
 
+    def Refresh(self):
+        self.refresh()
+        self._reset_current_object()
 #
 # Card object classes.
 #
@@ -234,12 +255,58 @@ class IxeCardObj(IxeObjectObj):
 class IxeResourceGroup(IxeCardObj):
     __tcl_command__ = 'resourceGroupEx'
     __tcl_members__ = [
+        TclMember('mode', type=int),
+        TclMember('activePortList'),
+        TclMember('resourcePortList'),
+        TclMember('activeCapturePortList'),
+        TclMember('ppm')
     ]
+    rePortInList = re.compile(r"(?:{((?:\d+\s*){3})})")
 
     def __init__(self, parent, rg_num, mode, ppm, active_ports, capture_ports, resource_ports):
-        super(IxeCardObj, self).__init__(uri=parent.uri.replace('/', ' ') + ' ' + str(rg_num), parent=parent)
-        self.mode = mode
-        self.ppm = ppm
+        super(IxeCardObj, self).__init__(uri=parent.uri.replace('/', ' ') + ' ' + rg_num, parent=parent)
+        self._update_uri(parent.uri.replace('/', ' ') + ' ' + str(active_ports[0]))
+        #self.mode_ = mode
+        #self.ppm = ppm
         self.active_ports = active_ports
         self.capture_ports = capture_ports
         self.resource_ports = resource_ports
+
+    def enable_capture_state(self,state,writeToHw=False):
+        """
+        Enable/Disable capture on resource group
+        """
+        if state:
+            activePorts = self.rePortInList.findall(self.activePortList)
+            self.activeCapturePortList = "{{"+activePorts[0]+"}}"
+        else:
+            self.activeCapturePortList = "{{""}}"
+        if (writeToHw):
+            self.ix_command('write')
+
+    def change_mode(self,mode,writeToHw=False):
+        mode = int(mode)
+        if mode == self.mode:
+            return None
+        allPorts = self.rePortInList.findall(self.resourcePortList)
+        self.set_auto_set(False)
+        self.mode = mode
+        self.set_auto_set(True)
+        if mode == 100000 or mode == 40000:
+            self.activePortList = "{{"+allPorts[0]+"}}"
+            activeIndex = 0
+        elif mode == 10000 or mode == 25000:
+            self.activePortList = "{{"+allPorts[1]+"}{"+allPorts[2]+"}{"+allPorts[3]+"}{"+allPorts[4]+"}}"
+            activeIndex = 1
+        elif mode == 50000:
+            self.activePortList = "{{"+allPorts[5]+"}{"+allPorts[6]+"}}"
+            activeIndex = 5
+        else:
+            return None
+        if (writeToHw):
+            self.ix_command('write')
+        self._update_uri(allPorts[activeIndex])
+        return True
+
+    def _update_uri(self,value):
+        self._data['uri'] = value

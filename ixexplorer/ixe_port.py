@@ -4,7 +4,7 @@ import re
 from enum import Enum
 
 from trafficgenerator.tgn_utils import TgnError
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr,FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats, IxeStat
@@ -13,6 +13,7 @@ from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeS
 class IxePhyMode(Enum):
     copper = 'portPhyModeCopper'
     fiber = 'portPhyModeFibber'
+    sgmii = 'portPhyModeSgmii'
     ignore = None
 
 
@@ -76,6 +77,8 @@ class StreamWarningsError(TgnError):
 class IxePort(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
+        TclMember('advertise2P5FullDuplex', type=int,flags=FLAG_IGERR ),
+        TclMember('advertise5FullDuplex', type=int,flags=FLAG_IGERR),
         TclMember('advertise1000FullDuplex', type=bool),
         TclMember('advertise100FullDuplex', type=bool),
         TclMember('advertise100HalfDuplex', type=bool),
@@ -132,7 +135,7 @@ class IxePort(IxeObject):
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
-                        'restartAutoNegotiation', 'getPortState', 'isValidFeature']
+                        'restartAutoNegotiation', 'getPortState', 'isValidFeature','isActiveFeature','isCapableFeature']
 
     mode_2_speed = {'0': '10000',
                     '5': '100000',
@@ -151,8 +154,9 @@ class IxePort(IxeObject):
 
     def supported_speeds(self):
         supported_speeds = []
-        if self.parent.active_ports == self.parent.ports:
-            supported_speeds = re.findall(r'\d+', self.getFeature('ethernetLineRate'))
+        #todo FIX  once parent is Session(by reserve_ports) - no active_ports ,only if parent is card(by discover)!!!
+        #if self.parent.active_ports == self.parent.ports:
+        supported_speeds = re.findall(r'\d+', self.getFeature('ethernetLineRate'))
         # Either active_ports != self.parent.ports or empty supported speeds for whatever reason...
         if not supported_speeds:
             for rg in self.parent.resource_groups.values():
@@ -225,6 +229,28 @@ class IxePort(IxeObject):
             raise ValueError('Configuration file type {} not supported.'.format(ext))
         self.write()
         self.discover()
+
+    def save_config(self, config_file_name):
+        """ Save configuration file from prt or str.
+
+        Configuration file type is extracted from the file suffix - prt or str.
+
+        :param config_file_name: full path to the configuration file.
+            IxTclServer must have access to the file location. either:
+                The config file is on shared folder.
+                IxTclServer run on the client machine.
+        """
+        config_file_name = config_file_name.replace('\\', '/')
+        ext = path.splitext(config_file_name)[-1].lower()
+        if ext == '.prt':
+            self.api.call_rc('port export "{}" {}'.format(config_file_name, self.uri))
+        elif ext == '.str':
+            # self.reset()
+            self.api.call_rc('stream export "{}" {}'.format(config_file_name, self.uri))
+        else:
+            raise ValueError('Configuration file type {} not supported.'.format(ext))
+        # self.write()
+        # self.discover()
 
     def wait_for_up(self, timeout=16):
         """ Wait until port is up and running.
@@ -317,12 +343,13 @@ class IxePort(IxeObject):
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
-
         :param mode: requested PHY mode.
         """
-
-        if mode.value:
-            self.api.call_rc('port setPhyMode {} {}'.format(mode.value, self.uri))
+        if isinstance(mode, IxePhyMode):
+            if mode.value:
+                self.api.call_rc('port setPhyMode {} {}'.format(mode.value, self.uri))
+        else:
+            self.api.call_rc('port setPhyMode {} {}'.format(mode, self.uri))
 
     def set_receive_modes(self, *modes):
         """ Set port receive modes (overwrite existing value).

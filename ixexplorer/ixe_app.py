@@ -35,6 +35,10 @@ class IxeApp(TgnApp):
         self.session = IxeSession(self.logger, self.api)
         self.chassis_chain = {}
 
+    @property
+    def connected(self):
+        return True if self.api._tcl_handler.fd else False
+
     def connect(self, user=None):
         """ Connect to host.
 
@@ -164,7 +168,7 @@ class IxeSession(IxeObject):
             self.api.call_rc('ixClearTimeStamp {}'.format(port_list_for_packet_groups))
             self.api.call_rc('ixStartPacketGroups {}'.format(port_list_for_packet_groups))
         self.api.call_rc('ixStartTransmit {}'.format(port_list))
-        time.sleep(2)
+        time.sleep(0.2)
 
         if blocking:
             self.wait_transmit(*ports)
@@ -188,7 +192,7 @@ class IxeSession(IxeObject):
 
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixStopTransmit {}'.format(port_list))
-        time.sleep(2)
+        time.sleep(0.2)
 
     def wait_transmit(self, *ports):
         """ Wait for traffic end on ports.
@@ -303,6 +307,8 @@ class IxeSession(IxeObject):
                 port.dataIntegrity.signatureOffset = di_signatureOffset
             if timestamp and int(port.isValidFeature('portFeatureRxFirstTimeStamp')):
                 port.dataIntegrity.enableTimeStamp = True
+            else:
+                port.dataIntegrity.enableTimeStamp = False
             port.set_receive_modes(*modes)
 
             port.write()
@@ -320,6 +326,8 @@ class IxeSession(IxeObject):
                     stream.dataIntegrity.signatureOffset = di_signatureOffset
                 if timestamp:
                     stream.enableTimestamp = True
+                else:
+                    stream.enableTimestamp = False
 
             port.write()
 

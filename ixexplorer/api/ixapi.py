@@ -138,7 +138,7 @@ class _MetaIxTclApi(type):
                 if m.type == MacStr:
                     return str(m.type(return_val))
                 elif m.type is bool:
-                    return bool(int(return_val))
+                    return bool(int(return_val)) if val is not '-1' else False
                 else:
                     return m.type(return_val)
 
