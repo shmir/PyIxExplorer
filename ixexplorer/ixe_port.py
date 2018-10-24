@@ -4,7 +4,7 @@ import re
 from enum import Enum
 
 from trafficgenerator.tgn_utils import TgnError
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr,FLAG_IGERR
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr, FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats, IxeStat
@@ -12,7 +12,7 @@ from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeS
 
 class IxePhyMode(Enum):
     copper = 'portPhyModeCopper'
-    fiber = 'portPhyModeFibber'
+    fiber = 'portPhyModeFibber',
     sgmii = 'portPhyModeSgmii'
     ignore = None
 
@@ -77,8 +77,8 @@ class StreamWarningsError(TgnError):
 class IxePort(IxeObject):
     __tcl_command__ = 'port'
     __tcl_members__ = [
-        TclMember('advertise2P5FullDuplex', type=int,flags=FLAG_IGERR ),
-        TclMember('advertise5FullDuplex', type=int,flags=FLAG_IGERR),
+        TclMember('advertise2P5FullDuplex', type=int, flags=FLAG_IGERR),
+        TclMember('advertise5FullDuplex', type=int, flags=FLAG_IGERR),
         TclMember('advertise1000FullDuplex', type=bool),
         TclMember('advertise100FullDuplex', type=bool),
         TclMember('advertise100HalfDuplex', type=bool),
@@ -135,7 +135,8 @@ class IxePort(IxeObject):
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
-                        'restartAutoNegotiation', 'getPortState', 'isValidFeature','isActiveFeature','isCapableFeature']
+                        'restartAutoNegotiation', 'getPortState', 'isValidFeature', 'isActiveFeature',
+                        'isCapableFeature']
 
     mode_2_speed = {'0': '10000',
                     '5': '100000',
@@ -153,9 +154,8 @@ class IxePort(IxeObject):
         self.cap_file_name = None
 
     def supported_speeds(self):
-        supported_speeds = []
-        #todo FIX  once parent is Session(by reserve_ports) - no active_ports ,only if parent is card(by discover)!!!
-        #if self.parent.active_ports == self.parent.ports:
+        # todo FIX  once parent is Session(by reserve_ports) - no active_ports ,only if parent is card(by discover)!!!
+        # if self.parent.active_ports == self.parent.ports:
         supported_speeds = re.findall(r'\d+', self.getFeature('ethernetLineRate'))
         # Either active_ports != self.parent.ports or empty supported speeds for whatever reason...
         if not supported_speeds:
