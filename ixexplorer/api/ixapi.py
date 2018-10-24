@@ -123,7 +123,7 @@ class _MetaIxTclApi(type):
 
         for (n, m) in enumerate(members):
             if not isinstance(m, TclMember):
-                raise RuntimeError('Element #%d of __tcl_members__ is not a TclMember' % (n+1,))
+                raise RuntimeError('Element #%d of __tcl_members__ is not a TclMember' % (n + 1,))
 
             def fget(self, cmd=command, m=m):
                 try:

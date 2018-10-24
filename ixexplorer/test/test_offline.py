@@ -6,18 +6,19 @@ IxExplorer package tests that can run in offline mode.
 
 from os import path
 import json
+import pytest
 
 from trafficgenerator.tgn_utils import TgnError
 
 from ixexplorer.api.tclproto import TclError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_port import IxeReceiveMode, StreamWarningsError
-from ixexplorer.test.test_base import IxeTestBase
+from ixexplorer.test.test_base import TestIxeBase
 
 
-class IxeTestOffline(IxeTestBase):
+class TestIxeOffline(TestIxeBase):
 
-    def testLoadConfig(self):
+    def test_load_config(self):
 
         cfg1 = path.join(path.dirname(__file__), 'configs/test_config_1.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/test_config_2.str')
@@ -47,7 +48,7 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[1].da == '33:33:33:33:33:33')
         assert(self.ports[self.port1].streams[1].sa == '44:44:44:44:44:44')
 
-    def testBuildConfig(self):
+    def test_build_config(self):
         self._reserve_ports(self.port1, self.port2)
 
         self.ports[self.port1].add_stream()
@@ -86,7 +87,7 @@ class IxeTestOffline(IxeTestBase):
         assert(self.ports[self.port1].streams[2].da == '22:22:22:22:22:22')
         assert(self.ports[self.port1].streams[2].sa == '11:11:11:11:11:22')
 
-    def testWriteAfterWrite(self):
+    def test_write_after_write(self):
         self._reserve_ports(self.port1, self.port2)
         port1 = self.ports[self.port1]
         port2 = self.ports[self.port2]
@@ -136,12 +137,7 @@ class IxeTestOffline(IxeTestBase):
         assert(port2_stream1.da == '11:11:11:11:11:11')
         assert(port2_stream1.ip.destIpAddr == '1.1.1.2')
 
-    def testPortAndStreamObjects(self):
-        self._reserve_ports(self.port1)
-
-        print(self.ports[self.port1].packetGroup.signature)
-
-    def testDiscover(self):
+    def test_discover(self):
 
         chassis = list(self.ixia.chassis_chain.values())[0]
         assert(chassis.obj_name() == chassis.ipAddress)
@@ -150,14 +146,14 @@ class IxeTestOffline(IxeTestBase):
         assert(len(list(chassis.cards.values())[0].ports) > 0)
         print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
 
-    def testStreamStatsObjects(self):
+    def test_stream_stats_objects(self):
 
         self._reserve_ports(self.port1)
 
         #: :type port: ixexplorer.ixe_port.IxePort
         port = self.ports[self.port1]
         if not int(port.isValidFeature('portFeatureRxDataIntegrity')):
-            self.skipTest('Port not supporting RxDataIntegrity')
+            pytest.skip('Port not supporting RxDataIntegrity')
             return
 
         #: :type stream: ixexplorer.ixe_stream.IxeStream
@@ -202,25 +198,43 @@ class IxeTestOffline(IxeTestBase):
         assert(port.dataIntegrity.signatureOffset == 140)
         assert(stream.dataIntegrity.signatureOffset == 140)
 
+    def test_wrf(self):
+        self._reserve_ports(self.port1)
+
+        port = self.ports[self.port1]
+        port.add_stream()
+        port.add_stream()
+        port.add_stream()
+        for stream in port.streams.values():
+            stream.frameSizeType = 1
+            stream.weightedRandomFramesize.ix_set_default()
+            stream.weightedRandomFramesize.randomType = 1
+            stream.weightedRandomFramesize.addPair(64, 6)
+            stream.weightedRandomFramesize.addPair(70, 7)
+            stream.weightedRandomFramesize.addPair(80, 8)
+            stream.weightedRandomFramesize.delPair(64, 1)
+            stream.write()
+        port.write()
+
     #
     # Negative tests.
     #
 
-    def testErrors(self):
+    def test_errors(self):
 
         cfg = path.join(path.dirname(__file__), 'configs/good_to_bad_config.prt')
         port = list(self.ixia.session.reserve_ports([self.port1], force=True).values())[0]
         self.ixia.session.login('anotherUser')
-        with self.assertRaises(TgnError):
+        with pytest.raises(TgnError):
             assert(port.reserve())
         self.ixia.session.login(self.config.get('IXE', 'user'))
         port.reserve()
         port.load_config(cfg)
         port.streams[1].framesize = 64
-        with self.assertRaises(StreamWarningsError):
+        with pytest.raises(StreamWarningsError):
             assert(port.write())
 
-    def testNegative(self):
+    def test_negative(self):
 
         try:
             self.ixia.session.api.call('invalid command')
@@ -243,3 +257,8 @@ class IxeTestOffline(IxeTestBase):
         port.add_stream()
         port.write()
         # Make sure stream has no VLAN.
+
+    def test_errored_config(self):
+
+        cfg1 = path.join(path.dirname(__file__), 'configs/multi_errors_frame_config.prt')
+        self._reserver_and_load(cfg1)

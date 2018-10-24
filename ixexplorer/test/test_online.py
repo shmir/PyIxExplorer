@@ -12,13 +12,13 @@ import time
 import json
 
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
-from ixexplorer.test.test_base import IxeTestBase
+from ixexplorer.test.test_base import TestIxeBase
 from ixexplorer.ixe_port import StreamWarningsError
 
 
-class IxeTestOnline(IxeTestBase):
+class TestIxeOnline(TestIxeBase):
 
-    def testPortStats(self):
+    def test_port_stats(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/stats_config_2.prt')
         self._reserver_and_load(cfg1, cfg2)
@@ -39,7 +39,7 @@ class IxeTestOnline(IxeTestBase):
         assert(port1_stats['framesSent'] > 0)
         assert(port1_stats['framesSent_rate'] == 0)
 
-    def testStreamStats(self):
+    def test_stream_stats(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/stats_config_1.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/stats_config_2.prt')
         self._reserver_and_load(cfg1, cfg2)
@@ -62,7 +62,7 @@ class IxeTestOnline(IxeTestBase):
         print(json.dumps(self.ports[self.port1].read_stream_stats('totalFrames'), indent=1))
         print(json.dumps(self.ports[self.port1].streams[1].read_stats('totalFrames'), indent=1))
 
-    def testCapture(self):
+    def test_capture(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/cap_config.prt')
         self._reserver_and_load(cfg1, cfg2)
@@ -92,7 +92,7 @@ class IxeTestOnline(IxeTestBase):
             print(port.cap_file_name)
             print(port.get_cap_file())
 
-    def testCaptureContent(self):
+    def test_capture_content(self):
         self._reserve_ports(self.port1, self.port2)
 
         self.ports[self.port1].loopback = 1
@@ -115,7 +115,7 @@ class IxeTestOnline(IxeTestBase):
         assert("11 11 11 11 11 11" not in str(self.ports[self.port2].get_cap_frames(2)))
         assert("22 22 22 22 22 22" in str(self.ports[self.port2].get_cap_frames(2)))
 
-    def testLongCapture(self):
+    def test_long_capture(self):
         cfg1 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
         cfg2 = path.join(path.dirname(__file__), 'configs/long_frame_config.prt')
         try:
