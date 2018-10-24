@@ -19,7 +19,7 @@ class IxePortGroup(IxeObject):
 
     __tcl_command__ = 'portGroup'
     __tcl_members__ = [
-            TclMember('lastTimeStamp', type=int, flags=FLAG_RDONLY),
+        TclMember('lastTimeStamp', type=int, flags=FLAG_RDONLY),
     ]
 
     __tcl_commands__ = ['create', 'destroy']

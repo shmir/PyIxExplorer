@@ -12,18 +12,18 @@ from ixexplorer.ixe_port import IxePort
 class IxeCard(IxeObject):
     __tcl_command__ = 'card'
     __tcl_members__ = [
-            TclMember('operationMode', type=int, flags=FLAG_RDONLY),
-            TclMember('clockRxRisingEdge', type=int),
-            TclMember('clockSelect', type=int),
-            TclMember('clockTxRisingEdge', type=int),
-            TclMember('fpgaVersion', type=int, flags=FLAG_RDONLY),
-            TclMember('hwVersion', type=int, flags=FLAG_RDONLY),
-            TclMember('portCount', type=int, flags=FLAG_RDONLY),
-            TclMember('resourceGroupInfoList', flags=FLAG_RDONLY),
-            TclMember('serialNumber', flags=FLAG_RDONLY),
-            TclMember('txFrequencyDeviation', type=int),
-            TclMember('type', type=int, flags=FLAG_RDONLY),
-            TclMember('typeName', flags=FLAG_RDONLY),
+        TclMember('operationMode', type=int, flags=FLAG_RDONLY),
+        TclMember('clockRxRisingEdge', type=int),
+        TclMember('clockSelect', type=int),
+        TclMember('clockTxRisingEdge', type=int),
+        TclMember('fpgaVersion', type=int, flags=FLAG_RDONLY),
+        TclMember('hwVersion', type=int, flags=FLAG_RDONLY),
+        TclMember('portCount', type=int, flags=FLAG_RDONLY),
+        TclMember('resourceGroupInfoList', flags=FLAG_RDONLY),
+        TclMember('serialNumber', flags=FLAG_RDONLY),
+        TclMember('txFrequencyDeviation', type=int),
+        TclMember('type', type=int, flags=FLAG_RDONLY),
+        TclMember('typeName', flags=FLAG_RDONLY),
     ]
 
     TYPE_NONE = 0
@@ -42,7 +42,7 @@ class IxeCard(IxeObject):
             for entry in rg_info_list:
                 matches = re.finditer(self.regex, entry.strip())
                 for match in matches:
-                    IxeResourceGroup(self,str(int(match.group(1))+1), match.group(2), match.group(3),
+                    IxeResourceGroup(self, str(int(match.group(1)) + 1), match.group(2), match.group(3),
                                      [int(p) for p in match.group(4).strip().split()],
                                      [int(p) for p in match.group(5).strip().split()],
                                      [int(p) for p in match.group(6).strip().split()])
@@ -55,9 +55,8 @@ class IxeCard(IxeObject):
                     ports = range(1, 13)
                     operationMode = '1000'
                 IxeResourceGroup(self, 1, operationMode, -1, ports, ports, ports)
-        except Exception as e:
+        except Exception as _:
             print("no resource group support")
-
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -118,19 +117,19 @@ class IxeCard(IxeObject):
 class IxeChassis(IxeObject):
     __tcl_command__ = 'chassis'
     __tcl_members__ = [
-            TclMember('baseIpAddress'),
-            TclMember('cableLength', type=int),
-            TclMember('hostName', flags=FLAG_RDONLY),
-            TclMember('id', type=int),
-            TclMember('ipAddress', flags=FLAG_RDONLY),
-            TclMember('ixServerVersion', flags=FLAG_RDONLY),
-            TclMember('master', flags=FLAG_RDONLY),
-            TclMember('maxCardCount', type=int, flags=FLAG_RDONLY),
-            TclMember('name'),
-            TclMember('operatingSystem', type=int, flags=FLAG_RDONLY),
-            TclMember('sequence', type=int),
-            TclMember('type', type=int, flags=FLAG_RDONLY),
-            TclMember('typeName', flags=FLAG_RDONLY),
+        TclMember('baseIpAddress'),
+        TclMember('cableLength', type=int),
+        TclMember('hostName', flags=FLAG_RDONLY),
+        TclMember('id', type=int),
+        TclMember('ipAddress', flags=FLAG_RDONLY),
+        TclMember('ixServerVersion', flags=FLAG_RDONLY),
+        TclMember('master', flags=FLAG_RDONLY),
+        TclMember('maxCardCount', type=int, flags=FLAG_RDONLY),
+        TclMember('name'),
+        TclMember('operatingSystem', type=int, flags=FLAG_RDONLY),
+        TclMember('sequence', type=int),
+        TclMember('type', type=int, flags=FLAG_RDONLY),
+        TclMember('typeName', flags=FLAG_RDONLY),
     ]
 
     __tcl_commands__ = ['add', 'del', 'refresh']
@@ -186,7 +185,7 @@ class IxeChassis(IxeObject):
     def disconnect(self):
         self.ix_command('del')
 
-    def add_card(self,cid):
+    def add_card(self, cid):
         # unfortunately there is no config option which cards are used. So
         # we have to iterate over all possible card ids and check if we are
         # able to get a handle.
@@ -266,25 +265,23 @@ class IxeResourceGroup(IxeCardObj):
     def __init__(self, parent, rg_num, mode, ppm, active_ports, capture_ports, resource_ports):
         super(IxeCardObj, self).__init__(uri=parent.uri.replace('/', ' ') + ' ' + rg_num, parent=parent)
         self._update_uri(parent.uri.replace('/', ' ') + ' ' + str(active_ports[0]))
-        #self.mode_ = mode
-        #self.ppm = ppm
         self.active_ports = active_ports
         self.capture_ports = capture_ports
         self.resource_ports = resource_ports
 
-    def enable_capture_state(self,state,writeToHw=False):
+    def enable_capture_state(self, state, writeToHw=False):
         """
         Enable/Disable capture on resource group
         """
         if state:
             activePorts = self.rePortInList.findall(self.activePortList)
-            self.activeCapturePortList = "{{"+activePorts[0]+"}}"
+            self.activeCapturePortList = "{{" + activePorts[0] + "}}"
         else:
             self.activeCapturePortList = "{{""}}"
         if (writeToHw):
             self.ix_command('write')
 
-    def change_mode(self,mode,writeToHw=False):
+    def change_mode(self, mode, writeToHw=False):
         mode = int(mode)
         if mode == self.mode:
             return None
@@ -293,13 +290,14 @@ class IxeResourceGroup(IxeCardObj):
         self.mode = mode
         self.set_auto_set(True)
         if mode == 100000 or mode == 40000:
-            self.activePortList = "{{"+allPorts[0]+"}}"
+            self.activePortList = "{{" + allPorts[0] + "}}"
             activeIndex = 0
         elif mode == 10000 or mode == 25000:
-            self.activePortList = "{{"+allPorts[1]+"}{"+allPorts[2]+"}{"+allPorts[3]+"}{"+allPorts[4]+"}}"
+            self.activePortList = "{{" + allPorts[1] + "}{" + allPorts[2] + "}{" + allPorts[3] + "}{" + \
+                allPorts[4] + "}}"
             activeIndex = 1
         elif mode == 50000:
-            self.activePortList = "{{"+allPorts[5]+"}{"+allPorts[6]+"}}"
+            self.activePortList = "{{" + allPorts[5] + "}{" + allPorts[6] + "}}"
             activeIndex = 5
         else:
             return None
@@ -308,5 +306,5 @@ class IxeResourceGroup(IxeCardObj):
         self._update_uri(allPorts[activeIndex])
         return True
 
-    def _update_uri(self,value):
+    def _update_uri(self, value):
         self._data['uri'] = value

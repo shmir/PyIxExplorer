@@ -77,8 +77,8 @@ class IxeApp(TgnApp):
 class IxeSession(IxeObject):
     __tcl_command__ = 'session'
     __tcl_members__ = [
-            TclMember('userName', flags=FLAG_RDONLY),
-            TclMember('captureBufferSegmentSize', type=int),
+        TclMember('userName', flags=FLAG_RDONLY),
+        TclMember('captureBufferSegmentSize', type=int),
     ]
 
     __tcl_commands__ = ['login', 'logout']
