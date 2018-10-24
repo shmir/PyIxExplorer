@@ -23,6 +23,7 @@ import paramiko
 import time
 
 from trafficgenerator.tgn_utils import TgnError, new_log_file
+from concurrent.futures._base import TimeoutError
 
 
 class TclError(Exception):
@@ -65,6 +66,8 @@ class TclClient:
             if reply.endswith('\r\n'):
                 break
             time.sleep(0.01)
+        if not reply:
+            raise TimeoutError('no response after 16 seconds')
         self.logger.debug('received %s', reply.rstrip())
         assert reply[-2:] == '\r\n'
 

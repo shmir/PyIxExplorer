@@ -257,8 +257,3 @@ class TestIxeOffline(TestIxeBase):
         port.add_stream()
         port.write()
         # Make sure stream has no VLAN.
-
-    def test_errored_config(self):
-
-        cfg1 = path.join(path.dirname(__file__), 'configs/multi_errors_frame_config.prt')
-        self._reserver_and_load(cfg1)
