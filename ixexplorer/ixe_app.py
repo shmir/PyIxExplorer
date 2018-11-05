@@ -103,7 +103,12 @@ class IxeSession(IxeObject):
 
         for port_location in ports_locations:
             ip, card, port = port_location.split('/')
-            chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
+            for i in range(1,10):
+                try:
+                    chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
+                    break
+                except Exception as e:
+                    pass
             uri = '{} {} {}'.format(chassis, card, port)
             port = IxePort(parent=self, uri=uri)
             port._data['name'] = port_location
@@ -199,7 +204,7 @@ class IxeSession(IxeObject):
 
         :param ports: list of ports to wait for, if empty wait for all ports.
         """
-
+        time.sleep(1)
         port_list = self.set_ports_list(*ports)
         self.api.call_rc('ixCheckTransmitDone {}'.format(port_list))
 

@@ -1,5 +1,6 @@
 
 import re
+from enum import Enum
 from collections import OrderedDict
 
 from trafficgenerator.tgn_tcl import tcl_list_2_py_list
@@ -252,6 +253,22 @@ class IxeCardObj(IxeObjectObj):
     ports = property(get_ports)
 
 
+class splitSpeed(Enum):
+    One_400G = '400000.1'
+    One_200G = '200000.1'
+    Two_100G = '100000.2'
+    One_100G = '100000.1'
+    Four_50G = '50000.4'
+    Two_50G = '50000.2'
+    One_40G = '40000.1'
+    Four_25G = '25000.4'
+    Four_10G = '10000.4'
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+
+
 class IxeResourceGroup(IxeCardObj):
     __tcl_command__ = 'resourceGroupEx'
     __tcl_members__ = [
@@ -284,21 +301,23 @@ class IxeResourceGroup(IxeCardObj):
         if (writeToHw):
             self.ix_command('write')
 
+
     def change_mode(self,mode,writeToHw=False):
-        mode = int(mode)
-        if mode == self.mode:
+
+        new_mode = int(float(mode.value))
+        if new_mode == self.mode:
             return None
         allPorts = self.rePortInList.findall(self.resourcePortList)
         self.set_auto_set(False)
-        self.mode = mode
+        self.mode = new_mode
         self.set_auto_set(True)
-        if mode == 100000 or mode == 40000:
+        if mode in [splitSpeed.One_400G,splitSpeed.One_200G,splitSpeed.One_100G,splitSpeed.One_40G]:#== 100000 or mode == 40000:
             self.activePortList = "{{"+allPorts[0]+"}}"
             activeIndex = 0
-        elif mode == 10000 or mode == 25000:
+        elif mode in [splitSpeed.Four_50G,splitSpeed.Four_25G,splitSpeed.Four_10G]: #mode == 10000 or mode == 25000:
             self.activePortList = "{{"+allPorts[1]+"}{"+allPorts[2]+"}{"+allPorts[3]+"}{"+allPorts[4]+"}}"
             activeIndex = 1
-        elif mode == 50000:
+        elif mode in [splitSpeed.Two_100G,splitSpeed.Two_50G]:#mode == 50000:
             self.activePortList = "{{"+allPorts[5]+"}{"+allPorts[6]+"}}"
             activeIndex = 5
         else:
