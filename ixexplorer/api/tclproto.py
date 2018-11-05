@@ -144,11 +144,13 @@ class TclClient:
     def call(self, string, *args):
         if self.windows_server:
             result, io_output = self.socket_call(string, *args)
-            if io_output and 'Error:' in io_output:
-                raise TgnError(io_output)
-            return result
         else:
-            return self.ssh_call(string, *args)
+            #return self.ssh_call(string, *args)
+            result, io_output = self.ssh_call_shell(string, *args)
+        if io_output and 'Error:' in io_output:
+            raise TgnError(io_output)
+        return result
+
 
     def connect(self):
         self.logger.debug(f'Opening connection to {self.host}:{self.port}')
@@ -159,7 +161,8 @@ class TclClient:
             self.fd = paramiko.SSHClient()
             self.fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
-            self.stdin, self.stdout, _ = self.fd.exec_command('')
+            self.ssh_shell = sshWraper(self.fd)
+            #self.stdin, self.stdout, _ = self.fd.exec_command('')
             self.call('source /opt/ixia/ixos/current/IxiaWish.tcl')
         else:
             self.windows_server = True
@@ -169,12 +172,83 @@ class TclClient:
             self.fd = fd
 
         self.tcl_ver = self.call('package req IxTclHal')
+        self.call('package req IxTclHal')
         self.call('enableEvents true')
 
     def close(self):
         self.logger.debug('Closing connection')
         self.fd.close()
         self.fd = None
+
+
+class sshWraper(object):
+
+    default_eofOutput = '\r\n% % '
+    _command_timeout = 10
+    shell = None
+    default_buffer_size = 4096
+
+    def __init__(self,channel):
+        self._shell = channel.invoke_shell()
+
+    def write(self, cmd):
+        if self._shell:
+            return self._shell.send(cmd)
+
+    def read_all(self):
+        ret_str = ""
+        if self._shell:
+            while self._shell.recv_ready():
+                ret_str += self._shell.recv(sshWraper.default_buffer_size)
+        return ret_str
+
+    @property
+    def command_timeout(self):
+        return sshWraper._command_timeout
+
+    @command_timeout.setter
+    def command_timeout(self, timeout):
+        sshWraper._command_timeout = timeout
+
+    def read_until(self, eoOut= None):
+        timeout = self.command_timeout
+        prompt = eoOut if eoOut else sshWraper.default_eofOutput
+        line = bytearray()
+        if self._shell:
+            lenterm = len(prompt)
+            time_start = time.time()
+            reply_tuple = ([self._shell], [], [])
+            args_tuple = reply_tuple
+            if timeout is not None:
+                args_tuple = args_tuple + (timeout,)
+            while select.select(*args_tuple) == reply_tuple:
+                c = self._shell.recv(1)
+                if c:
+                    line += c
+                    if len(line) >= lenterm and line[-lenterm:] == prompt:
+                        break
+                if timeout is not None:
+                    elapsed = time.time() - time_start
+                    if elapsed >= timeout:
+                        break
+                    args_tuple = reply_tuple + (timeout - elapsed,)
+        return bytes(line)
+
+    def send_receive(self,cmd):
+        reply = ''
+        self.read_all()
+        self.write(cmd)
+        fullreply = self.read_until()
+        if fullreply.count('Invalid') > 0:
+            raise TclError(fullreply)
+        if fullreply:
+            reply = fullreply.rstrip(sshWraper.default_eofOutput)
+            reply = reply[len(cmd):]
+        return reply
+
+
+
+
 
 
 class sshWraper(object):

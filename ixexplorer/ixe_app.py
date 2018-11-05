@@ -181,7 +181,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
             self.api.call_rc('ixClearTimeStamp {}'.format(port_list_for_packet_groups))
             self.api.call_rc('ixStartPacketGroups {}'.format(port_list_for_packet_groups))
         self.api.call_rc('ixStartTransmit {}'.format(port_list))
-        time.sleep(1)
+        time.sleep(0.2)
 
         if blocking:
             self.wait_transmit(*ports)

@@ -330,5 +330,6 @@ class IxeResourceGroup(IxeCardObj, metaclass=ixe_obj_meta):
         self._update_uri(allPorts[activeIndex])
         return True
 
+
     def _update_uri(self, value):
         self._data['uri'] = value
