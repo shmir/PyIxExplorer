@@ -74,7 +74,13 @@ class TclClient:
         tcl_result = int(reply[-3])
         data = reply[:-3].rsplit('\r', 1)
         if len(data) == 2:
-            io_output, result = data
+            if data[-1].isdigit():
+                io_output, result = data
+            else:
+                # Handle 'streamRegion generateWarningList' where we actually care about the output so we put it into
+                # the result...
+                result = reply[:-3]
+                io_output = None
         else:
             result = data[0]
             io_output = None
@@ -122,6 +128,7 @@ class TclClient:
         else:
             self.windows_server = True
             fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            fd.settimeout(32.0)
             fd.connect((self.host, self.port))
             self.fd = fd
 

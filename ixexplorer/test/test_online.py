@@ -32,7 +32,7 @@ class TestIxeOnline(TestIxeBase):
         self.ixia.session.stop_transmit()
 
         self.ports[self.port1].start_transmit()
-        time.sleep(4)
+        time.sleep(8)
         self.ports[self.port1].stop_transmit()
         port1_stats = self.ports[self.port1].read_stats('framesSent', 'framesReceived')
         print(json.dumps(port1_stats, indent=1))

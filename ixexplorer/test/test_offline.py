@@ -146,6 +146,15 @@ class TestIxeOffline(TestIxeBase):
         assert(len(list(chassis.cards.values())[0].ports) > 0)
         print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
 
+    def test_discover_card(self):
+
+        chassis = list(self.ixia.chassis_chain.values())[0]
+        chassis.add_card(113)
+        print chassis.cards[113].ports
+        print chassis.cards[113].resource_groups
+        print chassis.cards[114].ports
+        print chassis.cards[114].resource_groups
+
     def test_stream_stats_objects(self):
 
         self._reserve_ports(self.port1)
@@ -236,10 +245,8 @@ class TestIxeOffline(TestIxeBase):
 
     def test_negative(self):
 
-        try:
+        with pytest.raises(TclError):
             self.ixia.session.api.call('invalid command')
-        except TclError as e:
-            print(e)
 
     def test_port_clear(self):
 
@@ -257,3 +264,9 @@ class TestIxeOffline(TestIxeBase):
         port.add_stream()
         port.write()
         # Make sure stream has no VLAN.
+
+    def test_multline_error(self):
+        self._reserve_ports(self.port1)
+        cfg = path.join(path.dirname(__file__), 'configs/multiline_error.prt')
+        with pytest.raises(StreamWarningsError):
+            assert(self.ports[self.port1].load_config(cfg))
