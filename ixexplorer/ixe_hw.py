@@ -299,8 +299,7 @@ class IxeResourceGroup(IxeCardObj):
             self.ix_command('write')
 
 
-    def change_mode(self,mode,writeToHw=False):
-
+    def change_mode(self, mode, writeToHw=False):
         new_mode = int(float(mode.value))
         if new_mode == self.mode:
             return None
@@ -308,18 +307,18 @@ class IxeResourceGroup(IxeCardObj):
         self.set_auto_set(False)
         self.mode = new_mode
         self.set_auto_set(True)
-        if mode in [splitSpeed.One_400G,splitSpeed.One_200G,splitSpeed.One_100G,splitSpeed.One_40G]:#== 100000 or mode == 40000:
-            self.activePortList = "{{"+allPorts[0]+"}}"
+        if mode in [splitSpeed.One_400G, splitSpeed.One_200G, splitSpeed.One_100G, splitSpeed.One_40G]:  #== 100000 or mode == 40000:
+            self.activePortList = "{{" + allPorts[0] + "}}"
             activeIndex = 0
-        elif mode in [splitSpeed.Four_50G,splitSpeed.Four_25G,splitSpeed.Four_10G]: #mode == 10000 or mode == 25000:
-            self.activePortList = "{{"+allPorts[1]+"}{"+allPorts[2]+"}{"+allPorts[3]+"}{"+allPorts[4]+"}}"
+        elif mode in [splitSpeed.Four_50G, splitSpeed.Four_25G, splitSpeed.Four_10G]:  #mode == 10000 or mode == 25000:
+            self.activePortList = "{{" + allPorts[1] + "}{" + allPorts[2] + "}{" + allPorts[3] + "}{" + allPorts[4] + "}}"
             activeIndex = 1
-        elif mode in [splitSpeed.Two_100G,splitSpeed.Two_50G]:#mode == 50000:
-            self.activePortList = "{{"+allPorts[5]+"}{"+allPorts[6]+"}}"
+        elif mode in [splitSpeed.Two_100G, splitSpeed.Two_50G]:  #mode == 50000:
+            self.activePortList = "{{" + allPorts[5] + "}{" + allPorts[6] + "}}"
             activeIndex = 5
         else:
             return None
-        if (writeToHw):
+        if writeToHw:
             self.ix_command('write')
         self._update_uri(allPorts[activeIndex])
         return True
