@@ -140,7 +140,7 @@ class _MetaIxTclApi(type):
                 elif m.type is bool:
                     return bool(int(return_val)) if val is not '-1' else False
                 else:
-                    return m.type(return_val)
+                    return m.type(return_val) if return_val else -1
 
             def fset(self, value, cmd=command, m=m):
                 try:
