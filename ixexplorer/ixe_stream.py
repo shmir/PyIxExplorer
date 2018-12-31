@@ -168,6 +168,18 @@ class IxeStream(IxeObject):
     def get_stacked_vlan(self):
         return self._get_object('_stackedVlan', IxeStackedVlan)
     stackedVlan = property(get_stacked_vlan)
+    
+    def get_gre(self):
+        return self._get_object('_gre', IxeGre)
+    gre = property(get_gre)
+
+    def get_mpls(self):
+        return self._get_object('_mpls', IxeMPLS)
+    mpls = property(get_mpls)
+
+    def get_mpls_label(self):
+        return self._get_object('_mpsl_label', IxeMPLS_Label)
+    mpls_label = property(get_mpls_label)
 
 #
 # Stream object classes.
@@ -192,6 +204,7 @@ class IxeProtocol(IxeStreamObj):
         TclMember('ethernetType'),
         TclMember('enable802dot1qTag', type=int),
         TclMember('name'),
+        TclMember('enableMPLS', type=bool),
     ]
 
     def ix_get(self, member=None, force=False):
@@ -324,6 +337,24 @@ class IxeUdp(IxeStreamObj):
         TclMember('sourcePort'),
     ]
 
+class IxeGre(IxeStreamObj):
+    __tcl_command__ = 'gre'
+    __tcl_members__ = [
+        TclMember('enableKey', type=int),
+        TclMember('enableSequenceNumber', type=int),
+        TclMember('enableChecksum', type=int),
+        TclMember('enableValidChecksum', type=int),
+        TclMember('key'),
+        TclMember('sequenceNumber'),
+        TclMember('version'),
+        TclMember('reserved0'),
+        TclMember('reserved1'),
+        TclMember('protocolType'),
+    ]
+
+    def ix_get(self, member=None, force=False):
+        pass
+        # Disabled auto get!once enabled inner protocol L4 isn't configured properly
 
 class IxeProtocolOffset(IxeStreamObj):
     __tcl_command__ = 'protocolOffset'
@@ -383,6 +414,35 @@ class IxeUdf(IxeStreamObj):
     ]
     __tcl_commands__ = ['addRange', 'clearRangeList', 'config', 'getFirstRange', 'getNextRange',
                         'getRange', 'setDefault']
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+    def ix_set(self, member=None):
+        pass
+
+    def set(self, index):
+        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
+
+
+class IxeMPLS(IxeStreamObj):
+    __tcl_command__ = 'mpls'
+    __tcl_members__ = [
+        TclMember('type'),
+        TclMember('forceBottomOfStack', type=bool),
+        TclMember('enableAutomaticallySetLabel',type=bool)
+    ]
+    __tcl_commands__ = ['setDefault']
+
+class IxeMPLS_Label(IxeStreamObj):
+    __tcl_command__ = 'mplsLabel'
+    __tcl_members__ = [
+        TclMember('label'),
+        TclMember('experimentalUse'),
+        TclMember('timeToLive', type=int),
+        TclMember('bottomOfStack', type=bool)
+    ]
+    __tcl_commands__ = ['setDefault']
 
     def ix_get(self, member=None, force=False):
         pass
@@ -473,3 +533,7 @@ class IxeAutoDetectInstrumentationStream(IxeStreamTxObj):
         TclMember('signatureMask'),
         TclMember('startOfScan', type=int),
     ]
+
+
+
+
