@@ -12,7 +12,7 @@ from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
 from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
-
+from ixexplorer.ixe_port import StreamWarningsError
 
 def init_ixe(logger, host, port=4555, rsa_id=None):
     """ Connect to Tcl Server and Create IxExplorer object.
@@ -321,7 +321,7 @@ class IxeSession(IxeObject):
             port.set_receive_modes(*modes)
 
             port.write()
-
+        stream_warnning_message = ""
         for port, streams in tx_ports.items():
             for stream in streams:
                 stream.packetGroup.insertSignature = True
@@ -338,7 +338,14 @@ class IxeSession(IxeObject):
                 else:
                     stream.enableTimestamp = False
 
-            port.write()
+            try:
+                port.write()
+            except StreamWarningsError as e:
+                stream_warnning_message += "\n{}".format(str(e))
+        if len(stream_warnning_message) > 0:
+            raise StreamWarningsError(stream_warnning_message)
+
+
 
     def set_prbs(self, rx_ports=None, tx_ports=None):
         """ Set TX ports and RX streams for stream statistics.
