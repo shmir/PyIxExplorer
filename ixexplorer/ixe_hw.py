@@ -223,7 +223,7 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
         :return: dictionary {name: object} of all cards.
         """
 
-        return {int(c.index): c for c in self.get_objects_by_type('card')}
+        return {c.index: c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)
 
     def Refresh(self):
@@ -329,7 +329,6 @@ class IxeResourceGroup(IxeCardObj, metaclass=ixe_obj_meta):
             self.ix_command('write')
         self._update_uri(allPorts[activeIndex])
         return True
-
 
     def _update_uri(self, value):
         self._data['uri'] = value
