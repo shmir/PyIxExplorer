@@ -254,19 +254,20 @@ class IxeCardObj(IxeObjectObj):
 
 class splitSpeed(Enum):
     One_400G = '400000.1'
+    Two_200G = '200000.2'
     One_200G = '200000.1'
+    Four_100G = '100000.4'
     Two_100G = '100000.2'
     One_100G = '100000.1'
+    Eight_50G = '50000.8'
     Four_50G = '50000.4'
-    Two_50G = '50000.2'
     One_40G = '40000.1'
     Four_25G = '25000.4'
     Four_10G = '10000.4'
+    Two_50G = '50000.2'
 
     def __eq__(self, other):
         return self.value == other.value
-
-
 
 class IxeResourceGroup(IxeCardObj):
     __tcl_command__ = 'resourceGroupEx'
@@ -321,12 +322,15 @@ class IxeResourceGroup(IxeCardObj):
         if mode in [splitSpeed.One_400G, splitSpeed.One_200G, splitSpeed.One_100G, splitSpeed.One_40G]:  #== 100000 or mode == 40000:
             self.activePortList = "{{" + allPorts[0] + "}}"
             activeIndex = 0
-        elif mode in [splitSpeed.Four_50G, splitSpeed.Four_25G, splitSpeed.Four_10G]:  #mode == 10000 or mode == 25000:
+        elif mode in [splitSpeed.Four_100G,splitSpeed.Four_50G, splitSpeed.Four_25G, splitSpeed.Four_10G]:  #mode == 10000 or mode == 25000:
             self.activePortList = "{{" + allPorts[1] + "}{" + allPorts[2] + "}{" + allPorts[3] + "}{" + allPorts[4] + "}}"
             activeIndex = 1
-        elif mode in [splitSpeed.Two_100G, splitSpeed.Two_50G]:  #mode == 50000:
+        elif mode in [splitSpeed.Two_200G, splitSpeed.Two_100G, splitSpeed.Two_50G]:  #mode == 50000:
             self.activePortList = "{{" + allPorts[5] + "}{" + allPorts[6] + "}}"
             activeIndex = 5
+        elif mode in [splitSpeed.Eight_50G]:  #mode == 50000:
+            self.activePortList = "{{" + allPorts[7] + "}{" + allPorts[8] + "}{" + allPorts[9] + "}{" + allPorts[10] + "}{" + allPorts[11] + "}{" + allPorts[12] + "}{" + allPorts[13] + "}{" + allPorts[14] + "}}"
+            activeIndex = 7
         else:
             return None
         if writeToHw:

@@ -162,7 +162,7 @@ class TclClient:
         else:
             self.windows_server = True
             fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            fd.settimeout(32.0)
+            fd.settimeout(60.0)
             fd.connect((self.host, self.port))
             self.fd = fd
 
