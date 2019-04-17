@@ -322,11 +322,14 @@ class IxeSession(IxeObject):
 
             port.write()
         stream_warnning_message = ""
+        group_id = 0
         for port, streams in tx_ports.items():
             for stream in streams:
                 stream.packetGroup.insertSignature = True
                 stream.packetGroup.groupIdOffset = groupIdOffset
                 stream.packetGroup.signatureOffset = signatureOffset
+                stream.packetGroup.groupId = group_id
+                group_id += 1
                 if sequence_checking:
                     stream.packetGroup.insertSequenceSignature = True
                     stream.packetGroup.sequenceNumberOffset = sequenceNumberOffset

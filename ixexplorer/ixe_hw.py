@@ -340,3 +340,4 @@ class IxeResourceGroup(IxeCardObj):
 
     def _update_uri(self, value):
         self._data['uri'] = value
+

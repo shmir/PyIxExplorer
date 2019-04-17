@@ -1,4 +1,4 @@
-
+import time
 from os import path
 import re
 from enum import Enum
@@ -312,6 +312,12 @@ class IxePort(IxeObject):
                 frames.append(None)
         return frames
 
+    #IxRouter
+
+    def init_interface_table(self):
+        self.interfaceTable.ix_command('select')
+        self.interfaceTable._command('clearAllInterfaces')
+
     #
     # Statistics.
     #
@@ -336,6 +342,11 @@ class IxePort(IxeObject):
 
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(*stats)
+
+
+
+
+
 
     #
     # Others...
@@ -441,6 +452,30 @@ class IxePort(IxeObject):
         return self._get_object('_streamRegion', IxeStreamRegion)
     streamRegion = property(get_streamRegion)
 
+    def get_arpServer(self):
+        return self._get_object('_arpServer', IxeArpServer)
+    arpServer = property(get_arpServer)
+
+    def get_interfaceTable(self):
+        return self._get_object('_interfaceTable', IxeInterfaceTable)
+    interfaceTable = property(get_interfaceTable)
+
+    def get_protocolServer(self):
+        return self._get_object('_protocolServer', IxeProtocolServer)
+    protocolServer = property(get_protocolServer)
+
+    def get_interfaceEntry(self):
+        return self._get_object('_interfaceEntry', IxeInterfaceEntry)
+    interfaceEntry = property(get_interfaceEntry)
+
+    def get_interfaceIpV4(self):
+        return self._get_object('_interfaceIpV4', IxeInterfaceIpV4)
+    interfaceIpV4 = property(get_interfaceIpV4)
+
+    def get_interfaceIpV6(self):
+        return self._get_object('_interfaceIpV6', IxeInterfaceIpV6)
+    interfaceIpV6 = property(get_interfaceIpV6)
+
     #
     # Properties.
     #
@@ -471,6 +506,238 @@ class IxePortObj(IxeObjectObj):
 
     def __init__(self, parent):
         super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+
+
+class IxeArpServer(IxePortObj):
+    __tcl_command__ = 'arpServer'
+    __tcl_members__ = [
+        TclMember('retries', type=int),
+        TclMember('mode', type=int),
+        TclMember('rate', type=int),
+        TclMember('requestRepeatCount', type=int)
+    ]
+
+
+
+class IxeInterfaceTable(IxePortObj):
+    __tcl_command__ = 'interfaceTable'
+    __tcl_members__ = [
+        TclMember('dhcpV4RequestRate', type=int),
+        TclMember('dhcpV6RequestRate', type=int),
+        TclMember('dhcpV4MaximumOutstandingRequests', type=int),
+        TclMember('dhcpV6MaximumOutstandingRequests', type=int),
+        TclMember('fcoeRequestRate'),
+        TclMember('fcoeNumRetries', type=int),
+        TclMember('fcoeRetryInterval', type=int),
+        TclMember('fipVersion'),
+        TclMember('enableFcfMac', type=bool),
+        TclMember('fcfMacCollectionTime', type=int),
+        TclMember('enablePMacInFpma', type=bool),
+        TclMember('enableNameIdInVLANDiscovery', type=bool),
+        TclMember('enableTargetLinkLayerAddrOption', type=bool),
+        TclMember('enableAutoNeighborDiscovery', type=bool),
+        TclMember('enableAutoArp', type=bool)
+    ]
+
+    __tcl_commands__ = ['select', 'clearAllInterfaces', 'addInterface', 'delInterface', 'getInterface', 'getFcoeDiscoveredInfo',
+                        'getFirstInterface', 'getNextInterface', 'sendRouterSolicitation', 'clearDiscoveredNeighborTable',
+                        'sendNeighborClear','sendNeighborRefresh','sendNeighborSolicitation'
+                        'sendArp', 'sendArpClear', 'sendArpRefresh','setInterface',
+                        'requestDiscoveredTable','getDiscoveredList']
+
+    def select(self):
+        self.ix_command('select')
+
+    def _raw_command(self,ix_command, command, *args, **kwargs):
+        return self.api.call((ix_command+' {} ' + len(args) * ' {}').format(command, *args))
+
+    def _command(self, command, *args, **kwargs):
+        return self._raw_command('interfaceTable',command, *args, **kwargs)
+
+    def _discover_list_command(self, command, *args, **kwargs):
+        return self._raw_command('discoveredList', command, *args, **kwargs)
+
+    def _get_discovered_address(self, command='cget -ipAddress', *args, **kwargs):
+        return self._raw_command('discoveredAddress', command, *args, **kwargs)
+
+    def _discover_neighbor_command(self, command, *args, **kwargs):
+        return self._raw_command('discoveredNeighbor', command, *args, **kwargs)
+
+    def add_if(self):
+        self._command('addInterface')
+
+    def send_request_discovered_table(self, if_name=None):
+        self._command('requestDiscoveredTable')
+
+    def send_get_discovered_list(self, if_name=None):
+        if if_name:
+            return self._command('getDiscoveredList',if_name)
+        else:
+            return self._command('getDiscoveredList')
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+    def ix_set(self, member=None, force=False):
+        self._command('set')
+
+    def init(self):
+        self.select()
+        self._command('clearAllInterfaces')
+
+    def send_RS(self, if_name=None):
+        self.select()
+        if if_name:
+            self._command('sendRouterSolicitation', if_name)
+        else:
+            self._command('sendRouterSolicitation')
+
+    def send_NS(self):
+        self.select()
+        self._command('sendNeighborSolicitation')
+
+    def send_NS_clear(self):
+        self.select()
+        self._command('sendNeighborClear')
+
+    def send_NS_refresh(self):
+        self.select()
+        self._command('sendNeighborRefresh')
+
+    def send_arp(self, if_name=None):
+        self.select()
+        if if_name:
+            self._command('sendArp', if_name)
+        else:
+            self._command('sendArp')
+
+    def send_arp_clear(self, if_name=None):
+        self.select()
+        if if_name:
+            self._command('sendArpClear', if_name)
+        else:
+            self._command('sendArpClear')
+
+    def send_arp_refresh(self, if_name=None):
+        self.select()
+        if if_name:
+            self._command('sendArpRefresh', if_name)
+        else:
+            self._command('sendArpRefresh')
+
+    def read_port_neighbors(self, if_name=None):
+        discovered_neighbors = {}
+        self.select()
+        if self._command('getFirstInterface') == '0':
+            desc = '{'+self._raw_command('interfaceEntry','cget -description')+'}'
+            if not if_name or desc.count(if_name) > 0:
+                discovered_neighbors[desc] = self._read_if_neighbors()
+            while self._command('getNextInterface') == '0':
+                desc = '{'+self._raw_command('interfaceEntry','cget -description')+'}'
+                if not if_name or desc.count(if_name) > 0:
+                    discovered_neighbors[desc] = self._read_if_neighbors()
+        return discovered_neighbors
+
+    def _read_if_neighbors(self):
+        res = []
+        def get_mac_ip():
+            mac = self._discover_neighbor_command('cget -macAddress')
+            ip = self._get_discovered_address()
+            return mac, ip
+        def read_neighbor_content():
+            mac_ip_list = []
+            if self._discover_neighbor_command('getFirstAddress') == '0':
+                mac_ip_1 = get_mac_ip()
+                mac_ip_list.append(mac_ip_1)
+                while self._discover_neighbor_command('getNextAddress') == '0':
+                    mac_ip_next = get_mac_ip()
+                    mac_ip_list.append(mac_ip_next)
+            return mac_ip_list
+
+        time.sleep(1)
+        self.send_request_discovered_table()
+        time.sleep(3)
+        self.send_get_discovered_list()
+        if self._discover_list_command('getFirstNeighbor') == '0':
+            local_res_first = read_neighbor_content()
+            res.append(local_res_first)
+            while self._discover_list_command('getNextNeighbor') == '0':
+                local_res_next = read_neighbor_content()
+                res.append(local_res_next)
+        return sum(res, [])
+
+class IxeInterfaceEntry(IxePortObj):
+    __tcl_command__ = 'interfaceEntry'
+    __tcl_members__ = [
+        TclMember('enable', type=int),
+        TclMember('description'),
+        TclMember('macAddress'),
+        TclMember('eui64Id', type=int),
+        TclMember('mtu', type=int),
+        TclMember('enableDhcp', type=int),
+        TclMember('enableVlan', type=int),
+        TclMember('vlanId'),
+        TclMember('vlanPriority'),
+        TclMember('vlanTPID'),
+        TclMember('enableDhcpV6', type=int),
+        TclMember('ipV6Gateway'),
+        TclMember('interfaceType', type=int),
+    ]
+    __tcl_commands__ = ['clearAllItems', 'addItem', 'delItem', 'getFirstItem', 'getNextItem',
+                        'getItem']
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+    def ix_set(self, member=None, force=False):
+        pass
+
+    def _command(self, command, *args, **kwargs):
+        return self.api.call(('interfaceEntry {} ' + len(args) * ' {}').format(command, *args))
+
+    def add_item(self, v6=False):
+        type = 17 if not v6 else 18
+        self._command('addItem', type)
+
+    def clear_all_items(self):
+        self._command('clearAllItems', 17)
+        self._command('clearAllItems', 18)
+
+
+class IxeInterfaceIpV4(IxePortObj):
+    __tcl_command__ = 'interfaceIpV4'
+    __tcl_members__ = [
+        TclMember('ipAddress'),
+        TclMember('gatewayIpAddress'),
+        TclMember('maskWidth', type=int)
+    ]
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+    def ix_set(self, member=None, force=False):
+        pass
+
+
+class IxeInterfaceIpV6(IxePortObj):
+    __tcl_command__ = 'interfaceIpV6'
+    __tcl_members__ = [
+        TclMember('ipAddress'),
+        TclMember('maskWidth', type=int)
+    ]
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+    def ix_set(self, member=None, force=False):
+        pass
+
+class IxeProtocolServer(IxePortObj):
+    __tcl_command__ = 'protocolServer'
+    __tcl_members__ = [
+        TclMember('enableArpResponse', type=int),
+        TclMember('enablePingResponse', type=int)
+        ]
 
 
 class IxeCapture(IxePortObj):
@@ -695,3 +962,4 @@ class IxePacketGroupPort(IxePortRxObj):
         TclMember('signatureOffset', type=int),
         TclMember('timeBinDuration', type=int),
     ]
+

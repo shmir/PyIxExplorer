@@ -181,7 +181,10 @@ class IxeStream(IxeObject):
         return self._get_object('_mpsl_label', IxeMPLS_Label)
     mpls_label = property(get_mpls_label)
 
-#
+    def get_pause_pontrol(self):
+        return self._get_object('_pause_pontrol',IxePauseControl)
+    pauseControl = property(get_pause_pontrol)
+
 # Stream object classes.
 #
 
@@ -535,5 +538,9 @@ class IxeAutoDetectInstrumentationStream(IxeStreamTxObj):
     ]
 
 
-
-
+class IxePauseControl(IxeStreamObj):
+    __tcl_command__ = 'pauseControl'
+    __tcl_members__ = [
+        TclMember('da', type=MacStr),
+        TclMember('pauseTime', type=int)
+        ]
