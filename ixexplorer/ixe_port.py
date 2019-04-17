@@ -1,4 +1,5 @@
 
+from os import path
 import re
 from enum import Enum
 from pathlib import Path
@@ -75,7 +76,7 @@ class StreamWarningsError(TgnError):
     pass
 
 
-class IxePort(IxeObject):
+class IxePort(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'port'
     __tcl_members__ = [
         TclMember('advertise2P5FullDuplex', type=int, flags=FLAG_IGERR),
@@ -132,10 +133,7 @@ class IxePort(IxeObject):
         TclMember('typeName', flags=FLAG_RDONLY),
         TclMember('usePacketFlowImageFile', type=bool),
         TclMember('enableRsFec', type=bool),
-        TclMember('ieeeL1Defaults', type=int, flags=FLAG_IGERR),
-        TclMember('enableFramePreemption', type=bool, flags=FLAG_IGERR),
-        TclMember('enableSmdVRExchange', type=bool, flags=FLAG_IGERR),
-
+        TclMember('ieeeL1Defaults', type=int, flags=FLAG_IGERR)
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
@@ -187,15 +185,6 @@ class IxePort(IxeObject):
     def release(self):
         """ Release port. """
         self.api.call_rc('ixPortClearOwnership {}'.format(self.uri))
-
-    def write_config(self):
-        self.session.write_config(self)
-        stream_warnings = self.streamRegion.generateWarningList()
-        warnings_list = (self.api.call('join ' + ' {' + stream_warnings + '} ' + ' LiStSeP').split('LiStSeP')
-                         if self.streamRegion.generateWarningList() else [])
-        for warning in warnings_list:
-            if warning:
-                raise StreamWarningsError(warning)
 
     def write(self):
         """ Write configuration to chassis.
@@ -315,23 +304,12 @@ class IxePort(IxeObject):
         """
 
         frames = []
-        tmStamps = []
         for frame_num in frame_nums:
             if self.captureBuffer.getframe(frame_num) == '0':
                 frames.append(self.captureBuffer.frame)
-                secs =int(self.captureBuffer.timestamp)/1e9
-                dt = datetime.fromtimestamp(secs)
-                x = dt.strftime('%H:%M:%S.%f')
-                tmStamps.append(x)
             else:
                 frames.append(None)
-        return frames,tmStamps
-
-    #IxRouter
-
-    def init_interface_table(self):
-        self.interfaceTable.ix_command('select')
-        self.interfaceTable._command('clearAllInterfaces')
+        return frames
 
     #
     # Statistics.
@@ -357,15 +335,6 @@ class IxePort(IxeObject):
 
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(*self.get_objects_by_type('stream')).read_stats(*stats)
-
-    def reset_sequence_index(self):
-        self.api.call_rc('ixResetPortSequenceIndex {}'.format(self.uri))
-
-
-
-
-
-
 
     #
     # Others...
@@ -777,8 +746,6 @@ class IxeCapture(IxePortObj):
         TclMember('sliceSize'),
         TclMember('triggerPosition')
     ]
-
-
 
 
 class IxeCaptureBuffer(IxeObject, metaclass=ixe_obj_meta):

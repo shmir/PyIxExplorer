@@ -35,7 +35,7 @@ def init_ixe(logger, host, port=4555, rsa_id=None):
 class IxeApp(TgnApp):
 
     def __init__(self, logger, api_wrapper):
-        super(self.__class__, self).__init__(logger, api_wrapper)
+        super().__init__(logger, api_wrapper)
         trafficgenerator.tgn_tcl.tcl_interp_g = self.api
         self.session = IxeSession(self.logger, self.api)
         self.chassis_chain = {}

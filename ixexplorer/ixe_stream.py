@@ -76,7 +76,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
     next_group_id = 0
 
     def __init__(self, parent, uri):
-        super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+        super().__init__(parent=parent, uri=uri.replace('/', ' '))
         self.rx_ports = []
 
     def create(self, name):
@@ -172,7 +172,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
     def get_stacked_vlan(self):
         return self._get_object('_stackedVlan', IxeStackedVlan)
     stackedVlan = property(get_stacked_vlan)
-
+    
     def get_gre(self):
         return self._get_object('_gre', IxeGre)
     gre = property(get_gre)
@@ -185,7 +185,10 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         return self._get_object('_mpsl_label', IxeMPLS_Label)
     mpls_label = property(get_mpls_label)
 
-#
+    def get_pause_pontrol(self):
+        return self._get_object('_pause_pontrol',IxePauseControl)
+    pauseControl = property(get_pause_pontrol)
+
 # Stream object classes.
 #
 
@@ -209,9 +212,6 @@ class IxeProtocol(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('enable802dot1qTag', type=int),
         TclMember('name'),
         TclMember('enableMPLS', type=bool),
-        TclMember('enableProtocolPad', type=bool),
-        TclMember('enableMacSec', type=bool),
-
     ]
 
     def ix_get(self, member=None, force=False):
@@ -344,15 +344,6 @@ class IxeUdp(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('sourcePort'),
     ]
 
-class IxeICMP(IxeStreamObj):
-    __tcl_command__ = 'icmp'
-    __tcl_members__ = [
-        TclMember('type'),
-        TclMember('code'),
-        TclMember('id'),
-        TclMember('sequence'),
-    ]
-
 class IxeGre(IxeStreamObj):
     __tcl_command__ = 'gre'
     __tcl_members__ = [
@@ -377,12 +368,6 @@ class IxeProtocolOffset(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_members__ = [
         TclMember('offset'),
         TclMember('userDefinedTag'),
-    ]
-
-class IxeProtocolPad(IxeStreamObj):
-    __tcl_command__ = 'protocolPad'
-    __tcl_members__ = [
-        TclMember('dataBytes'),
     ]
 
 
