@@ -75,7 +75,7 @@ class TclClient:
                 break
             time.sleep(0.01)
         if not reply:
-            raise TimeoutError('no response after 16 seconds')
+            raise Exception('no response after 16 seconds')
         self.logger.debug('received %s', reply.rstrip())
         assert reply[-2:] == '\r\n'
 

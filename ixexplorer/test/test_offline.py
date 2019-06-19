@@ -150,10 +150,10 @@ class TestIxeOffline(TestIxeBase):
 
         chassis = list(self.ixia.chassis_chain.values())[0]
         chassis.add_card(113)
-        print chassis.cards[113].ports
-        print chassis.cards[113].resource_groups
-        print chassis.cards[114].ports
-        print chassis.cards[114].resource_groups
+        print(chassis.cards[113].ports)
+        print(chassis.cards[113].resource_groups)
+        print(chassis.cards[114].ports)
+        print(chassis.cards[114].resource_groups)
 
     def test_stream_stats_objects(self):
 

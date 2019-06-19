@@ -19,7 +19,6 @@ class TestIxeBase(TestTgnBase):
     def setup(self):
 
         super(TestIxeBase, self).setup()
-        self._get_config()
 
         self.ixia = init_ixe(self.logger, host=self.server_ip, port=self.server_port,
                              rsa_id=self.config.get('IXE', 'rsa_id'))
@@ -36,19 +35,6 @@ class TestIxeBase(TestTgnBase):
 
     def test_hello_world(self):
         pass
-
-    def _get_config(self):
-
-        self.chassis = pytest.config.getoption('--chassis')  # @UndefinedVariable
-        self.port1 = '{}/{}'.format(self.chassis, pytest.config.getoption('--port1'))  # @UndefinedVariable
-        self.port2 = '{}/{}'.format(self.chassis, pytest.config.getoption('--port2'))  # @UndefinedVariable
-        server_ip = pytest.config.getoption('--server')  # @UndefinedVariable
-        if server_ip:
-            self.server_ip = server_ip.split(':')[0]
-            self.server_port = int(server_ip.split(':')[1]) if len(server_ip.split(':')) == 2 else 4555
-        else:
-            server_ip = self.chassis
-            self.server_port = 4555
 
     def _reserve_ports(self, *ports):
         self.ports = self.ixia.session.reserve_ports(ports, force=True)

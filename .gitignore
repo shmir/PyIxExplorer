@@ -17,3 +17,5 @@ dist/
 
 .idea
 .pytest_cache
+
+venv*
