@@ -24,8 +24,15 @@ import time
 import select
 
 from trafficgenerator.tgn_utils import TgnError, new_log_file
-from concurrent.futures._base import TimeoutError
 
+
+class Error(Exception):
+    """Base class for all future-related exceptions."""
+    pass
+
+class TimeoutError(Error):
+    """The operation exceeded the given deadline."""
+    pass
 
 class TclError(Exception):
 
@@ -239,7 +246,6 @@ class sshWraper(object):
             reply = fullreply.rstrip(sshWraper.default_eofOutput)
             reply = reply[len(cmd):]
         return reply
-
 
 
 
