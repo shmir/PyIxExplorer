@@ -23,7 +23,6 @@ import paramiko
 import time
 
 from trafficgenerator.tgn_utils import TgnError, new_log_file
-from concurrent.futures._base import TimeoutError
 
 
 class TclError(Exception):
