@@ -1,4 +1,3 @@
-pytest
 future
 paramiko
 pytrafficgen==1.5.1
