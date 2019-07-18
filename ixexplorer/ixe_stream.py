@@ -46,7 +46,7 @@ class IxeStream(IxeObject):
         TclMember('name'),
         TclMember('numBursts', type=int),
         TclMember('numDA', type=int),
-        TclMember('numFrames', type=float),
+        TclMember('numFrames'),
         TclMember('numSA', type=int),
         TclMember('pattern'),
         TclMember('patternType'),
@@ -65,6 +65,7 @@ class IxeStream(IxeObject):
         TclMember('sourceInterfaceDescription'),
         TclMember('startTxDelayUnit'),
         TclMember('startTxDelay'),
+        TclMember('packetView',flags=FLAG_RDONLY),
     ]
 
     __tcl_commands__ = ['export', 'write']
