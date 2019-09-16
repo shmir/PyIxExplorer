@@ -184,6 +184,15 @@ class IxePort(IxeObject):
         """ Release port. """
         self.api.call_rc('ixPortClearOwnership {}'.format(self.uri))
 
+    def write_config(self):
+        self.session.write_config(self)
+        stream_warnings = self.streamRegion.generateWarningList()
+        warnings_list = (self.api.call('join ' + ' {' + stream_warnings + '} ' + ' LiStSeP').split('LiStSeP')
+                         if self.streamRegion.generateWarningList() else [])
+        for warning in warnings_list:
+            if warning:
+                raise StreamWarningsError(warning)
+
     def write(self):
         """ Write configuration to chassis.
 

@@ -302,7 +302,7 @@ class IxeSession(IxeObject):
             next_offset += 4
         if data_integrity:
             di_signatureOffset = next_offset
-
+        stream_warnning_message = ""
         for port in rx_ports:
             modes = []
             modes.append(IxeReceiveMode.widePacketGroup)
@@ -319,9 +319,10 @@ class IxeSession(IxeObject):
             else:
                 port.dataIntegrity.enableTimeStamp = False
             port.set_receive_modes(*modes)
-
-            port.write()
-        stream_warnning_message = ""
+            try:
+                port.write()
+            except StreamWarningsError as e:
+                stream_warnning_message += "\n{}".format(str(e))
         group_id = 0
         for port, streams in tx_ports.items():
             for stream in streams:
@@ -379,6 +380,14 @@ class IxeSession(IxeObject):
                 stream.autoDetectInstrumentation.enableTxAutomaticInstrumentation = True
                 stream.autoDetectInstrumentation.enablePRBS = True
             port.write()
+
+    def write_config(self, *ports):
+        """ write config on ports.
+        :param ports: list of ports to write config, if empty write on all ports.
+        """
+        port_list = self.set_ports_list(*ports)
+        self.api.call_rc('ixWriteConfigToHardware {}'.format(port_list))
+        time.sleep(0.2)
 
     #
     # Properties.
