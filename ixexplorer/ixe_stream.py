@@ -186,6 +186,11 @@ class IxeStream(IxeObject):
         return self._get_object('_pause_pontrol',IxePauseControl)
     pauseControl = property(get_pause_pontrol)
 
+    def get_arp(self):
+        return self._get_object('_arp', IxeArp)
+    arp = property(get_arp)
+
+
 # Stream object classes.
 #
 
@@ -305,6 +310,24 @@ class IxeIpv6(IxeStreamObj):
     ]
     __tcl_commands__ = ['addExtensionHeader', 'clearAllExtensionHeaders', 'config', 'decode', 'delExtensionHeader',
                         'getFirstExtensionHeader', 'getNextExtensionHeader', 'setDefault']
+
+class IxeArp(IxeStreamObj):
+    __tcl_command__ = 'arp'
+    __tcl_members__ = [
+        TclMember('sourceProtocolAddr'),
+        TclMember('destProtocolAddr'),
+        TclMember('operation', type=int),
+        TclMember('sourceHardwareAddr',type=MacStr),
+        TclMember('destHardwareAddr',type=MacStr),
+        TclMember('sourceProtocolAddrMode', type=int),
+        TclMember('sourceProtocolAddrRepeatCount'),
+        TclMember('destProtocolAddrMode', type=int),
+        TclMember('destProtocolAddrRepeatCount', type=int),
+        TclMember('sourceHardwareAddrMode', type=int),
+        TclMember('sourceHardwareAddrRepeatCount'),
+        TclMember('destHardwareAddrMode', type=int),
+        TclMember('destHardwareAddrRepeatCount', type=int),
+    ]
 
 
 class IxeTcp(IxeStreamObj):
