@@ -87,6 +87,11 @@ class IxeStat(IxeObject):
         TclMember('enableValidStats'),
         TclMember('fcoeRxSharedStatType1'),
         TclMember('fcoeRxSharedStatType2'),
+
+        TclMember('fecMaxSymbolErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('fecUncorrectableCodewords', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('fecTranscodingUncorrectableErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+
     ]
     __tcl_commands__ = ['write']
     __get_command__ = None
