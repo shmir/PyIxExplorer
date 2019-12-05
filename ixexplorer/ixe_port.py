@@ -552,7 +552,7 @@ class IxeInterfaceTable(IxePortObj):
                         'getFirstInterface', 'getNextInterface', 'sendRouterSolicitation', 'clearDiscoveredNeighborTable',
                         'sendNeighborClear','sendNeighborRefresh','sendNeighborSolicitation'
                         'sendArp', 'sendArpClear', 'sendArpRefresh','setInterface',
-                        'requestDiscoveredTable','getDiscoveredList']
+                        'requestDiscoveredTable','getDiscoveredList','ping']
 
     def select(self):
         self.ix_command('select')
@@ -574,6 +574,11 @@ class IxeInterfaceTable(IxePortObj):
 
     def add_if(self):
         self._command('addInterface')
+
+    def send_ping(self,if_name,dest_ip):
+        params = [if_name,'addressTypeIpV4',dest_ip]
+        self.select()
+        self._command('ping', *params)
 
     def send_request_discovered_table(self, if_name=None):
         self._command('requestDiscoveredTable')

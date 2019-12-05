@@ -195,6 +195,10 @@ class IxeStream(IxeObject):
         return self._get_object('_udp', IxeUdp)
     udp = property(get_udp)
 
+    def get_icmp(self):
+        return self._get_object('_udp', IxeICMP)
+    icmp = property(get_icmp)
+
     def get_protocol(self):
         return self._get_object('_protocol', IxeProtocol)
     protocol = property(get_protocol)
@@ -639,6 +643,15 @@ class IxeUdp(IxeStreamObj):
         TclMember('length'),
         TclMember('lengthOverride'),
         TclMember('sourcePort'),
+    ]
+
+class IxeICMP(IxeStreamObj):
+    __tcl_command__ = 'icmp'
+    __tcl_members__ = [
+        TclMember('type'),
+        TclMember('code'),
+        TclMember('id'),
+        TclMember('sequence'),
     ]
 
 class IxeGre(IxeStreamObj):
