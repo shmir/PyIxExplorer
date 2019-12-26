@@ -3,6 +3,7 @@ paramiko
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 pytrafficgen>3.0.3,<=3.0.4
 =======
@@ -14,3 +15,6 @@ pytrafficgen==1.5.4
 =======
 pytrafficgen==1.5.5
 >>>>>>> updated pytrafficgen
+=======
+pytrafficgen==1.6.0
+>>>>>>> Fixed set index property to str valure (by Yoram)
