@@ -254,6 +254,10 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         return self._get_object('_arp', IxeArp)
     arp = property(get_arp)
 
+    def get_protocol_pad(self):
+        return self._get_object('_protocolPad', IxeProtocolPad)
+    protocolPad = property(get_protocol_pad)
+
 
 # Stream object classes.
 #
@@ -278,6 +282,8 @@ class IxeProtocol(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('enable802dot1qTag', type=int),
         TclMember('name'),
         TclMember('enableMPLS', type=bool),
+        TclMember('enableProtocolPad', type=bool),
+
     ]
 
     def ix_get(self, member=None, force=False):
@@ -669,6 +675,12 @@ class IxeProtocolOffset(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_members__ = [
         TclMember('offset'),
         TclMember('userDefinedTag'),
+    ]
+
+class IxeProtocolPad(IxeStreamObj):
+    __tcl_command__ = 'protocolPad'
+    __tcl_members__ = [
+        TclMember('dataBytes'),
     ]
 
 
