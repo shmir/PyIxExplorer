@@ -22,7 +22,7 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         if self.parent:
             self.session = self.parent.session
         if self.uri and (self.uri.split()[-1]).isdigit():
-            self.index = int(self.uri.split()[-1])
+            self._data['index'] = self.uri.split()[-1]
         self.__class__.current_object = None
 
     def obj_uri(self):
