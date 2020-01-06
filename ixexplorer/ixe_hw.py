@@ -87,7 +87,7 @@ class IxeCard(IxeObject):
         :return: dictionary {index: object} of all ports.
         """
 
-        return {self._data['index']: p for p in self.get_objects_by_type('port')}
+        return {p.index: p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
     def get_resource_groups(self):
@@ -95,7 +95,7 @@ class IxeCard(IxeObject):
         :return: dictionary {resource group id: object} of all resource groups.
         """
 
-        resource_groups = {self._data['index']: r for r in self.get_objects_by_type('resourceGroupEx')}
+        resource_groups = {r.index: r for r in self.get_objects_by_type('resourceGroupEx')}
         return OrderedDict(sorted(resource_groups.items()))
     resource_groups = property(get_resource_groups)
 
@@ -223,7 +223,7 @@ class IxeChassis(IxeObject):
         :return: dictionary {name: object} of all cards.
         """
 
-        return {self._data['index']: c for c in self.get_objects_by_type('card')}
+        return {c.index: c for c in self.get_objects_by_type('card')}
     cards = property(get_cards)
 
     def Refresh(self):
@@ -248,7 +248,7 @@ class IxeCardObj(IxeObjectObj):
         :return: dictionary {index: object} of all ports.
         """
 
-        return {self._data['index']: p for p in self.get_objects_by_type('port')}
+        return {p.index: p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
 
