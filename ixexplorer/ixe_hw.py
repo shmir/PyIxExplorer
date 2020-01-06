@@ -251,6 +251,7 @@ class IxeCardObj(IxeObjectObj, metaclass=ixe_obj_meta):
         return {int(p.index): p for p in self.get_objects_by_type('port')}
     ports = property(get_ports)
 
+
 class splitSpeed(Enum):
     One_400G = '400000.1'
     Two_200G = '200000.2'
