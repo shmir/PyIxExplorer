@@ -1,4 +1,4 @@
-
+import time
 from os import path
 import re
 from enum import Enum
@@ -310,6 +310,12 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
             else:
                 frames.append(None)
         return frames
+
+    #IxRouter
+
+    def init_interface_table(self):
+        self.interfaceTable.ix_command('select')
+        self.interfaceTable._command('clearAllInterfaces')
 
     #
     # Statistics.
@@ -903,7 +909,7 @@ class IxeAutoDetectInstrumentationPort(IxePortRxObj, metaclass=ixe_obj_meta):
     ]
 
 
-class IxeDataIntegrityPort(IxePortRxObj, metaclass=ixe_obj_meta):
+class IxeDataIntegrityPort(IxePortRxObj):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
         TclMember('enableTimeStamp', type=bool),
@@ -956,3 +962,4 @@ class IxePacketGroupPort(IxePortRxObj, metaclass=ixe_obj_meta):
         TclMember('signatureOffset', type=int),
         TclMember('timeBinDuration', type=int),
     ]
+
