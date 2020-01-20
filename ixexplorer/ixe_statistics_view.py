@@ -278,6 +278,7 @@ class IxeStreamsStats(IxeStats):
                     if not stream.rx_ports or rx_port in stream.rx_ports:
                         rx_port.api.call_rc('packetGroupStats get {} 0 65536'.format(rx_port.uri))
                         pg_stats = IxePgStats(rx_port, stream_stat_pgid)
+                        time.sleep(0.05)
                         stream_stats_pg[str(rx_port)] = pg_stats.read_stats(*stats)
                 stream_stats['rx'] = stream_stats_pg
                 self.statistics[str(stream)] = stream_stats
