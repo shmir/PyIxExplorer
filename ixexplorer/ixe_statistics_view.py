@@ -268,6 +268,7 @@ class IxeStreamsStats(IxeStats):
                 stream_stats = OrderedDict()
                 tx_port.api.call_rc('streamTransmitStats get {} 1 4096'.format(tx_port.uri))
                 stream_tx_stats = IxeStreamTxStats(tx_port, stream.index)
+                time.sleep(0.15)
                 stream_stats_tx = {c: v for c, v in stream_tx_stats.get_attributes(FLAG_RDONLY).items()}
                 stream_stats['tx'] = stream_stats_tx
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId

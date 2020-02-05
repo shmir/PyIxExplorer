@@ -349,6 +349,7 @@ class IxeIp(IxeStreamObj):
         TclMember('reliability', type=int),
         TclMember('reserved', type=int),
         TclMember('sourceCommand', type=int),
+        TclMember('sourceClass', type=int),
         TclMember('sourceIpAddr'),
         TclMember('sourceIpAddrMode'),
         TclMember('sourceIpAddrRepeatCount', type=int),
