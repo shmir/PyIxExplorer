@@ -1,8 +1,8 @@
 
 import pytest
 
-server = '10.5.222.35'
-chassis = '10.5.222.35'
+server = 'localhost'
+chassis = '192.168.65.74'
 port1 = '1/1'
 port2 = '1/2'
 

@@ -33,7 +33,7 @@ setup(
     author_email='yoram@ignissoft.com',
     description='Python OO API package to automate Ixia IxExplorer traffic generator',
     long_description=long_description,
-    packages=['ixexplorer', 'ixexplorer.test', 'ixexplorer.api'],
+    packages=['ixexplorer', 'ixexplorer.tests', 'ixexplorer.api'],
     include_package_data=True,
     platforms='any',
     tests_require=['pytest'],

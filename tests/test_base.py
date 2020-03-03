@@ -5,9 +5,8 @@ Base class for all IxExplorer package tests.
 """
 
 from os import path
-import pytest
 
-from trafficgenerator.test.test_tgn import TestTgnBase
+from trafficgenerator.test_tgn import TestTgnBase
 
 from ixexplorer.ixe_app import init_ixe
 
@@ -17,7 +16,6 @@ class TestIxeBase(TestTgnBase):
     TestTgnBase.config_file = path.join(path.dirname(__file__), 'IxExplorer.ini')
 
     def setup(self):
-
         super(TestIxeBase, self).setup()
 
         self.ixia = init_ixe(self.logger, host=self.server_ip, port=self.server_port,

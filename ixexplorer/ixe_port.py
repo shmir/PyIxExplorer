@@ -450,7 +450,7 @@ class IxePort(IxeObject):
         :return: dictionary {stream id: object} of all streams.
         """
 
-        return {s.index: s for s in self.get_objects_by_type('stream')}
+        return {int(s.index): s for s in self.get_objects_by_type('stream')}
     streams = property(get_streams)
 
     #
