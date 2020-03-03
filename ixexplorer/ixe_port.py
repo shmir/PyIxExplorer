@@ -990,4 +990,3 @@ class IxePacketGroupPort(IxePortRxObj):
         TclMember('signatureOffset', type=int),
         TclMember('timeBinDuration', type=int),
     ]
-

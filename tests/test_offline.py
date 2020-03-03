@@ -13,7 +13,7 @@ from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.tclproto import TclError
 from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_port import IxeReceiveMode, StreamWarningsError
-from ixexplorer.test.test_base import TestIxeBase
+from test_base import TestIxeBase
 
 
 class TestIxeOffline(TestIxeBase):

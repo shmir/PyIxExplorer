@@ -12,7 +12,7 @@ import time
 import json
 
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
-from ixexplorer.test.test_base import TestIxeBase
+from test_base import TestIxeBase
 from ixexplorer.ixe_port import StreamWarningsError
 
 
@@ -34,6 +34,7 @@ class TestIxeOnline(TestIxeBase):
         self.ports[self.port1].start_transmit()
         time.sleep(8)
         self.ports[self.port1].stop_transmit()
+        time.sleep(1)
         port1_stats = self.ports[self.port1].read_stats('framesSent', 'framesReceived')
         print(json.dumps(port1_stats, indent=1))
         assert(port1_stats['framesSent'] > 0)
