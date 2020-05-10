@@ -284,6 +284,7 @@ class IxeProtocol(IxeStreamObj):
         TclMember('name'),
         TclMember('enableMPLS', type=bool),
         TclMember('enableProtocolPad', type=bool),
+        TclMember('enableMacSec', type=bool),
 
     ]
 
@@ -870,3 +871,13 @@ class IxePauseControl(IxeStreamObj):
         TclMember('da', type=MacStr),
         TclMember('pauseTime', type=int)
         ]
+
+
+class IxeMPLS(IxeStreamObj):
+    __tcl_command__ = 'mpls'
+    __tcl_members__ = [
+        TclMember('type'),
+        TclMember('forceBottomOfStack', type=bool),
+        TclMember('enableAutomaticallySetLabel',type=bool)
+    ]
+    __tcl_commands__ = ['setDefault']
