@@ -283,6 +283,7 @@ class IxeProtocol(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('name'),
         TclMember('enableMPLS', type=bool),
         TclMember('enableProtocolPad', type=bool),
+        TclMember('enableMacSec', type=bool),
 
     ]
 
