@@ -341,6 +341,16 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
 
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(*self.get_objects_by_type('stream')).read_stats(*stats)
+        return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(*stats)
+
+    def reset_sequence_index(self):
+        self.api.call_rc('ixResetPortSequenceIndex {}'.format(self.uri))
+
+
+
+
+
+
 
     #
     # Others...
