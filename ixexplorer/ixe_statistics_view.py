@@ -115,10 +115,66 @@ class IxeStat(IxeObject):
             stats_values[stat] = getattr(self, stat)
         return stats_values
 
+#frame preemtion
+class IxeFpStat(IxeObject):
+    __tcl_command__ = 'stat'
+    __tcl_members__ = [
+        TclMember('rxFpVerifyProtocolErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdRNotTransmittedCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdVNotTransmittedCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpUnexpectedSmdRCoun', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdSStartProtocolError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdSFrameCountErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdCFrameCountErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpFragCountError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpInvalidCrcTypeErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpExpressCrcTypeErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdSTerminationErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdCTerminationErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdCCrcCalcErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpReassemblyGoodCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpVerifymPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpRespondmPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS0mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS1mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS2mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS3mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC0mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC1mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC2mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC3mPacketCount', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpVerifymPacketCrcErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpRespondmPacketCrcErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS0mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS1mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS2mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdS3mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC0mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC1mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC2mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('rxFpSmdC3mPacketCrcError', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+    ]
+
+    __get_command__ = None
+
+    def __init__(self, parent):
+        super(IxeFpStat, self).__init__(uri=parent.uri, parent=parent)
+
+    def read_stats(self, *stats):
+        if not stats:
+            stats = [m.attrname for m in self.__tcl_members__ if m.flags & FLAG_RDONLY]
+        stats_values = OrderedDict(zip(stats, [-1] * len(stats)))
+        for stat in stats:
+            stats_values[stat] = getattr(self, stat)
+        return stats_values
+
+
 
 class IxeStatTotal(IxeStat):
     __get_command__ = 'get statAllStats'
 
+class IxePreemptionStatTotal(IxeFpStat):
+    __get_command__ = 'get statAllStats'
 
 class IxeStatRate(IxeStat):
     __get_command__ = 'getRate statAllStats'
@@ -212,6 +268,28 @@ class IxePortsStats(IxeStats):
             port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY, *stats)
             port_stats.update({c + '_rate': v for c, v in
                                IxeStatRate(port).get_attributes(FLAG_RDONLY, *stats).items()})
+            self.statistics[str(port)] = port_stats
+        return self.statistics
+
+class IxePortsPreemptionStats(IxeFpStat):
+
+    def __init__(self, session, *ports):
+        super(self.__class__, self).__init__(session)
+        self.ports = ports if ports else self.session.ports.values()
+
+    def set_attributes(self, **attributes):
+        for port in self.ports:
+            IxePreemptionStatTotal(port).set_attributes(**attributes)
+
+    def read_stats(self, *stats):
+        """ Read port statistics from chassis.
+
+        :param stats: list of requested statistics to read, if empty - read all statistics.
+        """
+
+        self.statistics = OrderedDict()
+        for port in self.ports:
+            port_stats = IxePreemptionStatTotal(port).get_attributes(FLAG_RDONLY, *stats)
             self.statistics[str(port)] = port_stats
         return self.statistics
 

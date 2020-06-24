@@ -50,7 +50,7 @@ class TclClient:
         self.rsa_id = rsa_id
         self.fd = None
         self.buffersize = 2 ** 12
-
+        self.tcl_ver = None
         self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
     def socket_call(self, string, *args):
@@ -158,9 +158,10 @@ class TclClient:
         if self.port == 8022:
             self.windows_server = False
             key = paramiko.RSAKey.from_private_key_file(self.rsa_id)
-            self.fd = paramiko.SSHClient()
-            self.fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
+            fd = paramiko.SSHClient()
+            fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
+            self.fd = fd
             self.ssh_shell = sshWraper(self.fd)
             #self.stdin, self.stdout, _ = self.fd.exec_command('')
             self.call('source /opt/ixia/ixos/current/IxiaWish.tcl')
@@ -171,7 +172,7 @@ class TclClient:
             fd.connect((self.host, self.port))
             self.fd = fd
 
-        self.call('package req IxTclHal')
+        self.tcl_ver = self.call('package req IxTclHal')
         self.call('enableEvents true')
 
     def close(self):

@@ -1,5 +1,5 @@
 
-from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY
+from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY,FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_statistics_view import IxeStreamsStats
 
@@ -66,6 +66,9 @@ class IxeStream(IxeObject):
         TclMember('startTxDelayUnit'),
         TclMember('startTxDelay'),
         TclMember('packetView',flags=FLAG_RDONLY),
+        TclMember('fpMPacketType', type=int, flags=FLAG_IGERR),
+        TclMember('fpFragCount', type=int, flags=FLAG_IGERR),
+        TclMember('fpCrcType', type=int, flags=FLAG_IGERR),
     ]
 
     __tcl_commands__ = ['export', 'write']
