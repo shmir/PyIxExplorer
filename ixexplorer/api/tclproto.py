@@ -49,8 +49,9 @@ class TclClient:
         self.port = port
         self.rsa_id = rsa_id
         self.fd = None
-        self.buffer_size = 2 ** 12
         self.tcl_ver = None
+        self.buffer_size = 2 ** 12
+
         self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
     def socket_call(self, string, *args):
@@ -187,6 +188,7 @@ class sshWraper(object):
     _command_timeout = 10
     shell = None
     default_buffer_size = 4096
+    PY3K = sys.version_info >= (3, 0)
 
     def __init__(self,channel):
         self._shell = channel.invoke_shell()
@@ -199,7 +201,8 @@ class sshWraper(object):
         ret_str = ""
         if self._shell:
             while self._shell.recv_ready():
-                ret_str += self._shell.recv(sshWraper.default_buffer_size)
+                res = self._shell.recv(sshWraper.default_buffer_size)
+                ret_str += str(res)
         return ret_str
 
     @property
@@ -212,7 +215,7 @@ class sshWraper(object):
 
     def read_until(self, eoOut= None):
         timeout = self.command_timeout
-        prompt = eoOut if eoOut else sshWraper.default_eofOutput
+        prompt = eoOut.encode() if eoOut else sshWraper.default_eofOutput.encode()
         line = bytearray()
         if self._shell:
             lenterm = len(prompt)
@@ -232,7 +235,9 @@ class sshWraper(object):
                     if elapsed >= timeout:
                         break
                     args_tuple = reply_tuple + (timeout - elapsed,)
-        return bytes(line)
+
+        res = bytes(line).decode() if sshWraper.PY3K else bytes(line)
+        return res
 
     def send_receive(self,cmd):
         reply = ''
@@ -245,7 +250,6 @@ class sshWraper(object):
             reply = fullreply.rstrip(sshWraper.default_eofOutput)
             reply = reply[len(cmd):]
         return reply
-
 
 
 

@@ -1,5 +1,6 @@
 
 from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY, ixe_obj_meta
+from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY,FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_statistics_view import IxeStreamsStats
 
