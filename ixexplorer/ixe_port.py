@@ -2,6 +2,7 @@ import time
 from os import path
 import re
 from enum import Enum
+from datetime import datetime
 
 from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr, FLAG_IGERR
@@ -317,12 +318,17 @@ class IxePort(IxeObject):
         """
 
         frames = []
+        tmStamps = []
         for frame_num in frame_nums:
             if self.captureBuffer.getframe(frame_num) == '0':
                 frames.append(self.captureBuffer.frame)
+                secs =int(self.captureBuffer.timestamp)/1e9
+                dt = datetime.fromtimestamp(secs)
+                x = dt.strftime('%H:%M:%S.%f')
+                tmStamps.append(x)
             else:
                 frames.append(None)
-        return frames
+        return frames,tmStamps
 
     #IxRouter
 
@@ -780,6 +786,7 @@ class IxeCaptureBuffer(IxeObject):
     __tcl_command__ = 'captureBuffer'
     __tcl_members__ = [
         TclMember('frame', flags=FLAG_RDONLY),
+        TclMember('timestamp', flags=FLAG_RDONLY),
     ]
     __tcl_commands__ = ['export', 'getframe']
 
