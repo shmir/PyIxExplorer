@@ -307,12 +307,17 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         """
 
         frames = []
+        tmStamps = []
         for frame_num in frame_nums:
             if self.captureBuffer.getframe(frame_num) == '0':
                 frames.append(self.captureBuffer.frame)
+                secs =int(self.captureBuffer.timestamp)/1e9
+                dt = datetime.fromtimestamp(secs)
+                x = dt.strftime('%H:%M:%S.%f')
+                tmStamps.append(x)
             else:
                 frames.append(None)
-        return frames
+        return frames,tmStamps
 
     #IxRouter
 
