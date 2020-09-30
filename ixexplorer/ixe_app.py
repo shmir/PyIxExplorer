@@ -1,6 +1,9 @@
 
+from __future__ import annotations
+import logging
 import time
 from collections import OrderedDict
+from typing import Optional
 
 import trafficgenerator.tgn_tcl
 from trafficgenerator.tgn_app import TgnApp
@@ -13,24 +16,24 @@ from ixexplorer.ixe_hw import IxeChassis
 from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
+from ixexplorer.api.ixapi import ixe_obj_meta
 
-def init_ixe(logger, host, port=4555, rsa_id=None):
+
+def init_ixe(logger: logging.Logger, host: str, port: Optional[int] = 4555, rsa_id: Optional[str] = None) -> IxeApp:
     """ Connect to Tcl Server and Create IxExplorer object.
 
     :param logger: python logger object
     :param host: host (IxTclServer) IP address
     :param port: Tcl Server port
     :param rsa_id: full path to RSA ID file for Linux based IxVM
-    :return: IXE object
     """
-
     return IxeApp(logger, IxTclHalApi(TclClient(logger, host, port, rsa_id)))
 
 
 class IxeApp(TgnApp):
 
     def __init__(self, logger, api_wrapper):
-        super(self.__class__, self).__init__(logger, api_wrapper)
+        super().__init__(logger, api_wrapper)
         trafficgenerator.tgn_tcl.tcl_interp_g = self.api
         self.session = IxeSession(self.logger, self.api)
         self.chassis_chain = {}
@@ -44,7 +47,6 @@ class IxeApp(TgnApp):
 
         :param user: if user - login session.
         """
-
         self.api._tcl_handler.connect()
         if user:
             self.session.login(user)
@@ -55,14 +57,14 @@ class IxeApp(TgnApp):
         self.session.logout()
         self.api._tcl_handler.close()
 
-    def add(self, chassis):
-        """ add chassis.
+    def add(self, chassis: str) -> None:
+        """ Add chassis.
 
         :param chassis: chassis IP address.
         """
-
-        self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
-        self.chassis_chain[chassis].connect()
+        if chassis not in self.chassis_chain:
+            self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
+            self.chassis_chain[chassis].connect()
 
     def discover(self):
         for chassis in self.chassis_chain.values():
@@ -74,7 +76,7 @@ class IxeApp(TgnApp):
         self.session._reset_current_object()
 
 
-class IxeSession(IxeObject):
+class IxeSession(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'session'
     __tcl_members__ = [
         TclMember('userName', flags=FLAG_RDONLY),
@@ -86,10 +88,10 @@ class IxeSession(IxeObject):
     port_lists = []
 
     def __init__(self, logger, api):
-        super(self.__class__, self).__init__(uri='', parent=None)
+        super().__init__(parent=None, uri='')
         self.logger = logger
         self.api = api
-        self.session = self
+        IxeObject.session = self
 
     def reserve_ports(self, ports_locations, force=False, clear=True, phy_mode=IxePhyMode.ignore):
         """ Reserve ports and reset factory defaults.
@@ -104,7 +106,7 @@ class IxeSession(IxeObject):
         for port_location in ports_locations:
             ip, card, port = port_location.split('/')
             chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
-            uri = '{} {} {}'.format(chassis, card, port)
+            uri = f'{chassis} {card} {port}'
             port = IxePort(parent=self, uri=uri)
             port._data['name'] = port_location
             port.reserve(force=force)

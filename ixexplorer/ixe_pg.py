@@ -1,9 +1,9 @@
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject
 
 
-class IxePortGroup(IxeObject):
+class IxePortGroup(IxeObject, metaclass=ixe_obj_meta):
     START_TRANSMIT = 7
     STOP_TRANSMIT = 8
     START_CAPTURE = 9
@@ -30,7 +30,7 @@ class IxePortGroup(IxeObject):
         if not pg_id:
             pg_id = IxePortGroup.next_free_id
             IxePortGroup.next_free_id += 1
-        super(self.__class__, self).__init__(uri=pg_id, parent=self.session)
+        super().__init__(parent=self.session, uri=pg_id)
 
     def add_port(self, port):
         self.ix_command('add', port.uri)

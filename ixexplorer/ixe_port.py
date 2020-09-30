@@ -1,10 +1,10 @@
 
-from os import path
 import re
 from enum import Enum
+from pathlib import Path
 
 from trafficgenerator.tgn_utils import TgnError
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr, FLAG_IGERR
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, MacStr, FLAG_IGERR, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_stream import IxeStream
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeStreamsStats, IxeStat
@@ -12,7 +12,7 @@ from ixexplorer.ixe_statistics_view import IxeCapFileFormat, IxePortsStats, IxeS
 
 class IxePhyMode(Enum):
     copper = 'portPhyModeCopper'
-    fiber = 'portPhyModeFibber',
+    fiber = 'portPhyModeFibber'
     sgmii = 'portPhyModeSgmii'
     ignore = None
 
@@ -74,7 +74,7 @@ class StreamWarningsError(TgnError):
     pass
 
 
-class IxePort(IxeObject):
+class IxePort(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'port'
     __tcl_members__ = [
         TclMember('advertise2P5FullDuplex', type=int, flags=FLAG_IGERR),
@@ -150,7 +150,7 @@ class IxePort(IxeObject):
                     '20': '25000'}
 
     def __init__(self, parent, uri):
-        super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+        super().__init__(parent=parent, uri=uri.replace('/', ' '))
         self.cap_file_name = None
 
     def supported_speeds(self):
@@ -218,15 +218,15 @@ class IxePort(IxeObject):
                 The config file is on shared folder.
                 IxTclServer run on the client machine.
         """
-        config_file_name = config_file_name.replace('\\', '/')
-        ext = path.splitext(config_file_name)[-1].lower()
+        config_file_name = Path(config_file_name)
+        ext = config_file_name.suffix
         if ext == '.prt':
-            self.api.call_rc('port import "{}" {}'.format(config_file_name, self.uri))
+            self.api.call_rc(f'port import "{config_file_name.as_posix()}" {self.uri}')
         elif ext == '.str':
             self.reset()
-            self.api.call_rc('stream import "{}" {}'.format(config_file_name, self.uri))
+            self.api.call_rc(f'stream import "{config_file_name.as_posix()}" {self.uri}')
         else:
-            raise ValueError('Configuration file type {} not supported.'.format(ext))
+            raise ValueError(f'Configuration file type {ext} not supported.')
         self.write()
         self.discover()
 
@@ -240,17 +240,14 @@ class IxePort(IxeObject):
                 The config file is on shared folder.
                 IxTclServer run on the client machine.
         """
-        config_file_name = config_file_name.replace('\\', '/')
-        ext = path.splitext(config_file_name)[-1].lower()
+        config_file_name = Path(config_file_name)
+        ext = config_file_name.suffix
         if ext == '.prt':
-            self.api.call_rc('port export "{}" {}'.format(config_file_name, self.uri))
+            self.api.call_rc(f'port export "{config_file_name}" {self.uri}')
         elif ext == '.str':
-            # self.reset()
-            self.api.call_rc('stream export "{}" {}'.format(config_file_name, self.uri))
+            self.api.call_rc(f'stream export "{config_file_name}" {self.uri}')
         else:
-            raise ValueError('Configuration file type {} not supported.'.format(ext))
-        # self.write()
-        # self.discover()
+            raise ValueError(f'Configuration file type {ext} not supported.')
 
     def wait_for_up(self, timeout=16):
         """ Wait until port is up and running.
@@ -470,10 +467,10 @@ class IxePort(IxeObject):
 class IxePortObj(IxeObjectObj):
 
     def __init__(self, parent):
-        super(IxePortObj, self).__init__(uri=parent.uri, parent=parent)
+        super().__init__(parent=parent, uri=parent.uri)
 
 
-class IxeCapture(IxePortObj):
+class IxeCapture(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'capture'
     __tcl_members__ = [
         TclMember('afterTriggerFilter'),
@@ -488,7 +485,7 @@ class IxeCapture(IxePortObj):
     ]
 
 
-class IxeCaptureBuffer(IxeObject):
+class IxeCaptureBuffer(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'captureBuffer'
     __tcl_members__ = [
         TclMember('frame', flags=FLAG_RDONLY),
@@ -496,7 +493,7 @@ class IxeCaptureBuffer(IxeObject):
     __tcl_commands__ = ['export', 'getframe']
 
     def __init__(self, parent):
-        super(self.__class__, self).__init__(uri=parent.uri, parent=parent)
+        super().__init__(parent=parent, uri=parent.uri)
         if not self.parent.capture.nPackets:
             return
         self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
@@ -508,7 +505,7 @@ class IxeCaptureBuffer(IxeObject):
         pass
 
 
-class IxeFilterPalettePort(IxePortObj):
+class IxeFilterPalettePort(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'filterPallette'
     __tcl_members__ = [
         TclMember('DA1'),
@@ -528,7 +525,7 @@ class IxeFilterPalettePort(IxePortObj):
     ]
 
 
-class IxeFilterPort(IxePortObj):
+class IxeFilterPort(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'filter'
     __tcl_members__ = [
         TclMember(''),
@@ -601,7 +598,7 @@ class IxeFilterPort(IxePortObj):
     ]
 
 
-class IxeSplitPacketGroup(IxePortObj):
+class IxeSplitPacketGroup(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'splitPacketGroup'
     __tcl_members__ = [
         TclMember('groupIdOffset', type=int),
@@ -615,7 +612,7 @@ class IxeSplitPacketGroup(IxePortObj):
         self.ix_set_default()
 
 
-class IxeStreamRegion(IxePortObj):
+class IxeStreamRegion(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'streamRegion'
     __tcl_commands__ = ['generateWarningList']
 
@@ -624,12 +621,12 @@ class IxeStreamRegion(IxePortObj):
 # RX port object classes.
 #
 
-class IxePortRxObj(IxePortObj):
+class IxePortRxObj(IxePortObj, metaclass=ixe_obj_meta):
     __get_command__ = 'getRx'
     __set_command__ = 'setRx'
 
 
-class IxeAutoDetectInstrumentationPort(IxePortRxObj):
+class IxeAutoDetectInstrumentationPort(IxePortRxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'autoDetectInstrumentation'
     __tcl_members__ = [
         TclMember('enableMisdirectedPacketMask', type=bool),
@@ -642,7 +639,7 @@ class IxeAutoDetectInstrumentationPort(IxePortRxObj):
     ]
 
 
-class IxeDataIntegrityPort(IxePortRxObj):
+class IxeDataIntegrityPort(IxePortRxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
         TclMember('enableTimeStamp', type=bool),
@@ -655,7 +652,7 @@ class IxeDataIntegrityPort(IxePortRxObj):
     ]
 
 
-class IxePacketGroupPort(IxePortRxObj):
+class IxePacketGroupPort(IxePortRxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'packetGroup'
     __tcl_members__ = [
         TclMember('allocateUdf', type=bool),

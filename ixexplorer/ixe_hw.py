@@ -4,12 +4,12 @@ from collections import OrderedDict
 
 from trafficgenerator.tgn_tcl import tcl_list_2_py_list
 
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError
+from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, IxTclHalError, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_port import IxePort
 
 
-class IxeCard(IxeObject):
+class IxeCard(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'card'
     __tcl_members__ = [
         TclMember('operationMode', type=int, flags=FLAG_RDONLY),
@@ -31,7 +31,7 @@ class IxeCard(IxeObject):
     regex = r'RG([\d]+)\s*mode\s*([\d]+)\s*ppm\s*([-]*[\d]*)\s*active ports\s\{([\s\d]*)\}\s*active capture ports\s\{([\s\d]*)\}\s*resource ports\s*\{([\s\d]*)\}'  # noqa
 
     def __init__(self, parent, uri):
-        super(self.__class__, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+        super().__init__(parent=parent, uri=uri.replace('/', ' '))
 
     def discover(self):
         self.logger.info('Discover card {}'.format(self.obj_name()))
@@ -114,7 +114,7 @@ class IxeCard(IxeObject):
     active_ports = property(get_active_ports)
 
 
-class IxeChassis(IxeObject):
+class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'chassis'
     __tcl_members__ = [
         TclMember('baseIpAddress'),
@@ -175,7 +175,7 @@ class IxeChassis(IxeObject):
     OS_WINXP = 4
 
     def __init__(self, parent, host, chassis_id=1):
-        super(self.__class__, self).__init__(uri=host, parent=parent, name=host)
+        super().__init__(parent=parent, uri=host, name=host)
         self.chassis_id = chassis_id
 
     def connect(self):
@@ -233,10 +233,10 @@ class IxeChassis(IxeObject):
 #
 
 
-class IxeCardObj(IxeObjectObj):
+class IxeCardObj(IxeObjectObj, metaclass=ixe_obj_meta):
 
     def __init__(self, parent, uri):
-        super(IxeCardObj, self).__init__(uri=uri.replace('/', ' '), parent=parent)
+        super().__init__(parent=parent, uri=uri.replace('/', ' '))
 
     #
     # Properties.
@@ -251,7 +251,7 @@ class IxeCardObj(IxeObjectObj):
     ports = property(get_ports)
 
 
-class IxeResourceGroup(IxeCardObj):
+class IxeResourceGroup(IxeCardObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'resourceGroupEx'
     __tcl_members__ = [
         TclMember('mode', type=int),
@@ -263,7 +263,7 @@ class IxeResourceGroup(IxeCardObj):
     rePortInList = re.compile(r"(?:{((?:\d+\s*){3})})")
 
     def __init__(self, parent, rg_num, mode, ppm, active_ports, capture_ports, resource_ports):
-        super(IxeCardObj, self).__init__(uri=parent.uri.replace('/', ' ') + ' ' + rg_num, parent=parent)
+        super().__init__(parent=parent, uri=parent.uri.replace('/', ' ') + ' ' + rg_num)
         self._update_uri(parent.uri.replace('/', ' ') + ' ' + str(active_ports[0]))
         self.active_ports = active_ports
         self.capture_ports = capture_ports

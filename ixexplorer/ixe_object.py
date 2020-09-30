@@ -1,26 +1,24 @@
 
 from collections import OrderedDict
-from future.utils import with_metaclass
+from typing import Dict, Type, List
 
 from trafficgenerator.tgn_object import TgnObject
 
-from ixexplorer.api.ixapi import _MetaIxTclApi
+from ixexplorer.api.ixapi import ixe_obj_meta, ixe_obj_auto_set
 
 
-class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
+class IxeObject(TgnObject, metaclass=ixe_obj_meta):
 
     session = None
 
     __get_command__ = 'get'
     __set_command__ = 'set'
 
-    def __init__(self, **data):
+    def __init__(self, parent, **data):
         data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
-        super(IxeObject, self).__init__(objType=self.__tcl_command__, **data)
+        super().__init__(parent=parent, objType=self.__tcl_command__, **data)
         if 'name' not in data:
             self._data['name'] = self.uri.replace(' ', '/')
-        if self.parent:
-            self.session = self.parent.session
         if self.uri and (self.uri.split()[-1]).isdigit():
             self._data['index'] = int(self.uri.split()[-1])
         self.__class__.current_object = None
@@ -31,6 +29,13 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
         """
         return str(self._data['uri'])
     uri = property(obj_uri)
+
+    def get_objects_by_type(self, *types: str) -> List[TgnObject]:
+        """ Overrides IxeObject.get_objects_by_type because `type` is an attribute name in some IxExpolorer objects. """
+        if not types:
+            return list(self.objects.values())
+        types_l = [o.lower() for o in types]
+        return [o for o in self.objects.values() if o.obj_type().lower() in types_l]
 
     def ix_command(self, command, *args, **kwargs):
         return self.api.call(('{} {} {}' + len(args) * ' {}').
@@ -79,11 +84,12 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
 
     @classmethod
     def get_auto_set(cls):
-        return _MetaIxTclApi.auto_set
+        return ixe_obj_auto_set
 
     @classmethod
     def set_auto_set(cls, auto_set):
-        _MetaIxTclApi.auto_set = auto_set
+        global ixe_obj_auto_set
+        ixe_obj_auto_set = auto_set
 
     def _reset_current_object(self):
         self.__class__.current_object = None
@@ -96,13 +102,28 @@ class IxeObject(with_metaclass(_MetaIxTclApi, TgnObject)):
             getattr(self, field).ix_get()
         return getattr(self, field)
 
+    def _create(self, **attributes: Dict[str, object]) -> str:
+        pass
+
+    def get_name(self) -> str:
+        pass
+
+    def get_children(self, *types: str) -> List[TgnObject]:
+        pass
+
+    def get_objects_from_attribute(self, attribute: str) -> List[TgnObject]:
+        pass
+
+    def get_obj_class(self, obj_type: str) -> Type[TgnObject]:
+        pass
+
 
 class IxeObjectObj(IxeObject):
 
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
-        super(IxeObjectObj, self).ix_get(member, force)
+        super().ix_get(member, force)
 
     def ix_set(self, member=None):
-        super(IxeObjectObj, self).ix_set(member)
+        super().ix_set(member)
         self.parent.ix_set(member)
