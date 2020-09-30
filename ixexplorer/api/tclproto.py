@@ -153,7 +153,7 @@ class TclClient:
 
 
     def connect(self):
-        self.logger.debug('Opening connection to %s:%d', self.host, self.port)
+        self.logger.debug(f'Opening connection to {self.host}:{self.port}')
 
         if self.port == 8022:
             self.windows_server = False

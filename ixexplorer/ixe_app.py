@@ -1,6 +1,9 @@
 
+from __future__ import annotations
+import logging
 import time
 from collections import OrderedDict
+from typing import Optional
 
 import trafficgenerator.tgn_tcl
 from trafficgenerator.tgn_app import TgnApp
@@ -12,6 +15,8 @@ from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
 from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
+
+from ixexplorer.api.ixapi import ixe_obj_meta
 from ixexplorer.ixe_port import StreamWarningsError
 
 def init_ixe(logger, host, port=4555, rsa_id=None):
@@ -48,7 +53,6 @@ class IxeApp(TgnApp):
 
         :param user: if user - login session.
         """
-
         self.api._tcl_handler.connect()
         if user:
             self.session.login(user)
@@ -59,14 +63,14 @@ class IxeApp(TgnApp):
         self.session.logout()
         self.api._tcl_handler.close()
 
-    def add(self, chassis):
-        """ add chassis.
+    def add(self, chassis: str) -> None:
+        """ Add chassis.
 
         :param chassis: chassis IP address.
         """
-
-        self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
-        self.chassis_chain[chassis].connect()
+        if chassis not in self.chassis_chain:
+            self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
+            self.chassis_chain[chassis].connect()
 
     def discover(self):
         for chassis in self.chassis_chain.values():
@@ -78,7 +82,7 @@ class IxeApp(TgnApp):
         self.session._reset_current_object()
 
 
-class IxeSession(IxeObject):
+class IxeSession(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'session'
     __tcl_members__ = [
         TclMember('userName', flags=FLAG_RDONLY),
@@ -90,10 +94,10 @@ class IxeSession(IxeObject):
     port_lists = []
 
     def __init__(self, logger, api):
-        super(self.__class__, self).__init__(uri='', parent=None)
+        super().__init__(parent=None, uri='')
         self.logger = logger
         self.api = api
-        self.session = self
+        IxeObject.session = self
 
     def reserve_ports(self, ports_locations, force=False, clear=True, phy_mode=IxePhyMode.ignore):
         """ Reserve ports and reset factory defaults.
@@ -113,7 +117,7 @@ class IxeSession(IxeObject):
                     break
                 except Exception as e:
                     pass
-            uri = '{} {} {}'.format(chassis, card, port)
+            uri = f'{chassis} {card} {port}'
             port = IxePort(parent=self, uri=uri)
             port._data['name'] = port_location
             port.reserve(force=force)

@@ -57,8 +57,11 @@ from ixexplorer.api.tclproto import TclError
 FLAG_RDONLY = 1
 FLAG_IGERR = 2
 
+ixe_obj_auto_set = True
+
 
 class MacStr(object):
+
     def __init__(self, mac):
         self.mac = mac
 
@@ -67,6 +70,7 @@ class MacStr(object):
 
 
 class TclMember(object):
+
     def __init__(self, name, type=str, attrname=None, flags=0, doc=None):
         self.name = name
         self.type = type
@@ -76,6 +80,7 @@ class TclMember(object):
 
 
 class IxTclHalError(Exception):
+
     def __init__(self, rc):
         self.rc = rc
 
@@ -83,7 +88,8 @@ class IxTclHalError(Exception):
         return '%s: %s' % (self.__class__.__name__, self.rc)
 
 
-class IxTclHalApi(object):
+class IxTclHalApi:
+
     def __init__(self, tcl_handler):
         self._tcl_handler = tcl_handler
 
@@ -96,11 +102,11 @@ class IxTclHalApi(object):
     def call_rc(self, cmd, *args):
         rc = self.call(cmd, *args)
         if 'error' in rc.lower() or int(rc[-1]) != 0:
-            raise IxTclHalError('{} {} - rc = {}'.format(cmd, args, rc))
+            raise IxTclHalError(f'{cmd} {args} - rc = {rc}')
 
 
-class _MetaIxTclApi(type):
-    """Dynamically creates properties, which wraps the IxTclHAL API.
+def ixe_obj_meta(name, bases, atts):
+    """ Dynamically creates properties, which wraps the IxTclHAL API.
 
     The `__tcl_members__` attribute is a list of tuples of one of the following
     forms: TBD
@@ -114,9 +120,7 @@ class _MetaIxTclApi(type):
     for the 'port' command this would be 'port get <ch> <card> <port>'.
     """
 
-    auto_set = True
-
-    def __new__(cls, clsname, clsbases, clsdict):
+    def __new__(clsname, clsbases, clsdict):
         members = clsdict.get('__tcl_members__', list())
         command = clsdict.get('__tcl_command__', None)
         commands = clsdict.get('__tcl_commands__', list())
@@ -155,7 +159,7 @@ class _MetaIxTclApi(type):
                     if not m.flags & FLAG_IGERR:
                         raise e
 
-                if _MetaIxTclApi.auto_set:
+                if ixe_obj_auto_set:
                     self.ix_set(m)
 
             if not m.attrname:
@@ -175,18 +179,19 @@ class _MetaIxTclApi(type):
                 p = property(fget=fget)
 
             clsdict[attrname] = p
-        t = type.__new__(cls, clsname, clsbases, clsdict)
+        t = type(clsname, clsbases, clsdict)
 
         for c in commands:
-            cls._add_f(t, c)
+            _add_f(t, c)
 
         return t
 
-    @classmethod
-    def _add_f(cls, t, c):
+    def _add_f(t, c):
         def f(self, *args, **kwargs):
             rc = self.ix_command(c, *args, **kwargs)
             return rc if type(rc) is str else rc[0]
         f.__doc__ = c
         f.__name__ = c
         setattr(t, c, f)
+
+    return __new__(name, bases, atts)

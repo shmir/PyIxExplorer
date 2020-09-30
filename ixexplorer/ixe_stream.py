@@ -1,10 +1,10 @@
 
-from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY,FLAG_IGERR
+from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_statistics_view import IxeStreamsStats
 
 
-class IxeStream(IxeObject):
+class IxeStream(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'stream'
     __tcl_members__ = [
         TclMember('asyncIntEnable'),
@@ -46,7 +46,7 @@ class IxeStream(IxeObject):
         TclMember('name'),
         TclMember('numBursts', type=int),
         TclMember('numDA', type=int),
-        TclMember('numFrames'),
+        TclMember('numFrames', type=float),
         TclMember('numSA', type=int),
         TclMember('pattern'),
         TclMember('patternType'),
@@ -129,67 +129,6 @@ class IxeStream(IxeObject):
         return self._get_object('_ipV6', IxeIpv6)
     ipV6 = property(get_ipV6)
 
-    def get_ipV6Routing(self):
-        return self._get_object('_ipV6Routing', IxeIpv6Routing)
-    ipV6Routing = property(get_ipV6Routing)
-
-    def get_ipV6HopByHop(self):
-        return self._get_object('_ipV6HopByHop', IxeIpv6HopByHop)
-    ipV6HopByHop = property(get_ipV6HopByHop)
-
-    def get_ipV6Fragment(self):
-        return self._get_object('_ipV6Fragment', IxeIpv6Fragment)
-    ipV6Fragment = property(get_ipV6Fragment)
-
-    def get_ipV6Destination(self):
-        return self._get_object('_ipV6Destination', IxeIpv6Destination)
-    ipV6Destination = property(get_ipV6Destination)
-
-    def get_ipV6Authentication(self):
-        return self._get_object('_ipV6Authentication', IxeIpv6Authentication)
-    ipV6Authentication = property(get_ipV6Authentication)
-
-#v6 options
-    def get_ipV6OptionPAD1(self):
-        return self._get_object('_ipV6OptionPAD1', IxeIpv6OptionPAD1)
-    ipV6OptionPAD1 = property(get_ipV6OptionPAD1)
-
-    def get_ipV6OptionPADN(self):
-        return self._get_object('_ipV6OptionPADN', IxeIpv6OptionPADN)
-    ipV6OptionPADN = property(get_ipV6OptionPADN)
-
-    def get_ipV6OptionJumbo(self):
-        return self._get_object('_ipV6OptionJumbo', IxeIpv6OptionJumbo)
-    ipV6OptionJumbo = property(get_ipV6OptionJumbo)
-
-    def get_ipV6OptionRouterAlert(self):
-        return self._get_object('_ipV6OptionRouterAlert', IxeIpv6OptionRouterAlert)
-    ipV6OptionRouterAlert = property(get_ipV6OptionRouterAlert)
-
-    def get_ipV6OptionBindingUpdate(self):
-        return self._get_object('_ipV6OptionBindingUpdate', IxeIpv6OptionBindingUpdate)
-    ipV6OptionBindingUpdate = property(get_ipV6OptionBindingUpdate)
-
-    def get_ipV6OptionBindingAck(self):
-        return self._get_object('_ipV6OptionBindingAck', IxeIpv6OptionBindingAck)
-    ipV6OptionBindingAck = property(get_ipV6OptionBindingAck)
-
-    def get_ipV6OptionBindingRequest(self):
-        return self._get_object('_ipV6OptionBindingRequest', IxeIpv6OptionBindingRequest)
-    ipV6OptionBindingRequest = property(get_ipV6OptionBindingRequest)
-
-    def get_ipV6OptionHomeAddress(self):
-        return self._get_object('_ipV6OptionHomeAddress', IxeIpv6OptionHomeAddress)
-    ipV6OptionHomeAddress = property(get_ipV6OptionHomeAddress)
-
-    def get_ipV6OptionMIpV6UniqueIdSub(self):
-        return self._get_object('_ipV6OptionMIpV6UniqueIdSub', IxeIpv6MIpV6UniqueIdSub)
-    ipV6OptionMIpV6UniqueIdSub = property(get_ipV6OptionMIpV6UniqueIdSub)
-
-    def get_ipV6OptionMIpV6AlternativeCoaSub(self):
-        return self._get_object('_ipV6OptionMIpV6AlternativeCoaSub', IxeIpv6OptionMIpV6AlternativeCoaSub)
-    ipV6OptionMIpV6AlternativeCoaSub = property(get_ipV6OptionMIpV6AlternativeCoaSub)
-
     def get_tcp(self):
         return self._get_object('_tcp', IxeTcp)
     tcp = property(get_tcp)
@@ -197,10 +136,6 @@ class IxeStream(IxeObject):
     def get_udp(self):
         return self._get_object('_udp', IxeUdp)
     udp = property(get_udp)
-
-    def get_icmp(self):
-        return self._get_object('_udp', IxeICMP)
-    icmp = property(get_icmp)
 
     def get_protocol(self):
         return self._get_object('_protocol', IxeProtocol)
@@ -237,32 +172,8 @@ class IxeStream(IxeObject):
     def get_stacked_vlan(self):
         return self._get_object('_stackedVlan', IxeStackedVlan)
     stackedVlan = property(get_stacked_vlan)
-    
-    def get_gre(self):
-        return self._get_object('_gre', IxeGre)
-    gre = property(get_gre)
 
-    def get_mpls(self):
-        return self._get_object('_mpls', IxeMPLS)
-    mpls = property(get_mpls)
-
-    def get_mpls_label(self):
-        return self._get_object('_mpsl_label', IxeMPLS_Label)
-    mpls_label = property(get_mpls_label)
-
-    def get_pause_pontrol(self):
-        return self._get_object('_pause_pontrol',IxePauseControl)
-    pauseControl = property(get_pause_pontrol)
-
-    def get_arp(self):
-        return self._get_object('_arp', IxeArp)
-    arp = property(get_arp)
-
-    def get_protocol_pad(self):
-        return self._get_object('_protocolPad', IxeProtocolPad)
-    protocolPad = property(get_protocol_pad)
-
-
+#
 # Stream object classes.
 #
 
@@ -270,7 +181,7 @@ class IxeStream(IxeObject):
 class IxeStreamObj(IxeObjectObj):
 
     def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=' '.join(parent.uri.split()[:-1]), parent=parent)
+        super().__init__(parent=parent, uri=' '.join(parent.uri.split()[:-1]))
 
     def ix_command(self, command, *args, **kwargs):
         rc = self.api.call(('{} {}' + len(args) * ' {}').format(self.__tcl_command__, command, *args))
@@ -278,7 +189,7 @@ class IxeStreamObj(IxeObjectObj):
         return rc
 
 
-class IxeProtocol(IxeStreamObj):
+class IxeProtocol(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'protocol'
     __tcl_members__ = [
         TclMember('appName'),
@@ -297,7 +208,8 @@ class IxeProtocol(IxeStreamObj):
     def ix_set(self, member=None):
         self.parent.ix_set(member)
 
-class IxeVlan(IxeStreamObj):
+
+class IxeVlan(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'vlan'
     __tcl_members__ = [
         TclMember('cfi', type=int),
@@ -313,7 +225,7 @@ class IxeVlan(IxeStreamObj):
     __tcl_commands__ = ['setDefault']
 
 
-class IxeStackedVlan(IxeStreamObj):
+class IxeStackedVlan(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'stackedVlan'
     __tcl_members__ = [
         TclMember('numVlans', flags=FLAG_RDONLY),
@@ -321,7 +233,7 @@ class IxeStackedVlan(IxeStreamObj):
     __tcl_commands__ = ['setDefault', 'addVlan', 'delVlan', 'getFirstVlan', 'getNextVlan', 'getVlan', 'setVlan']
 
 
-class IxeIp(IxeStreamObj):
+class IxeIp(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'ip'
     __tcl_members__ = [
         TclMember('assuredForwardingClass', type=int),
@@ -365,7 +277,7 @@ class IxeIp(IxeStreamObj):
     ]
 
 
-class IxeIpv6(IxeStreamObj):
+class IxeIpv6(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'ipV6'
     __tcl_members__ = [
         TclMember('destAddr'),
@@ -621,7 +533,7 @@ class IxeArp(IxeStreamObj):
         TclMember('destHardwareAddrRepeatCount', type=int),
     ]
 
-class IxeTcp(IxeStreamObj):
+class IxeTcp(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'tcp'
     __tcl_members__ = [
         TclMember('acknowledgementNumber'),
@@ -642,7 +554,7 @@ class IxeTcp(IxeStreamObj):
     ]
 
 
-class IxeUdp(IxeStreamObj):
+class IxeUdp(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'udp'
     __tcl_members__ = [
         TclMember('checksum'),
@@ -683,7 +595,7 @@ class IxeGre(IxeStreamObj):
         pass
         # Disabled auto get!once enabled inner protocol L4 isn't configured properly
 
-class IxeProtocolOffset(IxeStreamObj):
+class IxeProtocolOffset(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'protocolOffset'
     __tcl_members__ = [
         TclMember('offset'),
@@ -697,7 +609,7 @@ class IxeProtocolPad(IxeStreamObj):
     ]
 
 
-class IxeWeightedRandomFramesize(IxeStreamObj):
+class IxeWeightedRandomFramesize(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'weightedRandomFramesize'
     __tcl_members__ = [
         TclMember('center', type=float),
@@ -709,7 +621,7 @@ class IxeWeightedRandomFramesize(IxeStreamObj):
     __tcl_commands__ = ['addPair', 'delPair', 'updateQuadGaussianCurve']
 
 
-class IxeUdf(IxeStreamObj):
+class IxeUdf(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'udf'
     __tcl_members__ = [
         TclMember('bitOffset', type=int),
@@ -791,15 +703,15 @@ class IxeMPLS_Label(IxeStreamObj):
 #
 
 
-class IxeStreamTxObj(IxeStreamObj):
+class IxeStreamTxObj(IxeStreamObj, metaclass=ixe_obj_meta):
     __get_command__ = 'getTx'
     __set_command__ = 'setTx'
 
     def __init__(self, parent):
-        super(IxeStreamObj, self).__init__(uri=parent.uri, parent=parent)
+        super().__init__(parent=parent, uri=parent.uri)
 
 
-class IxeDataIntegrityStream(IxeStreamTxObj):
+class IxeDataIntegrityStream(IxeStreamTxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
         TclMember('enableTimestamp', type=bool),
@@ -812,7 +724,7 @@ class IxeDataIntegrityStream(IxeStreamTxObj):
     ]
 
 
-class IxePacketGroupStream(IxeStreamTxObj):
+class IxePacketGroupStream(IxeStreamTxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'packetGroup'
     __tcl_members__ = [
         TclMember('allocateUdf', type=bool),
@@ -854,7 +766,7 @@ class IxePacketGroupStream(IxeStreamTxObj):
     ]
 
 
-class IxeAutoDetectInstrumentationStream(IxeStreamTxObj):
+class IxeAutoDetectInstrumentationStream(IxeStreamTxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'autoDetectInstrumentation'
     __tcl_members__ = [
         TclMember('enableMisdirectedPacketMask', type=bool),
