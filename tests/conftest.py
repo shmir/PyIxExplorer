@@ -35,4 +35,4 @@ def locations(ixia: IxeApp, server_properties: dict) -> List[str]:
     """ Yields ports locations. """
     for chassis in [l.split('/')[0] for l in server_properties['locations']]:
         ixia.add(chassis)
-    yield server_properties['locations']
+    return server_properties['locations']
