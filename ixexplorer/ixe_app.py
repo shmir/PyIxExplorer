@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from collections import OrderedDict
-from typing import Optional
+from typing import Optional, Dict
 
 import trafficgenerator.tgn_tcl
 from trafficgenerator.tgn_app import TgnApp
@@ -397,7 +397,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
     # Properties.
     #
 
-    def get_ports(self):
+    def get_ports(self) -> Dict[str, IxePort]:
         """
         :return: dictionary {name: object} of all reserved ports.
         """
