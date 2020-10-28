@@ -7,7 +7,7 @@ Base class for all IxExplorer package tests.
 from ixexplorer.ixe_app import IxeApp
 
 
-def _load_configs(ixia: IxeApp, *cfgs: str) -> None:
+def _load_configs(ixia: IxeApp, *configs: str) -> None:
     """ Load configuration on reserved ports. """
-    for port, cfg in zip(ixia.session.ports.values(), cfgs):
+    for port, cfg in zip(ixia.session.ports.values(), configs):
         port.load_config(cfg)

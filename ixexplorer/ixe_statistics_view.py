@@ -196,7 +196,6 @@ class IxePortsStats(IxeStats):
 
         :param stats: list of requested statistics to read, if empty - read all statistics.
         """
-
         self.statistics = OrderedDict()
         for port in self.ports:
             port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY, *stats)

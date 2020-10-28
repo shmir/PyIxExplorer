@@ -105,14 +105,11 @@ def test_write_after_write(ixia: IxeApp, locations: List[str]) -> None:
 
     ixia.session.reserve_ports(locations, force=True)
 
-    port1 = ixia.session.ports[locations[0]]
-    port2 = ixia.session.ports[locations[1]]
-
     IxeObject.set_auto_set(False)
 
-    port1.loopback = 1
-    port1.add_stream()
-    port1_stream1 = port1.streams[1]
+    ixia.session.ports[locations[0]].loopback = 1
+    ixia.session.ports[locations[0]].add_stream()
+    port1_stream1 = ixia.session.ports[locations[0]].streams[1]
     port1_stream1.da = '22:22:22:22:22:11'
     port1_stream1.sa = '11:11:11:11:11:11'
     port1_stream1.ip.destIpAddr = '1.1.2.1'
@@ -120,33 +117,33 @@ def test_write_after_write(ixia: IxeApp, locations: List[str]) -> None:
     port1_stream1.ip.ipProtocol = '17'
     port1_stream1.ip.ix_set()
 
-    port1.add_stream()
-    port1_stream2 = port1.streams[2]
+    ixia.session.ports[locations[0]].add_stream()
+    port1_stream2 = ixia.session.ports[locations[0]].streams[2]
     port1_stream2.da = '22:22:22:22:22:22'
     port1_stream2.sa = '11:11:11:11:11:22'
     port1_stream2.ip.destIpAddr = '1.1.2.2'
     port1_stream2.ip.sourceIpAddr = '1.1.1.2'
     port1_stream2.ip.ipProtocol = '17'
     port1_stream2.ip.ix_set()
-    port1.write()
+    ixia.session.ports[locations[0]].write()
 
-    port1.add_stream()
-    port1_stream3 = port1.streams[3]
+    ixia.session.ports[locations[0]].add_stream()
+    port1_stream3 = ixia.session.ports[locations[0]].streams[3]
     port1_stream3.da = '22:22:22:22:22:33'
     port1_stream3.sa = '11:11:11:11:11:33'
     port1_stream3.ip.destIpAddr = '1.1.2.3'
     port1_stream3.ip.sourceIpAddr = '1.1.1.3'
     port1_stream3.ip.ipProtocol = '17'
     port1_stream3.ip.ix_set()
-    port1.write()
+    ixia.session.ports[locations[0]].write()
 
     IxeObject.set_auto_set(True)
 
-    port2.add_stream()
-    port2_stream1 = port2.streams[1]
+    ixia.session.ports[locations[1]].add_stream()
+    port2_stream1 = ixia.session.ports[locations[1]].streams[1]
     port2_stream1.set_attributes(da='11:11:11:11:11:11', sa='22:22:22:22:22:11')
     port2_stream1.ip.set_attributes(destIpAddr='1.1.1.2', sourceIpAddr='1.1.2.2', ipProtocol='17')
-    port2.write()
+    ixia.session.ports[locations[1]].write()
 
     assert port1_stream1.da == '22:22:22:22:22:11'
     assert port1_stream1.ip.destIpAddr == '1.1.2.1'
