@@ -176,8 +176,8 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
 
 class IxeStreamObj(IxeObjectObj):
 
-    def __init__(self, parent):
-        super().__init__(parent=parent, uri=' '.join(parent.uri.split()[:-1]))
+    def __init__(self, parent, uri=None):
+        super().__init__(parent=parent, uri=uri if uri else ' '.join(parent.uri.split()[:-1]))
 
     def ix_command(self, command, *args, **kwargs):
         rc = self.api.call(('{} {}' + len(args) * ' {}').format(self.__tcl_command__, command, *args))

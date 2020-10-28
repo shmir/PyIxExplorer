@@ -391,7 +391,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         self.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.dataIntegrity)
 
     def add_stream(self, name=None):
-        stream = IxeStream(self, self.uri + '/' + str(int(self.getStreamCount()) + 1))
+        stream = IxeStream(self, f'{self.uri} {str(int(self.getStreamCount()) + 1)}')
         stream.create(name)
         return stream
 
