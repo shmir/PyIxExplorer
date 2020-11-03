@@ -42,7 +42,7 @@ class TclClient:
         self.port = port
         self.rsa_id = rsa_id
         self.fd = None
-        self.buffersize = 2 ** 12
+        self.buffer_size = 2 ** 12
 
         self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
@@ -61,7 +61,7 @@ class TclClient:
         # where tcl_return code is exactly one byte
         reply = ''
         for _ in range(16 * 100):
-            reply += str(self.fd.recv(self.buffersize).decode('utf-8'))
+            reply += str(self.fd.recv(self.buffer_size).decode('utf-8'))
             if reply.endswith('\r\n'):
                 break
             time.sleep(0.01)
