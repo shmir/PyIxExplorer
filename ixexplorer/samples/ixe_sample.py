@@ -1,5 +1,5 @@
 """
-IxExplorer package tests that require actual Ixia chassis and active ports.
+IxExplorer samples. Samples require actual Ixia chassis and active ports.
 
 Test setup:
 Two Ixia ports connected back to back.
@@ -19,6 +19,48 @@ from ixexplorer.ixe_port import StreamWarningsError
 from ixexplorer.ixe_statistics_view import IxePortsStats, IxeStreamsStats, IxeCapFileFormat
 
 from .test_base import _load_configs
+
+def test_build_config(ixia: IxeApp, locations: List[str]) -> None:
+    """ Build configuration from factory default and test different configuration objects. """
+    print(test_build_config.__doc__)
+
+    ixia.session.reserve_ports(locations, force=True)
+
+    ixia.session.ports[locations[0]].add_stream()
+    ixia.session.ports[locations[0]].streams[1].da = "22:22:22:22:22:11"
+    ixia.session.ports[locations[0]].streams[1].sa = "11:11:11:11:11:11"
+    ixia.session.ports[locations[0]].add_stream(name='aaa')
+    ixia.session.ports[locations[0]].streams[2].da = "22:22:22:22:22:22"
+    ixia.session.ports[locations[0]].streams[2].sa = "11:11:11:11:11:22"
+    ixia.session.ports[locations[0]].add_stream(name='1 a')
+    ixia.session.ports[locations[0]].add_stream(name='1-a')
+    ixia.session.ports[locations[0]].add_stream(name='1/a')
+    ixia.session.ports[locations[0]].add_stream(name='1%a')
+    ixia.session.ports[locations[0]].add_stream(name='1\a')
+    ixia.session.ports[locations[0]].write()
+
+    assert ixia.session.ports[locations[0]].streams[1].da == '22:22:22:22:22:11'
+    assert ixia.session.ports[locations[0]].streams[1].sa == '11:11:11:11:11:11'
+    assert ixia.session.ports[locations[0]].streams[2].da == '22:22:22:22:22:22'
+    assert ixia.session.ports[locations[0]].streams[2].sa == '11:11:11:11:11:22'
+    assert ixia.session.ports[locations[0]].streams[3].name == '1 a'
+    assert ixia.session.ports[locations[0]].streams[4].name == '1-a'
+    assert ixia.session.ports[locations[0]].streams[5].name == '1/a'
+    assert ixia.session.ports[locations[0]].streams[6].name == '1%a'
+    assert ixia.session.ports[locations[0]].streams[7].name == '1\a'
+
+    ixia.session.ports[locations[1]].add_stream()
+    ixia.session.ports[locations[1]].streams[1].da = '11:11:11:11:11:11'
+    ixia.session.ports[locations[1]].streams[1].sa = '22:22:22:22:22:11'
+    ixia.session.ports[locations[1]].add_stream()
+    ixia.session.ports[locations[1]].streams[2].da = '11:11:11:11:11:22'
+    ixia.session.ports[locations[1]].streams[2].sa = '22:22:22:22:22:22'
+    ixia.session.ports[locations[1]].write()
+
+    assert ixia.session.ports[locations[0]].streams[1].da == '22:22:22:22:22:11'
+    assert ixia.session.ports[locations[0]].streams[1].sa == '11:11:11:11:11:11'
+    assert ixia.session.ports[locations[0]].streams[2].da == '22:22:22:22:22:22'
+    assert ixia.session.ports[locations[0]].streams[2].sa == '11:11:11:11:11:22'
 
 
 def test_port_stats(ixia: IxeApp, locations: List[str]) -> None:

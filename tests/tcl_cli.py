@@ -3,7 +3,6 @@
 import sys
 import logging
 from optparse import OptionParser
-from six.moves import input
 
 from ixexplorer.api.tclproto import TclClient, TclError
 
@@ -42,7 +41,6 @@ def main():
 
     print("Enter command to send. Quit with 'q'.")
     try:
-        io = None
         while True:
             cmd = input('=> ')
             if cmd == 'q':
@@ -51,8 +49,6 @@ def main():
                 try:
                     res = tcl.call(cmd)
                     print(res.strip())
-                    if io is not None:
-                        print(io)
                 except TclError as e:
                     print('ERROR: %s' % e.result)
     except EOFError:

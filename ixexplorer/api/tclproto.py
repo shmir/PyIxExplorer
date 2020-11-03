@@ -49,7 +49,7 @@ class TclClient:
         self.port = port
         self.rsa_id = rsa_id
         self.fd = None
-        self.buffersize = 2 ** 12
+        self.buffer_size = 2 ** 12
         self.tcl_ver = None
         self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
@@ -68,7 +68,7 @@ class TclClient:
         # where tcl_return code is exactly one byte
         reply = ''
         for _ in range(16 * 100):
-            reply += str(self.fd.recv(self.buffersize).decode('utf-8'))
+            reply += str(self.fd.recv(self.buffer_size).decode('utf-8'))
             if reply.endswith('\r\n'):
                 break
             time.sleep(0.01)
@@ -144,13 +144,11 @@ class TclClient:
     def call(self, string, *args):
         if self.windows_server:
             result, io_output = self.socket_call(string, *args)
+            if io_output and 'Error:' in io_output:
+                raise TgnError(io_output)
+            return result
         else:
-            #return self.ssh_call(string, *args)
-            result, io_output = self.ssh_call_shell(string, *args)
-        if io_output and 'Error:' in io_output:
-            raise TgnError(io_output)
-        return result
-
+            return self.ssh_call(string, *args)
 
     def connect(self):
         self.logger.debug(f'Opening connection to {self.host}:{self.port}')
@@ -158,12 +156,10 @@ class TclClient:
         if self.port == 8022:
             self.windows_server = False
             key = paramiko.RSAKey.from_private_key_file(self.rsa_id)
-            fd = paramiko.SSHClient()
-            fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
-            self.fd = fd
-            self.ssh_shell = sshWraper(self.fd)
-            #self.stdin, self.stdout, _ = self.fd.exec_command('')
+            self.fd = paramiko.SSHClient()
+            self.fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
+            self.stdin, self.stdout, _ = self.fd.exec_command('')
             self.call('source /opt/ixia/ixos/current/IxiaWish.tcl')
         else:
             self.windows_server = True
