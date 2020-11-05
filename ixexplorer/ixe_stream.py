@@ -101,7 +101,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
             stream_object.ix_set_default()
 
     def read_stats(self, *stats):
-        return IxeStreamsStats(self.session, self).read_stats(*stats)[str(self)]
+        return IxeStreamsStats(self).read_stats(*stats)[str(self)]
 
     #
     # Stream objects.

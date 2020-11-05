@@ -1,4 +1,5 @@
-#!/usr/bin/env
+#!/usr/bin/env python
+# encoding: utf-8
 
 import sys
 import logging
@@ -6,7 +7,7 @@ from optparse import OptionParser
 
 from ixexplorer.api.tclproto import TclClient, TclError
 
-rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/8.20-EA/TclScripts/lib/ixTcl1.0/id_rsa'
+rsa_id = 'C:/Program Files (x86)/Ixia/IxOS/9.00.1900.10/TclScripts/lib/ixTcl1.0/id_rsa'
 
 
 def main():
@@ -52,7 +53,7 @@ def main():
                 except TclError as e:
                     print('ERROR: %s' % e.result)
     except EOFError:
-        print('exitting..')
+        print('exiting')
 
 
 if __name__ == '__main__':

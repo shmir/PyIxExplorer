@@ -35,6 +35,7 @@ def test_port_stats(ixia: IxeApp, locations: List[str]) -> None:
 
     ixia.session.start_transmit()
     port_stats = IxePortsStats()
+    time.sleep(4)
     port_stats.read_stats()
     print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
     assert port_stats.statistics[port1]['framesSent'] > 0
@@ -44,7 +45,7 @@ def test_port_stats(ixia: IxeApp, locations: List[str]) -> None:
     ixia.session.ports[port1].start_transmit()
     time.sleep(8)
     ixia.session.ports[port1].stop_transmit()
-    time.sleep(1)
+    time.sleep(4)
     port1_stats = ixia.session.ports[port1].read_stats('framesSent', 'framesReceived')
     print(json.dumps(port1_stats, indent=1))
     assert port1_stats['framesSent'] > 0
@@ -240,7 +241,7 @@ def test_prbs(ixia: IxeApp, locations: List[str]) -> None:
     ixia.session.stop_transmit()
     time.sleep(2)
 
-    stream_stats = IxeStreamsStats(ixia.session)
+    stream_stats = IxeStreamsStats()
     stream_stats.read_stats()
     print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
     stats = stream_stats.statistics
@@ -271,8 +272,8 @@ def test_clear_all_stats(ixia: IxeApp, locations: List[str]) -> None:
     assert stats[str(ixia.session.ports[port2].streams[2])]['tx']['framesSent'] == 4
     assert stats[str(ixia.session.ports[port2].streams[2])]['rx'][str(ixia.session.ports[port1])]['totalFrames'] == 4
 
-    port_stats = IxePortsStats(ixia.session)
-    stream_stats = IxeStreamsStats(ixia.session)
+    port_stats = IxePortsStats()
+    stream_stats = IxeStreamsStats()
 
     port_stats.read_stats('framesSent')
     print(json.dumps(port_stats.statistics, indent=1, sort_keys=True))
@@ -333,7 +334,7 @@ def _config_and_run_stream_stats_test(ixia: IxeApp, locations: List[str], rx_por
     ixia.session.stop_transmit()
     time.sleep(2)
 
-    stream_stats = IxeStreamsStats(ixia.session)
+    stream_stats = IxeStreamsStats()
     stream_stats.read_stats()
     print(json.dumps(stream_stats.statistics, indent=1, sort_keys=True))
 
