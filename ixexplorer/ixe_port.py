@@ -329,10 +329,10 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         self.session.clear_all_stats(self)
 
     def read_stats(self, *stats):
-        return IxePortsStats(self.session, self).read_stats(*stats)[str(self)]
+        return IxePortsStats(self).read_stats(*stats)[str(self)]
 
     def read_stream_stats(self, *stats):
-        return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(*stats)
+        return IxeStreamsStats(*self.get_objects_by_type('stream')).read_stats(*stats)
 
     #
     # Others...
