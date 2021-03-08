@@ -117,7 +117,7 @@ class IxeStat(IxeObject, metaclass=ixe_obj_meta):
         return stats_values
 
 #frame preemtion
-class IxeFpStat(IxeObject):
+class IxeFpStat(IxeObject, metaclass=ixe_obj_meta):
     __tcl_command__ = 'stat'
     __tcl_members__ = [
         TclMember('rxFpVerifyProtocolErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
@@ -174,7 +174,7 @@ class IxeFpStat(IxeObject):
 class IxeStatTotal(IxeStat, metaclass=ixe_obj_meta):
     __get_command__ = 'get statAllStats'
 
-class IxePreemptionStatTotal(IxeFpStat):
+class IxePreemptionStatTotal(IxeFpStat, metaclass=ixe_obj_meta):
     __get_command__ = 'get statAllStats'
 
 class IxeStatRate(IxeStat, metaclass=ixe_obj_meta):

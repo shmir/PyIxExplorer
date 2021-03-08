@@ -1,10 +1,10 @@
 
 from collections import OrderedDict
-from future.utils import with_metaclass
+from typing import Dict, Type, List
 
 from trafficgenerator.tgn_object import TgnObject
 
-from ixexplorer.api.ixapi import _MetaIxTclApi
+from ixexplorer.api.ixapi import ixe_obj_meta, ixe_obj_auto_set
 
 
 class IxeObject(TgnObject, metaclass=ixe_obj_meta):

@@ -1,5 +1,5 @@
 
-from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY, ixe_obj_meta
+from ixexplorer.api.ixapi import ixe_obj_meta
 from ixexplorer.api.ixapi import TclMember, MacStr, FLAG_RDONLY,FLAG_IGERR
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_statistics_view import IxeStreamsStats
@@ -47,7 +47,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         TclMember('name'),
         TclMember('numBursts', type=int),
         TclMember('numDA', type=int),
-        TclMember('numFrames', type=float),
+        TclMember('numFrames'),
         TclMember('numSA', type=int),
         TclMember('pattern'),
         TclMember('patternType'),
@@ -198,6 +198,10 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
     def get_udp(self):
         return self._get_object('_udp', IxeUdp)
     udp = property(get_udp)
+
+    def get_icmp(self):
+        return self._get_object('_udp', IxeICMP)
+    icmp = property(get_icmp)
 
     def get_protocol(self):
         return self._get_object('_protocol', IxeProtocol)
@@ -351,6 +355,7 @@ class IxeIp(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('reliability', type=int),
         TclMember('reserved', type=int),
         TclMember('sourceCommand', type=int),
+        TclMember('sourceClass', type=int),
         TclMember('sourceIpAddr'),
         TclMember('sourceIpAddrMode'),
         TclMember('sourceIpAddrRepeatCount', type=int),
@@ -384,7 +389,7 @@ class IxeIpv6(IxeStreamObj, metaclass=ixe_obj_meta):
                         'getFirstExtensionHeader', 'getNextExtensionHeader', 'setDefault']
 
 #extentions
-class IxeIpv6Routing(IxeStreamObj):
+class IxeIpv6Routing(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'ipV6Routing'
     __tcl_members__ = [
         TclMember('reserved'),
@@ -419,7 +424,7 @@ class IxeIpv6HopByHop(IxeStreamObj):
     def set(self, index):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
-class IxeIpv6Fragment(IxeStreamObj):
+class IxeIpv6Fragment(IxeStreamObj, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6Fragment'
     __tcl_members__ = [
@@ -440,7 +445,7 @@ class IxeIpv6Fragment(IxeStreamObj):
     def set(self, index):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
-class IxeIpv6Destination(IxeStreamObj):
+class IxeIpv6Destination(IxeStreamObj, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6Destination'
     __tcl_members__ = [
@@ -456,7 +461,7 @@ class IxeIpv6Destination(IxeStreamObj):
     def set(self, index):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
-class IxeIpv6Authentication(IxeStreamObj):
+class IxeIpv6Authentication(IxeStreamObj, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6Authentication'
     __tcl_members__ = [
@@ -477,7 +482,7 @@ class IxeIpv6Authentication(IxeStreamObj):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
 #options
-class IxeNoSetNoGet(IxeStreamObj):
+class IxeNoSetNoGet(IxeStreamObj, metaclass=ixe_obj_meta):
 
     def ix_get(self, member=None, force=False):
         pass
@@ -489,7 +494,7 @@ class IxeNoSetNoGet(IxeStreamObj):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
 ####################
-class IxeIpv6OptionPAD1(IxeNoSetNoGet):
+class IxeIpv6OptionPAD1(IxeNoSetNoGet, metaclass=ixe_obj_meta):
     __tcl_command__ = 'ipV6OptionPAD1'
     __tcl_members__ = [
         TclMember('length'),
@@ -498,7 +503,7 @@ class IxeIpv6OptionPAD1(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionPADN(IxeNoSetNoGet):
+class IxeIpv6OptionPADN(IxeNoSetNoGet, metaclass=ixe_obj_meta):
     __tcl_command__ = 'ipV6OptionPADN'
     __tcl_members__ = [
         TclMember('value'),
@@ -507,7 +512,7 @@ class IxeIpv6OptionPADN(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionJumbo(IxeNoSetNoGet):
+class IxeIpv6OptionJumbo(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionJumbo'
     __tcl_members__ = [
@@ -517,7 +522,7 @@ class IxeIpv6OptionJumbo(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionRouterAlert(IxeNoSetNoGet):
+class IxeIpv6OptionRouterAlert(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionRouterAlert'
     __tcl_members__ = [
@@ -527,7 +532,7 @@ class IxeIpv6OptionRouterAlert(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionBindingUpdate(IxeNoSetNoGet):
+class IxeIpv6OptionBindingUpdate(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionBindingUpdate'
     __tcl_members__ = [
@@ -546,7 +551,7 @@ class IxeIpv6OptionBindingUpdate(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionBindingRequest(IxeNoSetNoGet):
+class IxeIpv6OptionBindingRequest(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionBindingRequest'
     __tcl_members__ = [
@@ -555,7 +560,7 @@ class IxeIpv6OptionBindingRequest(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionBindingAck(IxeNoSetNoGet):
+class IxeIpv6OptionBindingAck(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionBindingAck'
     __tcl_members__ = [
@@ -568,7 +573,7 @@ class IxeIpv6OptionBindingAck(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionHomeAddress(IxeNoSetNoGet):
+class IxeIpv6OptionHomeAddress(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionHomeAddress'
     __tcl_members__ = [
@@ -579,7 +584,7 @@ class IxeIpv6OptionHomeAddress(IxeNoSetNoGet):
     __tcl_commands__ = ['config', 'setDefault']
 
 ###
-class IxeIpv6MIpV6UniqueIdSub(IxeNoSetNoGet):
+class IxeIpv6MIpV6UniqueIdSub(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionMIpV6UniqueIdSub'
     __tcl_members__ = [
@@ -589,7 +594,7 @@ class IxeIpv6MIpV6UniqueIdSub(IxeNoSetNoGet):
 
     __tcl_commands__ = ['config', 'setDefault']
 
-class IxeIpv6OptionMIpV6AlternativeCoaSub(IxeNoSetNoGet):
+class IxeIpv6OptionMIpV6AlternativeCoaSub(IxeNoSetNoGet, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6OptionMIpV6AlternativeCoaSub'
     __tcl_members__ = [
@@ -600,7 +605,7 @@ class IxeIpv6OptionMIpV6AlternativeCoaSub(IxeNoSetNoGet):
     __tcl_commands__ = ['config', 'setDefault']
 
 
-class IxeArp(IxeStreamObj):
+class IxeArp(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'arp'
     __tcl_members__ = [
         TclMember('sourceProtocolAddr'),
@@ -653,7 +658,16 @@ class IxeUdp(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('sourcePort'),
     ]
 
-class IxeGre(IxeStreamObj):
+class IxeICMP(IxeStreamObj, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'icmp'
+    __tcl_members__ = [
+        TclMember('type'),
+        TclMember('code'),
+        TclMember('id'),
+        TclMember('sequence'),
+    ]
+
+class IxeGre(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'gre'
     __tcl_members__ = [
         TclMember('enableKey', type=int),
@@ -670,7 +684,7 @@ class IxeGre(IxeStreamObj):
 
     def ix_get(self, member=None, force=False):
         pass
-        # Disabled auto get!once enabled inner protocol L4 isn't configured properly
+        #Disabled auto get!once enabled inner protocol L4 isn't configured properly
 
 class IxeProtocolOffset(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'protocolOffset'
@@ -679,7 +693,7 @@ class IxeProtocolOffset(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('userDefinedTag'),
     ]
 
-class IxeProtocolPad(IxeStreamObj):
+class IxeProtocolPad(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'protocolPad'
     __tcl_members__ = [
         TclMember('dataBytes'),
@@ -747,7 +761,7 @@ class IxeUdf(IxeStreamObj, metaclass=ixe_obj_meta):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
 
-class IxeMPLS(IxeStreamObj):
+class IxeMPLS(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'mpls'
     __tcl_members__ = [
         TclMember('type'),
@@ -756,7 +770,7 @@ class IxeMPLS(IxeStreamObj):
     ]
     __tcl_commands__ = ['setDefault']
 
-class IxeMPLS_Label(IxeStreamObj):
+class IxeMPLS_Label(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'mplsLabel'
     __tcl_members__ = [
         TclMember('label'),
@@ -857,7 +871,7 @@ class IxeAutoDetectInstrumentationStream(IxeStreamTxObj, metaclass=ixe_obj_meta)
     ]
 
 
-class IxePauseControl(IxeStreamObj):
+class IxePauseControl(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'pauseControl'
     __tcl_members__ = [
         TclMember('da', type=MacStr),
@@ -865,7 +879,7 @@ class IxePauseControl(IxeStreamObj):
         ]
 
 
-class IxeMPLS(IxeStreamObj):
+class IxeMPLS(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'mpls'
     __tcl_members__ = [
         TclMember('type'),

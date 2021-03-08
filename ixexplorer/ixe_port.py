@@ -349,16 +349,9 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
 
     def read_stream_stats(self, *stats):
         return IxeStreamsStats(*self.get_objects_by_type('stream')).read_stats(*stats)
-        return IxeStreamsStats(self.session, *self.get_objects_by_type('stream')).read_stats(*stats)
 
     def reset_sequence_index(self):
         self.api.call_rc('ixResetPortSequenceIndex {}'.format(self.uri))
-
-
-
-
-
-
 
     #
     # Others...
@@ -514,13 +507,13 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
 #
 
 
-class IxePortObj(IxeObjectObj):
+class IxePortObj(IxeObjectObj, metaclass=ixe_obj_meta):
 
     def __init__(self, parent):
         super().__init__(parent=parent, uri=parent.uri)
 
 
-class IxeArpServer(IxePortObj):
+class IxeArpServer(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'arpServer'
     __tcl_members__ = [
         TclMember('retries', type=int),
@@ -531,7 +524,7 @@ class IxeArpServer(IxePortObj):
 
 
 
-class IxeInterfaceTable(IxePortObj):
+class IxeInterfaceTable(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'interfaceTable'
     __tcl_members__ = [
         TclMember('dhcpV4RequestRate', type=int),
@@ -683,7 +676,7 @@ class IxeInterfaceTable(IxePortObj):
                 res.append(local_res_next)
         return sum(res, [])
 
-class IxeInterfaceEntry(IxePortObj):
+class IxeInterfaceEntry(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'interfaceEntry'
     __tcl_members__ = [
         TclMember('enable', type=int),
@@ -721,7 +714,7 @@ class IxeInterfaceEntry(IxePortObj):
         self._command('clearAllItems', 18)
 
 
-class IxeInterfaceIpV4(IxePortObj):
+class IxeInterfaceIpV4(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'interfaceIpV4'
     __tcl_members__ = [
         TclMember('ipAddress'),
@@ -736,7 +729,7 @@ class IxeInterfaceIpV4(IxePortObj):
         pass
 
 
-class IxeInterfaceIpV6(IxePortObj):
+class IxeInterfaceIpV6(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'interfaceIpV6'
     __tcl_members__ = [
         TclMember('ipAddress'),
@@ -749,7 +742,7 @@ class IxeInterfaceIpV6(IxePortObj):
     def ix_set(self, member=None, force=False):
         pass
 
-class IxeProtocolServer(IxePortObj):
+class IxeProtocolServer(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'protocolServer'
     __tcl_members__ = [
         TclMember('enableArpResponse', type=int),
@@ -927,7 +920,7 @@ class IxeAutoDetectInstrumentationPort(IxePortRxObj, metaclass=ixe_obj_meta):
     ]
 
 
-class IxeDataIntegrityPort(IxePortRxObj):
+class IxeDataIntegrityPort(IxePortRxObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'dataIntegrity'
     __tcl_members__ = [
         TclMember('enableTimeStamp', type=bool),
@@ -980,4 +973,3 @@ class IxePacketGroupPort(IxePortRxObj, metaclass=ixe_obj_meta):
         TclMember('signatureOffset', type=int),
         TclMember('timeBinDuration', type=int),
     ]
-
