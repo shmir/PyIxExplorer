@@ -47,7 +47,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         TclMember('name'),
         TclMember('numBursts', type=int),
         TclMember('numDA', type=int),
-        TclMember('numFrames'),
+        TclMember('numFrames', type=float),
         TclMember('numSA', type=int),
         TclMember('pattern'),
         TclMember('patternType'),
@@ -879,11 +879,4 @@ class IxePauseControl(IxeStreamObj, metaclass=ixe_obj_meta):
         ]
 
 
-class IxeMPLS(IxeStreamObj, metaclass=ixe_obj_meta):
-    __tcl_command__ = 'mpls'
-    __tcl_members__ = [
-        TclMember('type'),
-        TclMember('forceBottomOfStack', type=bool),
-        TclMember('enableAutomaticallySetLabel',type=bool)
-    ]
-    __tcl_commands__ = ['setDefault']
+

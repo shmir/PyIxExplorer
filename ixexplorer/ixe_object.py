@@ -20,7 +20,6 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
         if 'name' not in data:
             self._data['name'] = self.uri.replace(' ', '/')
         if self.uri and (self.uri.split()[-1]).isdigit():
-            self._data['index'] = self.uri.split()[-1]
             self._data['index'] = int(self.uri.split()[-1])
         self.__class__.current_object = None
 

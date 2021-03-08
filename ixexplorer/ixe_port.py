@@ -750,7 +750,7 @@ class IxeProtocolServer(IxePortObj, metaclass=ixe_obj_meta):
         ]
 
 
-class IxeCapture(IxePortObj):
+class IxeCapture(IxePortObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'capture'
     __tcl_members__ = [
         TclMember('afterTriggerFilter'),
