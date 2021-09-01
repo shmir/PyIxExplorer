@@ -159,7 +159,7 @@ def ixe_obj_meta(name, bases, atts):
                     if not m.flags & FLAG_IGERR:
                         raise e
 
-                if ixe_obj_auto_set:
+                if self.get_auto_set():
                     self.ix_set(m)
 
             if not m.attrname:

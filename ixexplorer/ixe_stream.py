@@ -199,9 +199,26 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         return self._get_object('_udp', IxeUdp)
     udp = property(get_udp)
 
+    def get_igmp(self):
+        return self._get_object('_igmp', IxeIGMP)
+    igmp = property(get_igmp)
+
+    def get_igmpGroupRecord(self):
+        return self._get_object('_igmpGroupRecord', IxeIgmpGroupRecord)
+    igmpGroupRecord = property(get_igmpGroupRecord)
+
     def get_icmp(self):
-        return self._get_object('_udp', IxeICMP)
+        return self._get_object('_icmp', IxeICMP)
     icmp = property(get_icmp)
+
+    def get_icmpV6(self):
+        return self._get_object('_icmpV6', IxeICMPv6)
+    icmpV6 = property(get_icmpV6)
+
+    def get_icmpV6Multicast(self):
+        return self._get_object('_icmpV6MulticastListener', IxeICMPv6Multicast)
+
+    icmpV6Multicast = property(get_icmpV6Multicast)
 
     def get_protocol(self):
         return self._get_object('_protocol', IxeProtocol)
@@ -406,7 +423,7 @@ class IxeIpv6Routing(IxeStreamObj, metaclass=ixe_obj_meta):
     def set(self, index):
         self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, index))
 
-class IxeIpv6HopByHop(IxeStreamObj):
+class IxeIpv6HopByHop(IxeStreamObj, metaclass=ixe_obj_meta):
 
     __tcl_command__ = 'ipV6HopByHop'
     __tcl_members__ = [
@@ -657,6 +674,49 @@ class IxeUdp(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('lengthOverride'),
         TclMember('sourcePort'),
     ]
+
+class IxeICMPv6(IxeStreamObj, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'icmpV6'
+    __tcl_members__ = [
+        TclMember('type'),
+    ]
+    __tcl_commands__ = ['setType', 'setDefault']
+
+class IxeICMPv6Multicast(IxeNoSetNoGet, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'icmpV6MulticastListener'
+    __tcl_members__ = [
+        TclMember('maximumResponseDelay'),
+        TclMember('multicastAddress'),
+    ]
+    __tcl_commands__ = ['setDefault']
+
+
+class IxeIgmpGroupRecord(IxeNoSetNoGet, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'igmpGroupRecord'
+    __tcl_members__ = [
+        TclMember('type'),
+        TclMember('multicastAddress'),
+        TclMember('sourceIpAddressList'),
+    ]
+    __tcl_commands__ = ['setDefault']
+
+
+class IxeIGMP(IxeStreamObj, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'igmp'
+    __tcl_members__ = [
+        TclMember('type'),
+        TclMember('version'),
+        TclMember('groupIpAddress'),
+        TclMember('maxResponseTime'),
+        TclMember('mode'),
+        TclMember('repeatCount'),
+        TclMember('useValidChecksum', type=bool),
+        TclMember('qqic', type=int),
+        TclMember('qrv', type=int),
+        TclMember('enableS', type=bool),
+        TclMember('sourceIpAddressList'),
+    ]
+    __tcl_commands__ = ['addGroupRecord', 'clearGroupRecords']
 
 class IxeICMP(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'icmp'
