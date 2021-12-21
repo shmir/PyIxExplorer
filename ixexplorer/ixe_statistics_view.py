@@ -97,6 +97,10 @@ class IxeStat(IxeObject, metaclass=ixe_obj_meta):
         TclMember('fecUncorrectableCodewords', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
         TclMember('fecTranscodingUncorrectableErrors', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
 
+        TclMember('l1BitsSent', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('l1BitsReceived', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('l1LineRatePercentTx', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
+        TclMember('l1LineRatePercentRx', type=int, flags=FLAG_RDONLY | FLAG_IGERR),
     ]
     __tcl_commands__ = ['write']
     __get_command__ = None

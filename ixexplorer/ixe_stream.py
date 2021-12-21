@@ -660,7 +660,7 @@ class IxeTcp(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('useValidChecksum'),
         TclMember('window'),
     ]
-
+    __tcl_commands__ = ['setDefault']
 
 class IxeUdp(IxeStreamObj, metaclass=ixe_obj_meta):
     __tcl_command__ = 'udp'
@@ -741,6 +741,8 @@ class IxeGre(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('reserved1'),
         TclMember('protocolType'),
     ]
+
+    __tcl_commands__ = ['setDefault']
 
     def ix_get(self, member=None, force=False):
         pass
