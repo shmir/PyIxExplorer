@@ -72,7 +72,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         TclMember('fpCrcType', type=int, flags=FLAG_IGERR),
     ]
 
-    __tcl_commands__ = ['export', 'write']
+    __tcl_commands__ = ['export', 'write', 'remove']
 
     next_group_id = 0
 
@@ -280,6 +280,10 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         return self._get_object('_protocolPad', IxeProtocolPad)
     protocolPad = property(get_protocol_pad)
 
+    def get_oam_header(self):
+        return self._get_object('_oamHeader', IxeOAMHeader)
+    oamHeader = property(get_oam_header)
+
 
 # Stream object classes.
 #
@@ -306,7 +310,7 @@ class IxeProtocol(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('enableMPLS', type=bool),
         TclMember('enableProtocolPad', type=bool),
         TclMember('enableMacSec', type=bool),
-
+        TclMember('enableOAM', type=bool),
     ]
 
     def ix_get(self, member=None, force=False):
@@ -941,4 +945,11 @@ class IxePauseControl(IxeStreamObj, metaclass=ixe_obj_meta):
         ]
 
 
+class IxeOAMHeader(IxeStreamObj, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'oamHeader'
+    __tcl_members__ = [
+        TclMember('flags', type=int),
+        TclMember('code', type=int)
+        ]
 
+    __tcl_commands__ = ['setDefault']
