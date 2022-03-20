@@ -246,15 +246,21 @@ class IxeStreamTxStats(IxeObject, metaclass=ixe_obj_meta):
         super().__init__(parent=parent, uri=group_id)
 
 
-class IxeStats:
+class IxeStats():
     pass
 
 
 class IxePortsStats(IxeStats):
 
-    def __init__(self, *ports):
+    def __init__(self, *ports,session=None):
         super().__init__()
-        self.ports = ports if ports else IxeObject.session.ports.values()
+
+        #olegk fix
+        if session:
+            self.session = session
+        self.ports = ports if ports else self.session.ports.values()
+
+        #self.ports = ports if ports else IxeObject.session.ports.values()
 
     def set_attributes(self, **attributes):
         for port in self.ports:
@@ -307,7 +313,7 @@ class PgStatsDict(OrderedDict):
 
 class IxeStreamsStats(IxeStats):
 
-    def __init__(self, *streams):
+    def __init__(self, *streams, session=None):
         """ Read stream statistics from chassis.
 
         :param streams: list of requested streams. If empty - read statistics for all streams.
@@ -315,16 +321,21 @@ class IxeStreamsStats(IxeStats):
 
         super().__init__()
 
-        self.tx_ports_streams = dict(zip(IxeObject.session.ports.values(),
-                                         [[] for _ in xrange(len(IxeObject.session.ports))]))
+        #olegk fix
+        if session:
+            self.session = session
+        session = self.session #IxeObject.session
+
+        self.tx_ports_streams = dict(zip(session.ports.values(),
+                                         [[] for _ in xrange(len(session.ports))]))
         if streams:
             for stream in streams:
                 self.tx_ports_streams[stream.parent].append(stream)
         else:
-            for port in IxeObject.session.ports.values():
+            for port in session.ports.values():
                 self.tx_ports_streams[port] = port.streams.values()
 
-        self.rx_ports = [p for p in IxeObject.session.ports.values() if
+        self.rx_ports = [p for p in session.ports.values() if
                          p.receiveMode & int(ixexplorer.ixe_port.IxeReceiveMode.widePacketGroup.value)]
 
     def read_stats(self, *stats):
@@ -333,6 +344,9 @@ class IxeStreamsStats(IxeStats):
         :param stats: list of requested statistics to read, if empty - read all statistics.
         """
         from ixexplorer.ixe_stream import IxePacketGroupStream
+
+        session = self.session  # IxeObject.session
+
         sleep_time = 0.1  # in cases we only want few counters but very fast we need a smaller sleep time
         if not stats:
             stats = [m.attrname for m in IxePgStats.__tcl_members__ if m.flags & FLAG_RDONLY]
@@ -356,7 +370,7 @@ class IxeStreamsStats(IxeStats):
                 stream_stats['tx'] = stream_stats_tx
                 stream_stat_pgid = IxePacketGroupStream(stream).groupId
                 stream_stats_pg = PgStatsDict()
-                for port in IxeObject.session.ports.values():
+                for port in session.ports.values():
                     stream_stats_pg[str(port)] = OrderedDict(zip(stats, [-1] * len(stats)))
                 for rx_port in self.rx_ports:
                     if not stream.rx_ports or rx_port in stream.rx_ports:

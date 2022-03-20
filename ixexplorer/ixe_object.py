@@ -9,12 +9,22 @@ from ixexplorer.api.ixapi import ixe_obj_meta, ixe_obj_auto_set
 
 class IxeObject(TgnObject, metaclass=ixe_obj_meta):
 
-    session = None
+    #session = None
 
     __get_command__ = 'get'
     __set_command__ = 'set'
 
+    @property
+    def session(self):
+        return self._session
+
+    @session.setter
+    def session(self, ssn):
+        self._session = ssn
+
     def __init__(self, parent, **data):
+        if parent:
+            self._session = parent.session
         data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
         super().__init__(parent=parent, objType=self.__tcl_command__, **data)
         if 'name' not in data:

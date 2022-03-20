@@ -96,7 +96,9 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         super().__init__(parent=None, uri='')
         self.logger = logger
         self.api = api
-        IxeObject.session = self
+        #olegk
+        self.session = self
+        #IxeObject.session = self
 
     def reserve_ports(self, ports_locations, force=False, clear=True, phy_mode=IxePhyMode.ignore):
         """ Reserve ports and reset factory defaults.
