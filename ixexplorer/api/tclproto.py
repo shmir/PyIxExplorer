@@ -185,7 +185,7 @@ class TclClient:
 class sshWraper(object):
 
     default_eofOutput = '\r\n% % '
-    _command_timeout = 10
+    _command_timeout = 30
     shell = None
     default_buffer_size = 4096
     PY3K = sys.version_info >= (3, 0)
