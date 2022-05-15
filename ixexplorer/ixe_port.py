@@ -273,6 +273,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
 
     def discover(self):
         self.logger.info('Discover port {}'.format(self.obj_name()))
+        self.ix_get()
         for stream_id in range(1, int(self.getStreamCount()) + 1):
             IxeStream(self, self.uri + '/' + str(stream_id))
 
@@ -486,6 +487,10 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         return self._get_object('_interfaceIpV4', IxeInterfaceIpV4)
     interfaceIpV4 = property(get_interfaceIpV4)
 
+    def get_interfaceDhcpV4(self):
+        return self._get_object('_interfaceDhcpV4', IxeInterfaceDhcpV4)
+    interfaceDhcpV4 = property(get_interfaceDhcpV4)
+
     def get_interfaceIpV6(self):
         return self._get_object('_interfaceIpV6', IxeInterfaceIpV6)
     interfaceIpV6 = property(get_interfaceIpV6)
@@ -577,6 +582,9 @@ class IxeInterfaceTable(IxePortObj, metaclass=ixe_obj_meta):
     def _discover_neighbor_command(self, command, *args, **kwargs):
         return self._raw_command('discoveredNeighbor', command, *args, **kwargs)
 
+    def _discover_dhcp_command(self, command='cget -ipAddress', *args, **kwargs):
+        return self._raw_command('dhcpV4DiscoveredInfo', command, *args, **kwargs)
+
     def add_if(self):
         self._command('addInterface')
 
@@ -593,6 +601,12 @@ class IxeInterfaceTable(IxePortObj, metaclass=ixe_obj_meta):
             return self._command('getDiscoveredList',if_name)
         else:
             return self._command('getDiscoveredList')
+
+    def send_get_discovered_dhcp(self, if_name=None):
+        if if_name:
+            return self._command('getDhcpV4DiscoveredInfo', if_name)
+        else:
+            return self._command('getDhcpV4DiscoveredInfo')
 
     def ix_get(self, member=None, force=False):
         pass
@@ -643,6 +657,38 @@ class IxeInterfaceTable(IxePortObj, metaclass=ixe_obj_meta):
             self._command('sendArpRefresh', if_name)
         else:
             self._command('sendArpRefresh')
+
+    def read_if_dhcp(self, if_name=None):
+        dhcp_info = {}
+        self.select()
+        if self._command('getFirstInterface') == '0':
+            desc = '{'+self._raw_command('interfaceEntry','cget -description')+'}'
+            if not if_name or desc.count(if_name) > 0:
+                dhcp_info[desc] = self.read_dhcp_info(desc)
+            while self._command('getNextInterface') == '0':
+                desc = '{'+self._raw_command('interfaceEntry', 'cget -description')+'}'
+                if not if_name or desc.count(if_name) > 0:
+                    dhcp_info[desc] = self.read_dhcp_info(desc)
+        return dhcp_info
+
+    def read_dhcp_info(self, if_name):
+        res = []
+
+        def get_dhcp():
+            ip = self._discover_dhcp_command('cget -ipAddress')
+            gw = self._discover_dhcp_command('cget -gatewayIpAddress')
+            px = self._discover_dhcp_command('cget -prefixLength')
+            lease = self._discover_dhcp_command('cget -leaseDuration')
+            print(f"ipAddress:{ip},gatewayIpAddress:{gw},prefixLength{px},leaseDuration{lease}")
+            return ip, gw, px, lease
+        time.sleep(2)
+        self.send_request_discovered_table()
+        time.sleep(2)
+        ack = self.send_get_discovered_dhcp(if_name)
+        res = get_dhcp() if ack == '0' else None
+        print(f"interface: {if_name} DISCOVERED DHCP : {res}")
+        return res
+
 
     def read_port_neighbors(self, if_name=None):
         discovered_neighbors = {}
@@ -730,6 +776,24 @@ class IxeInterfaceIpV4(IxePortObj, metaclass=ixe_obj_meta):
         TclMember('gatewayIpAddress'),
         TclMember('maskWidth', type=int)
     ]
+
+    def ix_get(self, member=None, force=False):
+        pass
+
+    def ix_set(self, member=None, force=False):
+        pass
+
+class IxeInterfaceDhcpV4(IxePortObj, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'dhcpV4Properties'
+    __tcl_members__ = [
+        TclMember('clientId'),
+        TclMember('serverId'),
+        TclMember('vendorId'),
+        TclMember('renewTimer', type=int),
+        TclMember('retryCount', type=int),
+    ]
+
+    __tcl_commands__ = ['setDefault', 'removeAllTlvs']
 
     def ix_get(self, member=None, force=False):
         pass
