@@ -112,7 +112,10 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
 
         for port_location in ports_locations:
             ip, card, port = port_location.split('/')
-            for i in range(1,10):
+            # handle if new format
+            if len(port.split('.')) > 1:
+                port = self.api.call(f'ixUtils convertPortPathToIdTriple {port_location}').split()[2]
+            for i in range(1, 10):
                 try:
                     chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
                     break
