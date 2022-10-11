@@ -19,59 +19,58 @@
 #
 
 import socket
-import paramiko
 import time
 
-from trafficgenerator.tgn_utils import TgnError, new_log_file
+import paramiko
+from trafficgenerator import TgnError
+from trafficgenerator.tgn_utils import new_log_file
 
 
 class TclError(Exception):
-
     def __init__(self, result):
         self.result = result
 
     def __str__(self):
-        return '%s: %s' % (self.__class__.__name__, self.result)
+        return "%s: %s" % (self.__class__.__name__, self.result)
 
 
 class TclClient:
-
     def __init__(self, logger, host, port=4555, rsa_id=None):
         self.logger = logger
         self.host = host
         self.port = port
         self.rsa_id = rsa_id
         self.fd = None
-        self.buffer_size = 2 ** 12
+        self.buffer_size = 2**12
 
         self.tcl_script = new_log_file(self.logger, self.__class__.__name__)
 
     def socket_call(self, string, *args):
         if self.fd is None:
-            raise RuntimeError('TclClient is not connected')
+            raise RuntimeError("TclClient is not connected")
 
-        string += '\r\n'
+        string += "\r\n"
         command = string % args
-        self.logger.debug('sending %s', command.rstrip())
+        self.logger.debug("sending %s", command.rstrip())
         self.tcl_script.debug(command.rstrip())
-        self.fd.send(command.encode('utf-8'))
+        self.fd.send(command.encode("utf-8"))
 
         # reply format is
         #  [<io output>\r]<result><tcl return code>\r\n
         # where tcl_return code is exactly one byte
-        reply = ''
+        reply = ""
         for _ in range(16 * 100):
-            reply += str(self.fd.recv(self.buffer_size).decode('utf-8'))
-            if reply.endswith('\r\n'):
+            reply += str(self.fd.recv(self.buffer_size).decode("utf-8"))
+            if reply.endswith("\r\n"):
                 break
             time.sleep(0.01)
         if not reply:
-            raise Exception('no response after 16 seconds')
-        self.logger.debug('received %s', reply.rstrip())
-        assert reply[-2:] == '\r\n'
+            raise Exception("no response after 16 seconds")
+        self.logger.debug("received %s", reply.rstrip())
+        assert reply[-2:] == "\r\n"
 
         tcl_result = int(reply[-3])
-        data = reply[:-3].rsplit('\r', 1)
+        data = reply[:-3].rsplit("\r", 1)
         if len(data) == 2:
             if data[-1].isdigit():
                 io_output, result = data
@@ -88,12 +87,12 @@ class TclClient:
             assert not io_output
             raise TclError(result)
 
-        self.logger.debug('result=%s io_output=%s', result, io_output)
+        self.logger.debug("result=%s io_output=%s", result, io_output)
         return result, io_output
 
     def ssh_call(self, string, *args):
-        command = 'puts [{}]\n\r'.format(string % args)
-        self.logger.debug('sending %s', command.rstrip())
+        command = "puts [{}]\n\r".format(string % args)
+        self.logger.debug("sending %s", command.rstrip())
         self.stdin.write(command)
         self.stdin.flush()
         buf_len = len(self.stdout.channel.in_buffer)
@@ -101,29 +100,29 @@ class TclClient:
             time.sleep(0.25)
             buf_len = len(self.stdout.channel.in_buffer)
         ret_value = str(self.stdout.read(buf_len).decode("utf-8").rstrip())
-        self.logger.debug('received %s', ret_value)
+        self.logger.debug("received %s", ret_value)
         return ret_value
 
     def call(self, string, *args):
         if self.windows_server:
             result, io_output = self.socket_call(string, *args)
-            if io_output and 'Error:' in io_output:
+            if io_output and "Error:" in io_output:
                 raise TgnError(io_output)
             return result
         else:
             return self.ssh_call(string, *args)
 
     def connect(self):
-        self.logger.debug(f'Opening connection to {self.host}:{self.port}')
+        self.logger.debug(f"Opening connection to {self.host}:{self.port}")
 
         if self.port == 8022:
             self.windows_server = False
             key = paramiko.RSAKey.from_private_key_file(self.rsa_id)
             self.fd = paramiko.SSHClient()
             self.fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self.fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
-            self.stdin, self.stdout, _ = self.fd.exec_command('')
-            self.call('source /opt/ixia/ixos/current/IxiaWish.tcl')
+            self.fd.connect(hostname=self.host, port=self.port, username="ixtcl", pkey=key)
+            self.stdin, self.stdout, _ = self.fd.exec_command("")
+            self.call("source /opt/ixia/ixos/current/IxiaWish.tcl")
         else:
             self.windows_server = True
             fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -131,10 +130,10 @@ class TclClient:
             fd.connect((self.host, self.port))
             self.fd = fd
 
-        self.call('package req IxTclHal')
-        self.call('enableEvents true')
+        self.call("package req IxTclHal")
+        self.call("enableEvents true")
 
     def close(self):
-        self.logger.debug('Closing connection')
+        self.logger.debug("Closing connection")
         self.fd.close()
         self.fd = None

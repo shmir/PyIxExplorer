@@ -48,10 +48,9 @@ For example, if you like to set the port speed:
 - port write <chassis ID> <card ID> <port ID>
 
 Note that there is only one temporary storage for each command.
-
 """
+from trafficgenerator import TgnError
 
-from trafficgenerator.tgn_utils import TgnError
 from ixexplorer.api.tclproto import TclError
 
 FLAG_RDONLY = 1
@@ -61,16 +60,14 @@ ixe_obj_auto_set = True
 
 
 class MacStr(object):
-
     def __init__(self, mac):
         self.mac = mac
 
     def __str__(self):
-        return self.mac.replace(' ', ':')
+        return self.mac.replace(" ", ":")
 
 
 class TclMember(object):
-
     def __init__(self, name, type=str, attrname=None, flags=0, doc=None):
         self.name = name
         self.type = type
@@ -80,16 +77,14 @@ class TclMember(object):
 
 
 class IxTclHalError(Exception):
-
     def __init__(self, rc):
         self.rc = rc
 
     def __str__(self):
-        return '%s: %s' % (self.__class__.__name__, self.rc)
+        return "%s: %s" % (self.__class__.__name__, self.rc)
 
 
 class IxTclHalApi:
-
     def __init__(self, tcl_handler):
         self._tcl_handler = tcl_handler
 
@@ -101,12 +96,12 @@ class IxTclHalApi:
 
     def call_rc(self, cmd, *args):
         rc = self.call(cmd, *args)
-        if 'error' in rc.lower() or int(rc[-1]) != 0:
-            raise IxTclHalError(f'{cmd} {args} - rc = {rc}')
+        if "error" in rc.lower() or int(rc[-1]) != 0:
+            raise IxTclHalError(f"{cmd} {args} - rc = {rc}")
 
 
 def ixe_obj_meta(name, bases, atts):
-    """ Dynamically creates properties, which wraps the IxTclHAL API.
+    """Dynamically creates properties, which wraps the IxTclHAL API.
 
     The `__tcl_members__` attribute is a list of tuples of one of the following
     forms: TBD
@@ -121,35 +116,35 @@ def ixe_obj_meta(name, bases, atts):
     """
 
     def __new__(clsname, clsbases, clsdict):
-        members = clsdict.get('__tcl_members__', list())
-        command = clsdict.get('__tcl_command__', None)
-        commands = clsdict.get('__tcl_commands__', list())
+        members = clsdict.get("__tcl_members__", list())
+        command = clsdict.get("__tcl_command__", None)
+        commands = clsdict.get("__tcl_commands__", list())
 
         for (n, m) in enumerate(members):
             if not isinstance(m, TclMember):
-                raise RuntimeError('Element #%d of __tcl_members__ is not a TclMember' % (n + 1,))
+                raise RuntimeError("Element #%d of __tcl_members__ is not a TclMember" % (n + 1,))
 
             def fget(self, cmd=command, m=m):
                 try:
                     self.ix_get(m)
-                    val = self.api.call('%s cget -%s' % (cmd, m.name))
+                    val = self.api.call("%s cget -%s" % (cmd, m.name))
                 except (TclError, TgnError) as e:
                     if not m.flags & FLAG_IGERR:
                         raise e
-                    val = '-1'
+                    val = "-1"
 
                 return_val = val.strip() if type(val) is str else val[0]
                 if m.type == MacStr:
                     return str(m.type(return_val))
                 elif m.type is bool:
-                    return bool(int(return_val)) if val is not '-1' else False
+                    return bool(int(return_val)) if val is not "-1" else False
                 else:
                     return m.type(return_val)
 
             def fset(self, value, cmd=command, m=m):
                 try:
                     self.ix_get(m)
-                    self.api.call('%s config -%s %s' % (cmd, m.name, m.type(value)))
+                    self.api.call("%s config -%s %s" % (cmd, m.name, m.type(value)))
                 except (TclError, TgnError) as e:
                     if not m.flags & FLAG_IGERR:
                         raise e
@@ -164,10 +159,10 @@ def ixe_obj_meta(name, bases, atts):
             if m.doc is not None:
                 fget.__doc__ = m.doc
 
-            fget.__name__ = '_get_%s' % attrname
+            fget.__name__ = "_get_%s" % attrname
             clsdict[fget.__name__] = fget
             if not m.flags & FLAG_RDONLY:
-                fset.__name__ = '_set_%s' % attrname
+                fset.__name__ = "_set_%s" % attrname
                 clsdict[fset.__name__] = fset
                 p = property(fget=fget, fset=fset)
             else:
@@ -185,6 +180,7 @@ def ixe_obj_meta(name, bases, atts):
         def f(self, *args, **kwargs):
             rc = self.ix_command(c, *args, **kwargs)
             return rc if type(rc) is str else rc[0]
+
         f.__doc__ = c
         f.__name__ = c
         setattr(t, c, f)

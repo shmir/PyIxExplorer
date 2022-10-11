@@ -1,57 +1,56 @@
-
 from collections import OrderedDict
-from typing import Dict, Type, List
+from typing import Dict, List, Type
 
 from trafficgenerator.tgn_object import TgnObject
 
-from ixexplorer.api.ixapi import ixe_obj_meta, ixe_obj_auto_set
+from ixexplorer.api.ixapi import ixe_obj_auto_set, ixe_obj_meta
 
 
 class IxeObject(TgnObject, metaclass=ixe_obj_meta):
 
     session = None
 
-    __get_command__ = 'get'
-    __set_command__ = 'set'
+    __get_command__ = "get"
+    __set_command__ = "set"
 
     def __init__(self, parent, **data):
-        data['objRef'] = self.__tcl_command__ + ' ' + str(data['uri'])
+        data["objRef"] = self.__tcl_command__ + " " + str(data["uri"])
         super().__init__(parent=parent, objType=self.__tcl_command__, **data)
-        if 'name' not in data:
-            self._data['name'] = self.uri.replace(' ', '/')
+        if "name" not in data:
+            self._data["name"] = self.uri.replace(" ", "/")
         if self.uri and (self.uri.split()[-1]).isdigit():
-            self._data['index'] = int(self.uri.split()[-1])
+            self._data["index"] = int(self.uri.split()[-1])
         self.__class__.current_object = None
 
     def obj_uri(self):
         """
         :return: object URI.
         """
-        return str(self._data['uri'])
+        return str(self._data["uri"])
+
     uri = property(obj_uri)
 
     def get_objects_by_type(self, *types: str) -> List[TgnObject]:
-        """ Overrides IxeObject.get_objects_by_type because `type` is an attribute name in some IxExpolorer objects. """
+        """Overrides IxeObject.get_objects_by_type because `type` is an attribute name in some IxExpolorer objects."""
         if not types:
             return list(self.objects.values())
         types_l = [o.lower() for o in types]
         return [o for o in self.objects.values() if o.obj_type().lower() in types_l]
 
     def ix_command(self, command, *args, **kwargs):
-        return self.api.call(('{} {} {}' + len(args) * ' {}').
-                             format(self.__tcl_command__, command, self.uri, *args))
+        return self.api.call(("{} {} {}" + len(args) * " {}").format(self.__tcl_command__, command, self.uri, *args))
 
     def ix_set_default(self):
-        self.api.call('{} setDefault'.format(self.__tcl_command__))
+        self.api.call("{} setDefault".format(self.__tcl_command__))
         self.__class__.current_object = self
 
     def ix_get(self, member=None, force=False):
         if (self != self.__class__.current_object or force) and self.__get_command__:
-            self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__get_command__, self.uri))
+            self.api.call_rc("{} {} {}".format(self.__tcl_command__, self.__get_command__, self.uri))
         self.__class__.current_object = self
 
     def ix_set(self, member=None):
-        self.api.call_rc('{} {} {}'.format(self.__tcl_command__, self.__set_command__, self.uri))
+        self.api.call_rc("{} {} {}".format(self.__tcl_command__, self.__set_command__, self.uri))
 
     def get_attributes(self, flags=0xFF, *attributes):
         attrs_values = OrderedDict()
@@ -63,17 +62,16 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
         return attrs_values
 
     def get_attribute(self, attribute):
-        """ Abstract method - must implement - do not call directly. """
+        """Abstract method - must implement - do not call directly."""
         return getattr(self, attribute)
 
     def set_attributes(self, **attributes):
-        """ Set group of attributes without calling set between attributes regardless of global auto_set.
+        """Set group of attributes without calling set between attributes regardless of global auto_set.
 
         Set will be called only after all attributes are set based on global auto_set.
 
         :param attributes: dictionary of <attribute, value> to set.
         """
-
         auto_set = IxeObject.get_auto_set()
         IxeObject.set_auto_set(False)
         for name, value in attributes.items():
@@ -119,7 +117,6 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
 
 
 class IxeObjectObj(IxeObject):
-
     def ix_get(self, member=None, force=False):
         self.parent.ix_get(member, force)
         super().ix_get(member, force)

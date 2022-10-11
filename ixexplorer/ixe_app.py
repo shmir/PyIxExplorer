@@ -1,38 +1,33 @@
-
-from __future__ import annotations
 import logging
 import time
 from collections import OrderedDict
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import trafficgenerator.tgn_tcl
-from trafficgenerator.tgn_app import TgnApp
-from trafficgenerator.tgn_utils import TgnError
+from trafficgenerator import TgnApp, TgnError
 
+from ixexplorer.api.ixapi import FLAG_RDONLY, IxTclHalApi, TclMember, ixe_obj_meta
 from ixexplorer.api.tclproto import TclClient
-from ixexplorer.api.ixapi import IxTclHalApi, TclMember, FLAG_RDONLY
-from ixexplorer.ixe_object import IxeObject
 from ixexplorer.ixe_hw import IxeChassis
-from ixexplorer.ixe_port import IxePort, IxePhyMode, IxeCapture, IxeCaptureBuffer, IxeReceiveMode
+from ixexplorer.ixe_object import IxeObject
+from ixexplorer.ixe_port import IxeCapture, IxeCaptureBuffer, IxePhyMode, IxePort, IxeReceiveMode
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
-from ixexplorer.api.ixapi import ixe_obj_meta
+logger = logging.getLogger("tgn.ixexplorer")
 
 
-def init_ixe(logger: logging.Logger, host: str, port: Optional[int] = 4555, rsa_id: Optional[str] = None) -> IxeApp:
-    """ Connect to Tcl Server and Create IxExplorer object.
+def init_ixe(host: str, port: Optional[int] = 4555, rsa_id: Optional[str] = None) -> "IxeApp":
+    """Connect to Tcl Server and Create IxExplorer object.
 
-    :param logger: python logger object
     :param host: host (IxTclServer) IP address
     :param port: Tcl Server port
     :param rsa_id: full path to RSA ID file for Linux based IxVM
     """
-    return IxeApp(logger, IxTclHalApi(TclClient(logger, host, port, rsa_id)))
+    return IxeApp(IxTclHalApi(TclClient(logger, host, port, rsa_id)))
 
 
 class IxeApp(TgnApp):
-
-    def __init__(self, logger, api_wrapper):
+    def __init__(self, api_wrapper: IxTclHalApi):
         super().__init__(logger, api_wrapper)
         trafficgenerator.tgn_tcl.tcl_interp_g = self.api
         self.session = IxeSession(self.logger, self.api)
@@ -43,7 +38,7 @@ class IxeApp(TgnApp):
         return True if self.api._tcl_handler.fd else False
 
     def connect(self, user=None):
-        """ Connect to host.
+        """Connect to host.
 
         :param user: if user - login session.
         """
@@ -51,14 +46,14 @@ class IxeApp(TgnApp):
         if user:
             self.session.login(user)
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         for chassis in self.chassis_chain.values():
             chassis.disconnect()
         self.session.logout()
         self.api._tcl_handler.close()
 
     def add(self, chassis: str) -> None:
-        """ Add chassis.
+        """Add chassis.
 
         :param chassis: chassis IP address.
         """
@@ -66,57 +61,60 @@ class IxeApp(TgnApp):
             self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
             self.chassis_chain[chassis].connect()
 
-    def discover(self):
+    def discover(self) -> None:
         for chassis in self.chassis_chain.values():
             chassis.discover()
 
-    def refresh(self):
+    def refresh(self) -> None:
         for chassis in self.chassis_chain.values():
             chassis.refresh()
         self.session._reset_current_object()
 
 
 class IxeSession(IxeObject, metaclass=ixe_obj_meta):
-    __tcl_command__ = 'session'
+    __tcl_command__ = "session"
     __tcl_members__ = [
-        TclMember('userName', flags=FLAG_RDONLY),
-        TclMember('captureBufferSegmentSize', type=int),
+        TclMember("userName", flags=FLAG_RDONLY),
+        TclMember("captureBufferSegmentSize", type=int),
     ]
 
-    __tcl_commands__ = ['login', 'logout']
+    __tcl_commands__ = ["login", "logout"]
 
     port_lists = []
 
     def __init__(self, logger, api):
-        super().__init__(parent=None, uri='')
+        super().__init__(parent=None, uri="")
         self.logger = logger
         self.api = api
         IxeObject.session = self
 
-    def reserve_ports(self, ports_locations, force=False, clear=True, phy_mode=IxePhyMode.ignore):
-        """ Reserve ports and reset factory defaults.
+    def reserve_ports(self, force=False, clear=True) -> None:
+        """Reserve ports and reset factory defaults.
 
-        :param ports_locations: list of ports ports_locations <ip, card, port> to reserve
         :param force: True - take forcefully, False - fail if port is reserved by other user
         :param clear: True - clear port configuration and statistics, False - leave port as is
-        :param phy_mode: requested PHY mode.
-        :return: ports dictionary (port uri, port object)
         """
-
-        for port_location in ports_locations:
-            ip, card, port = port_location.split('/')
-            chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
-            uri = f'{chassis} {card} {port}'
-            port = IxePort(parent=self, uri=uri)
-            port._data['name'] = port_location
+        for port in self.ports.values():
             port.reserve(force=force)
             if clear:
                 port.clear()
+                time.sleep(4)
 
+    def add_ports(self, *ports_locations: str) -> Dict[str, IxePort]:
+        """Add ports.
+
+        :param ports_locations: list of ports ports_locations <ip, card, port> to reserve
+        """
+        for port_location in ports_locations:
+            ip, card, port = port_location.split("/")
+            chassis = self.get_objects_with_attribute("chassis", "ipAddress", ip)[0].id
+            uri = f"{chassis} {card} {port}"
+            port = IxePort(parent=self, uri=uri)
+            port._data["name"] = port_location
         return self.ports
 
     def wait_for_up(self, timeout=16, ports=None):
-        """ Wait until ports reach up state.
+        """Wait until ports reach up state.
 
         :param timeout: seconds to wait.
         :param ports: list of ports to wait for.
@@ -131,8 +129,8 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         while time.time() < t_end:
             # ixCheckLinkState can take few seconds on some ports when link is down.
             for port in port_list:
-                call = self.api.call('ixCheckLinkState {}'.format(port))
-                if call == '0':
+                call = self.api.call("ixCheckLinkState {}".format(port))
+                if call == "0":
                     ports_in_up.append("{}".format(port))
                 else:
                     pass
@@ -143,20 +141,20 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         for port in port_list:
             if port not in ports_in_up:
                 ports_not_in_up.append(port)
-        raise TgnError('{}'.format(ports_not_in_up))
+        raise TgnError("{}".format(ports_not_in_up))
 
     def clear_all_stats(self, *ports):
-        """ Clear all statistic counters (port, streams and packet groups) on list of ports.
+        """Clear all statistic counters (port, streams and packet groups) on list of ports.
 
         :param ports: list of ports to clear.
         """
 
         port_list = self.set_ports_list(*ports)
-        self.api.call_rc('ixClearStats {}'.format(port_list))
-        self.api.call_rc('ixClearPacketGroups {}'.format(port_list))
+        self.api.call_rc("ixClearStats {}".format(port_list))
+        self.api.call_rc("ixClearPacketGroups {}".format(port_list))
 
     def start_transmit(self, blocking=False, start_packet_groups=True, *ports):
-        """ Start transmit on ports.
+        """Start transmit on ports.
 
         :param blocking: True - wait for traffic end, False - return after traffic start.
         :param start_packet_groups: True - clear time stamps and start collecting packet groups stats, False - don't.
@@ -167,46 +165,46 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         if start_packet_groups:
             port_list_for_packet_groups = self.ports.values()
             port_list_for_packet_groups = self.set_ports_list(*port_list_for_packet_groups)
-            self.api.call_rc('ixClearTimeStamp {}'.format(port_list_for_packet_groups))
-            self.api.call_rc('ixStartPacketGroups {}'.format(port_list_for_packet_groups))
-        self.api.call_rc('ixStartTransmit {}'.format(port_list))
+            self.api.call_rc("ixClearTimeStamp {}".format(port_list_for_packet_groups))
+            self.api.call_rc("ixStartPacketGroups {}".format(port_list_for_packet_groups))
+        self.api.call_rc("ixStartTransmit {}".format(port_list))
         time.sleep(1)
 
         if blocking:
             self.wait_transmit(*ports)
 
     def start_packet_groups(self, clear_time_stamps=True, *ports):
-        """ Start packet groups on ports.
+        """Start packet groups on ports.
 
         :param clear_time_stamps: True - clear time stamps, False - don't.
         :param ports: list of ports to start traffic on, if empty start on all ports.
         """
         port_list = self.set_ports_list(*ports)
         if clear_time_stamps:
-            self.api.call_rc('ixClearTimeStamp {}'.format(port_list))
-        self.api.call_rc('ixStartPacketGroups {}'.format(port_list))
+            self.api.call_rc("ixClearTimeStamp {}".format(port_list))
+        self.api.call_rc("ixStartPacketGroups {}".format(port_list))
 
     def stop_transmit(self, *ports):
-        """ Stop traffic on ports.
+        """Stop traffic on ports.
 
         :param ports: list of ports to stop traffic on, if empty start on all ports.
         """
 
         port_list = self.set_ports_list(*ports)
-        self.api.call_rc('ixStopTransmit {}'.format(port_list))
+        self.api.call_rc("ixStopTransmit {}".format(port_list))
         time.sleep(0.2)
 
     def wait_transmit(self, *ports):
-        """ Wait for traffic end on ports.
+        """Wait for traffic end on ports.
 
         :param ports: list of ports to wait for, if empty wait for all ports.
         """
 
         port_list = self.set_ports_list(*ports)
-        self.api.call_rc('ixCheckTransmitDone {}'.format(port_list))
+        self.api.call_rc("ixCheckTransmitDone {}".format(port_list))
 
     def start_capture(self, *ports):
-        """ Start capture on ports.
+        """Start capture on ports.
 
         :param ports: list of ports to start capture on, if empty start on all ports.
         """
@@ -218,10 +216,10 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         for port in ports:
             port.captureBuffer = None
         port_list = self.set_ports_list(*ports)
-        self.api.call_rc('ixStartCapture {}'.format(port_list))
+        self.api.call_rc("ixStartCapture {}".format(port_list))
 
     def stop_capture(self, cap_file_name=None, cap_file_format=IxeCapFileFormat.mem, *ports):
-        """ Stop capture on ports.
+        """Stop capture on ports.
 
         :param cap_file_name: prefix for the capture file name.
             Capture files for each port are saved as individual pcap file named 'prefix' + 'URI'.pcap.
@@ -231,14 +229,14 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         """
 
         port_list = self.set_ports_list(*ports)
-        self.api.call_rc('ixStopCapture {}'.format(port_list))
+        self.api.call_rc("ixStopCapture {}".format(port_list))
 
         nPackets = {}
-        for port in (ports if ports else self.ports.values()):
+        for port in ports if ports else self.ports.values():
             nPackets[port] = port.capture.nPackets
             if nPackets[port]:
                 if cap_file_format is not IxeCapFileFormat.mem:
-                    port.cap_file_name = cap_file_name + '-' + port.uri.replace(' ', '_') + '.' + cap_file_format.name
+                    port.cap_file_name = cap_file_name + "-" + port.uri.replace(" ", "_") + "." + cap_file_format.name
                     port.captureBuffer.export(port.cap_file_name)
         return nPackets
 
@@ -260,14 +258,15 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         if not ports:
             ports = self.ports.values()
         port_uris = [p.uri for p in ports]
-        port_list = 'pl_' + '_'.join(port_uris).replace(' ', '_')
+        port_list = "pl_" + "_".join(port_uris).replace(" ", "_")
         if port_list not in self.port_lists:
-            self.api.call(('set {} [ list ' + len(port_uris) * '[list {}] ' + ']').format(port_list, *port_uris))
+            self.api.call(("set {} [ list " + len(port_uris) * "[list {}] " + "]").format(port_list, *port_uris))
         return port_list
 
-    def set_stream_stats(self, rx_ports=None, tx_ports=None, start_offset=40,
-                         sequence_checking=True, data_integrity=True, timestamp=True):
-        """ Set TX ports and RX streams for stream statistics.
+    def set_stream_stats(
+        self, rx_ports=None, tx_ports=None, start_offset=40, sequence_checking=True, data_integrity=True, timestamp=True
+    ):
+        """Set TX ports and RX streams for stream statistics.
 
         :param ports: list of ports to set RX pgs. If empty set for all ports.
         :type ports: list[ixexplorer.ixe_port.IxePort]
@@ -301,13 +300,13 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
             modes.append(IxeReceiveMode.widePacketGroup)
             port.packetGroup.groupIdOffset = groupIdOffset
             port.packetGroup.signatureOffset = signatureOffset
-            if sequence_checking and int(port.isValidFeature('portFeatureRxSequenceChecking')):
+            if sequence_checking and int(port.isValidFeature("portFeatureRxSequenceChecking")):
                 modes.append(IxeReceiveMode.sequenceChecking)
                 port.packetGroup.sequenceNumberOffset = sequenceNumberOffset
-            if data_integrity and int(port.isValidFeature('portFeatureRxDataIntegrity')):
+            if data_integrity and int(port.isValidFeature("portFeatureRxDataIntegrity")):
                 modes.append(IxeReceiveMode.dataIntegrity)
                 port.dataIntegrity.signatureOffset = di_signatureOffset
-            if timestamp and int(port.isValidFeature('portFeatureRxFirstTimeStamp')):
+            if timestamp and int(port.isValidFeature("portFeatureRxFirstTimeStamp")):
                 port.dataIntegrity.enableTimeStamp = True
             else:
                 port.dataIntegrity.enableTimeStamp = False
@@ -323,7 +322,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
                 if sequence_checking:
                     stream.packetGroup.insertSequenceSignature = True
                     stream.packetGroup.sequenceNumberOffset = sequenceNumberOffset
-                if data_integrity and int(port.isValidFeature('portFeatureRxDataIntegrity')):
+                if data_integrity and int(port.isValidFeature("portFeatureRxDataIntegrity")):
                     stream.dataIntegrity.insertSignature = True
                     stream.dataIntegrity.signatureOffset = di_signatureOffset
                 if timestamp:
@@ -334,7 +333,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
             port.write()
 
     def set_prbs(self, rx_ports=None, tx_ports=None):
-        """ Set TX ports and RX streams for stream statistics.
+        """Set TX ports and RX streams for stream statistics.
 
         :param ports: list of ports to set RX PRBS. If empty set for all ports.
         :type ports: list[ixexplorer.ixe_port.IxePort]
@@ -351,8 +350,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
                 tx_ports[port] = port.streams.values()
 
         for port in rx_ports:
-            port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.sequenceChecking,
-                                   IxeReceiveMode.prbs)
+            port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.sequenceChecking, IxeReceiveMode.prbs)
             port.enableAutoDetectInstrumentation = True
             port.autoDetectInstrumentation.ix_set_default()
             port.write()
@@ -368,9 +366,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
     #
 
     def get_ports(self) -> Dict[str, IxePort]:
-        """
-        :return: dictionary {name: object} of all reserved ports.
-        """
+        """Get dictionary {name: object} of all reserved ports."""
+        return OrderedDict({str(p): p for p in self.get_objects_by_type("port")})
 
-        return OrderedDict({str(p): p for p in self.get_objects_by_type('port')})
     ports = property(get_ports)

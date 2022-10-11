@@ -1,4 +1,22 @@
-future
 paramiko
 
-pytrafficgen>3.0.3,<=3.0.4
+pytrafficgen>=4.0.0,<4.1.0
+
+# Testing
+pytest
+pytest-cov
+tox
+
+# Pipeline
+pre-commit
+pylint
+pylint_pytest
+
+# Packaging
+setuptools-scm
+build
+twine
+
+# Documentation
+mkdocs
+mkdocs-material

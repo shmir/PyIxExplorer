@@ -1,5 +1,4 @@
-
-from ixexplorer.api.ixapi import TclMember, FLAG_RDONLY, ixe_obj_meta
+from ixexplorer.api.ixapi import FLAG_RDONLY, TclMember, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject
 
 
@@ -17,12 +16,12 @@ class IxePortGroup(IxeObject, metaclass=ixe_obj_meta):
     CLEAR_OWNERSHIP = 42
     CLEAR_OWNERSHIP_FORCED = 43
 
-    __tcl_command__ = 'portGroup'
+    __tcl_command__ = "portGroup"
     __tcl_members__ = [
-        TclMember('lastTimeStamp', type=int, flags=FLAG_RDONLY),
+        TclMember("lastTimeStamp", type=int, flags=FLAG_RDONLY),
     ]
 
-    __tcl_commands__ = ['create', 'destroy']
+    __tcl_commands__ = ["create", "destroy"]
 
     next_free_id = 1
 
@@ -33,13 +32,13 @@ class IxePortGroup(IxeObject, metaclass=ixe_obj_meta):
         super().__init__(parent=self.session, uri=pg_id)
 
     def add_port(self, port):
-        self.ix_command('add', port.uri)
+        self.ix_command("add", port.uri)
 
     def del_port(self, port):
-        self.ix_command('del', port.uri)
+        self.ix_command("del", port.uri)
 
     def _set_command(self, cmd):
-        self.api.call_rc('portGroup setCommand {} {}'.format(self.uri, cmd))
+        self.api.call_rc("portGroup setCommand {} {}".format(self.uri, cmd))
 
     def start_transmit(self, blocking=False):
         """

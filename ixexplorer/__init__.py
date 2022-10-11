@@ -1,5 +1,3 @@
 """
-@author yoram@ignissoft.com
+Ixia IxExplorer OO API.
 """
-
-__version__ = '1.1.0'
