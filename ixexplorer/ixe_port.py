@@ -188,7 +188,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         else:
             try:
                 self.api.call_rc(f"ixPortTakeOwnership {self.uri}")
-            except Exception as _:
+            except Exception:
                 raise TgnError(f"Failed to take ownership for port {self} current owner is {self.owner}")
 
     def release(self, force: bool = False) -> None:
@@ -201,7 +201,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         else:
             try:
                 self.api.call_rc(f"ixPortClearOwnership {self.uri}")
-            except Exception as _:
+            except Exception:
                 raise TgnError(f"Failed to clear ownership for port {self} current owner is {self.owner}")
 
     def write(self) -> None:
@@ -235,6 +235,8 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         """Load configuration file from prt or str.
 
         Configuration file type is extracted from the file suffix - prt or str.
+
+        :TODO: Investigate why port import can only import files that were exported with port export, not from File -> export.
 
         :param config_file: full path to the configuration file.
             IxTclServer must have access to the file location. either:
@@ -639,7 +641,7 @@ class IxeSplitPacketGroup(IxePortObj, metaclass=ixe_obj_meta):
     ]
 
     def __init__(self, parent):
-        super(self.__class__, self).__init__(parent)
+        super().__init__(parent)
         self.ix_set_default()
 
 

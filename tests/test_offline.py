@@ -60,9 +60,8 @@ def test_load_config(ixia: IxeApp, locations: List[str]) -> None:
 
 def test_build_config(ixia: IxeApp, locations: List[str]) -> None:
     """Build configuration from factory default and test different configuration objects."""
-    print(test_build_config.__doc__)
-
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
 
     ixia.session.ports[locations[0]].add_stream()
     ixia.session.ports[locations[0]].streams[1].da = "22:22:22:22:22:11"
@@ -103,9 +102,8 @@ def test_build_config(ixia: IxeApp, locations: List[str]) -> None:
 
 def test_write_after_write(ixia: IxeApp, locations: List[str]) -> None:
     """Test port configuration write to HW."""
-    print(test_write_after_write.__doc__)
-
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
 
     IxeObject.set_auto_set(False)
 
@@ -153,10 +151,9 @@ def test_write_after_write(ixia: IxeApp, locations: List[str]) -> None:
     assert port2_stream1.ip.destIpAddr == "1.1.1.2"
 
 
-def test_discover(ixia: IxeApp, locations: List[str]) -> None:
+# noqa: T201
+def test_discover(ixia: IxeApp) -> None:
     """Test chassis discovery."""
-    print(test_discover.__doc__)
-
     chassis = list(ixia.chassis_chain.values())[0]
     assert chassis.obj_name() == chassis.ipAddress
     ixia.discover()
@@ -165,18 +162,16 @@ def test_discover(ixia: IxeApp, locations: List[str]) -> None:
     print(list(list(chassis.cards.values())[0].ports.values())[0].supported_speeds())
 
 
+# noqa: T201
 def test_stream_stats_configuration(ixia: IxeApp, locations: List[str]) -> None:
     """Test stream statistics configuration (without running actual traffic)."""
-    print(test_stream_stats_configuration.__doc__)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
 
-    ixia.session.reserve_ports(locations, force=True)
-
-    #: :type port: ixexplorer.ixe_port.IxePort
     port = ixia.session.ports[locations[0]]
     if not int(port.isValidFeature("portFeatureRxDataIntegrity")):
         pytest.skip("Port not supporting RxDataIntegrity")
 
-    #: :type stream: ixexplorer.ixe_stream.IxeStream
     stream = port.add_stream()
     stream.framesize = 200
 
@@ -221,9 +216,8 @@ def test_stream_stats_configuration(ixia: IxeApp, locations: List[str]) -> None:
 
 def test_wrf(ixia: IxeApp, locations: List[str]) -> None:
     """Test weighted random frame size configuration."""
-    print(test_wrf.__doc__)
-
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
 
     port = ixia.session.ports[locations[0]]
     port.add_stream()
