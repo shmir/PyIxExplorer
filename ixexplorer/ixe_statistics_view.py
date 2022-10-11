@@ -6,8 +6,6 @@ import time
 from collections import OrderedDict
 from enum import Enum
 
-from past.builtins import xrange
-
 import ixexplorer.ixe_port
 from ixexplorer.api.ixapi import FLAG_IGERR, FLAG_RDONLY, IxTclHalError, TclMember, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject
@@ -218,10 +216,9 @@ class IxeStreamsStats(IxeStats):
 
         :param streams: list of requested streams. If empty - read statistics for all streams.
         """
-
         super().__init__()
 
-        self.tx_ports_streams = dict(zip(IxeObject.session.ports.values(), [[] for _ in xrange(len(IxeObject.session.ports))]))
+        self.tx_ports_streams = dict(zip(IxeObject.session.ports.values(), [[] for _ in range(len(IxeObject.session.ports))]))
         if streams:
             for stream in streams:
                 self.tx_ports_streams[stream.parent].append(stream)

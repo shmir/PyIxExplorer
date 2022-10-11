@@ -1,0 +1,11 @@
+
+chassis:
+  ip: IP
+  ports:
+    - CARD/PORT
+    - CARD/PORT
+    - ...
+server:
+  ip: IP
+  port: PORT
+  rsa_id: C:/Program Files (x86)/Ixia/IxOS/9.10.2000.31/TclScripts/lib/ixTcl1.0/id_rsa

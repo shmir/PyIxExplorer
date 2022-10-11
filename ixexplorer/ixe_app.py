@@ -227,7 +227,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         :param ports: list of ports to stop traffic on, if empty stop all ports.
         :return: dictionary (port, nPackets)
         """
-
         port_list = self.set_ports_list(*ports)
         self.api.call_rc("ixStopCapture {}".format(port_list))
 

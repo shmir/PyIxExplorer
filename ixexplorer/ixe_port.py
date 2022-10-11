@@ -243,66 +243,61 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         """
         ext = config_file.suffix
         if ext == ".prt":
-            self.api.call_rc(f'port import "{config_file.as_posix()}" {self.uri}')
+            self.api.call_rc(f'port import "{config_file}" {self.uri}')
         elif ext == ".str":
             self.reset()
-            self.api.call_rc(f'stream import "{config_file.as_posix()}" {self.uri}')
+            self.api.call_rc(f'stream import "{config_file}" {self.uri}')
         else:
             raise ValueError(f"Configuration file type {ext} not supported.")
         self.write()
         self.discover()
 
-    def save_config(self, config_file_name):
+    def save_config(self, config_file: Path) -> None:
         """Save configuration file from prt or str.
 
         Configuration file type is extracted from the file suffix - prt or str.
 
-        :param config_file_name: full path to the configuration file.
+        :param config_file: full path to the configuration file.
             IxTclServer must have access to the file location. either:
                 The config file is on shared folder.
                 IxTclServer run on the client machine.
         """
-        config_file_name = Path(config_file_name)
-        ext = config_file_name.suffix
+        ext = config_file.suffix
         if ext == ".prt":
-            self.api.call_rc(f'port export "{config_file_name}" {self.uri}')
+            self.api.call_rc(f'port export "{config_file}" {self.uri}')
         elif ext == ".str":
-            self.api.call_rc(f'stream export "{config_file_name}" {self.uri}')
+            self.api.call_rc(f'stream export "{config_file}" {self.uri}')
         else:
             raise ValueError(f"Configuration file type {ext} not supported.")
 
-    def wait_for_up(self, timeout=16):
+    def wait_for_up(self, timeout: int = 16) -> None:
         """Wait until port is up and running.
 
         :param timeout: seconds to wait.
         """
-
         self.session.wait_for_up(timeout, [self])
 
-    def discover(self):
+    def discover(self) -> None:
         self.logger.info("Discover port {}".format(self.obj_name()))
         for stream_id in range(1, int(self.getStreamCount()) + 1):
             IxeStream(self, self.uri + "/" + str(stream_id))
 
-    def start_transmit(self, blocking=False):
+    def start_transmit(self, blocking: bool = False) -> None:
         """Start transmit on port.
 
         :param blocking: True - wait for traffic end, False - return after traffic start.
         """
-
         self.session.start_transmit(blocking, False, self)
 
-    def stop_transmit(self):
+    def stop_transmit(self) -> None:
         """Stop traffic on port."""
-
         self.session.stop_transmit(self)
 
-    def start_capture(self):
+    def start_capture(self) -> None:
         """Start capture on port."""
-
         self.session.start_capture(self)
 
-    def stop_capture(self, cap_file_name=None, cap_file_format=IxeCapFileFormat.mem):
+    def stop_capture(self, cap_file_name: str = None, cap_file_format: IxeCapFileFormat = IxeCapFileFormat.mem) -> int:
         """Stop capture on port.
 
         :param cap_file_name: prefix for the capture file name.
@@ -310,7 +305,6 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         :param cap_file_format: exported file format
         :return: number of captured frames
         """
-
         return self.session.stop_capture(cap_file_name, cap_file_format, self)[self]
 
     def get_cap_file(self):
@@ -322,7 +316,6 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         :param frame_nums: list of frame numbers to read.
         :return: list of captured frames.
         """
-
         frames = []
         for frame_num in frame_nums:
             if self.captureBuffer.getframe(frame_num) == "0":
@@ -335,7 +328,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
     # Statistics.
     #
 
-    def clear_port_stats(self):
+    def clear_port_stats(self) -> None:
         """Clear only port stats (leave stream and packet group stats).
 
         Do not use - still working with Ixia to resolve.
@@ -346,7 +339,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         stat.ix_set()
         stat.write()
 
-    def clear_all_stats(self):
+    def clear_all_stats(self) -> None:
         """Clear all statistic counters (port, streams and packet groups) on list of ports."""
         self.session.clear_all_stats(self)
 
@@ -415,10 +408,10 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
             self.api.call("%s config -%s %s" % (self.__tcl_command__, opt, value))
         self.ix_set()
 
-    def set_wide_packet_group(self):
+    def set_wide_packet_group(self) -> None:
         self.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.dataIntegrity)
 
-    def add_stream(self, name=None):
+    def add_stream(self, name: str = None) -> IxeStream:
         stream = IxeStream(self, f"{self.uri} {str(int(self.getStreamCount()) + 1)}")
         stream.create(name)
         return stream
