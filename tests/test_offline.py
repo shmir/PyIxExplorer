@@ -9,20 +9,13 @@ import pytest
 
 from ixexplorer.ixe_app import IxeApp
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_port import IxePortCpu, IxeReceiveMode
+from ixexplorer.ixe_port import IxeReceiveMode
 from tests import _load_configs
 
 
+# pylint: disable=unused-argument
 def test_hello_world(ixia: IxeApp) -> None:
     """Verify setup and connectivity."""
-
-
-def test_clear(ixia: IxeApp, locations: List[str]) -> None:
-    """Test clear ports without reservation."""
-    for port in ixia.session.add_ports(*locations).values():
-        port.release(force=True)
-        port.clear(stats=False)
-        IxePortCpu(port).reset_cpu()
 
 
 def test_load_config(ixia: IxeApp, locations: List[str]) -> None:
@@ -151,7 +144,6 @@ def test_write_after_write(ixia: IxeApp, locations: List[str]) -> None:
     assert port2_stream1.ip.destIpAddr == "1.1.1.2"
 
 
-# noqa: T201
 def test_discover(ixia: IxeApp) -> None:
     """Test chassis discovery."""
     chassis = list(ixia.chassis_chain.values())[0]
