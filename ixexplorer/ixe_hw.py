@@ -1,12 +1,19 @@
+"""
+Classes to manage IxExplorer HW objects - chassis, card and resource group.
+Port class in in ixe_port module.
+"""
 import re
 from collections import OrderedDict
-from typing import Dict
+from typing import TYPE_CHECKING, Dict
 
 from trafficgenerator.tgn_tcl import tcl_list_2_py_list
 
 from ixexplorer.api.ixapi import FLAG_RDONLY, IxTclHalError, TclMember, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject, IxeObjectObj
 from ixexplorer.ixe_port import IxePort
+
+if TYPE_CHECKING:
+    from ixexplorer.ixe_app import IxeSession
 
 
 class IxeCard(IxeObject, metaclass=ixe_obj_meta):
@@ -33,7 +40,7 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
     def __init__(self, parent, uri):
         super().__init__(parent=parent, uri=uri.replace("/", " "))
 
-    def discover(self):
+    def discover(self) -> None:
         self.logger.info("Discover card {}".format(self.obj_name()))
         for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + "/" + str(pid))
@@ -60,7 +67,7 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
                     ports = range(1, 13)
                     operationMode = "1000"
                 IxeResourceGroup(self, 1, operationMode, -1, ports, ports, ports)
-        except Exception as _:
+        except Exception:
             print("no resource group support")
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
@@ -84,18 +91,15 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
 
     resourceGroup = property(get_resource_group)
 
-    def write(self):
+    def write(self) -> None:
         self.ix_command("write")
 
     #
     # Properties.
     #
 
-    def get_ports(self):
-        """
-        :return: dictionary {index: object} of all ports.
-        """
-
+    def get_ports(self) -> Dict[int, IxePort]:
+        """Get dictionary {index: object} of all ports."""
         return {int(p.index): p for p in self.get_objects_by_type("port")}
 
     ports = property(get_ports)
@@ -205,19 +209,27 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
     OS_WIN2000 = 3
     OS_WINXP = 4
 
-    def __init__(self, parent, host, chassis_id=1):
+    def __init__(self, parent: "IxeSession", host: str) -> None:
+        """Create IxeChassis object with name = url == IP address."""
         super().__init__(parent=parent, uri=host, name=host)
-        self.chassis_id = chassis_id
+        self.chassis_id = 0
 
     def connect(self) -> None:
-        self.add()
-        self.id = self.chassis_id
+        """Connect to chassis and get assigned chassis ID.
+
+        Note that sometimes, randomly, ixConnectToChassis fails. However, using chassis.add also fails, so it seems there is
+        no advantage for using one over the other.
+        """
+        self.api.call_rc(f"ixConnectToChassis {self.uri}")
+        self.chassis_id = self.id
 
     def disconnect(self) -> None:
-        self.ix_command("del")
+        """Disconnect from chassis."""
+        self.api.call_rc(f"ixDisconnectFromChassis {self.uri}")
 
     def add_card(self, cid):
-        """
+        """Add card.
+
         There is no config option which cards are used. So we have to iterate over all possible card ids and check if we are
         able to get a handle.
         """
@@ -225,7 +237,7 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
         try:
             card.discover()
         except IxTclHalError:
-            self.logger.info(f"slot {cid} is empty")
+            self.logger.info(f"Slot {cid} is empty")
             card.del_object_from_parent()
 
     def discover(self) -> None:

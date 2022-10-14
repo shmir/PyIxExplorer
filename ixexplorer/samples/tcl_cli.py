@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 import logging
 import sys
 from optparse import OptionParser
@@ -10,7 +9,7 @@ from ixexplorer.api.tclproto import TclClient, TclError
 rsa_id = "C:/Program Files (x86)/Ixia/IxOS/9.10.2000.31/TclScripts/lib/ixTcl1.0/id_rsa"
 
 
-def main():
+def main() -> None:
     usage = "usage: %prog [options] <host>"
     parser = OptionParser(usage=usage)
     parser.add_option("-a", action="store_true", dest="autoconnect", help="autoconnect to chassis")

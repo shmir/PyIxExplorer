@@ -58,7 +58,7 @@ class IxeApp(TgnApp):
         :param chassis: chassis IP address.
         """
         if chassis not in self.chassis_chain:
-            self.chassis_chain[chassis] = IxeChassis(self.session, chassis, len(self.chassis_chain) + 1)
+            self.chassis_chain[chassis] = IxeChassis(self.session, chassis)
             self.chassis_chain[chassis].connect()
 
     def discover(self) -> None:

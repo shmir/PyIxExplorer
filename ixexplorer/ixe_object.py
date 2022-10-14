@@ -22,16 +22,14 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
             self._data["index"] = int(self.uri.split()[-1])
         self.__class__.current_object = None
 
-    def obj_uri(self):
-        """
-        :return: object URI.
-        """
+    def obj_uri(self) -> str:
+        """Object URI."""
         return str(self._data["uri"])
 
     uri = property(obj_uri)
 
     def get_objects_by_type(self, *types: str) -> List[TgnObject]:
-        """Overrides IxeObject.get_objects_by_type because `type` is an attribute name in some IxExpolorer objects."""
+        """Override IxeObject.get_objects_by_type because `type` is an attribute name in some IxExplorer objects."""
         if not types:
             return list(self.objects.values())
         types_l = [o.lower() for o in types]
@@ -40,16 +38,16 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
     def ix_command(self, command, *args, **kwargs):
         return self.api.call(("{} {} {}" + len(args) * " {}").format(self.__tcl_command__, command, self.uri, *args))
 
-    def ix_set_default(self):
+    def ix_set_default(self) -> None:
         self.api.call("{} setDefault".format(self.__tcl_command__))
         self.__class__.current_object = self
 
-    def ix_get(self, member=None, force=False):
+    def ix_get(self, member=None, force=False) -> None:
         if (self != self.__class__.current_object or force) and self.__get_command__:
             self.api.call_rc("{} {} {}".format(self.__tcl_command__, self.__get_command__, self.uri))
         self.__class__.current_object = self
 
-    def ix_set(self, member=None):
+    def ix_set(self, member=None) -> None:
         self.api.call_rc("{} {} {}".format(self.__tcl_command__, self.__set_command__, self.uri))
 
     def get_attributes(self, flags=0xFF, *attributes):
@@ -65,7 +63,7 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
         """Abstract method - must implement - do not call directly."""
         return getattr(self, attribute)
 
-    def set_attributes(self, **attributes):
+    def set_attributes(self, **attributes) -> None:
         """Set group of attributes without calling set between attributes regardless of global auto_set.
 
         Set will be called only after all attributes are set based on global auto_set.
@@ -85,11 +83,11 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
         return ixe_obj_auto_set
 
     @classmethod
-    def set_auto_set(cls, auto_set):
+    def set_auto_set(cls, auto_set) -> None:
         global ixe_obj_auto_set
         ixe_obj_auto_set = auto_set
 
-    def _reset_current_object(self):
+    def _reset_current_object(self) -> None:
         self.__class__.current_object = None
         for child in self.objects.values():
             child._reset_current_object()

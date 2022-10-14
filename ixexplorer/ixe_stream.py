@@ -74,7 +74,7 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         super().__init__(parent=parent, uri=uri.replace("/", " "))
         self.rx_ports = []
 
-    def create(self, name):
+    def create(self, name: str) -> None:
         self.ix_set_default()
         self.protocol.ix_set_default()
         self.vlan.ix_set_default()
@@ -85,13 +85,13 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
         self.packetGroup.groupId = IxeStream.next_group_id
         IxeStream.next_group_id += 1
 
-    def remove(self):
+    def remove(self) -> None:
         self.ix_command("remove")
         self.ix_command("write")
         self.del_object_from_parent()
 
-    def ix_set_default(self):
-        super(self.__class__, self).ix_set_default()
+    def ix_set_default(self) -> None:
+        super().ix_set_default()
         for stream_object in [o for o in self.__dict__.values() if isinstance(o, IxeStreamObj)]:
             stream_object.ix_set_default()
 

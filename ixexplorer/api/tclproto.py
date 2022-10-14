@@ -30,8 +30,8 @@ class TclError(Exception):
     def __init__(self, result):
         self.result = result
 
-    def __str__(self):
-        return "%s: %s" % (self.__class__.__name__, self.result)
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}: {self.result}"
 
 
 class TclClient:
@@ -112,7 +112,7 @@ class TclClient:
         else:
             return self.ssh_call(string, *args)
 
-    def connect(self):
+    def connect(self) -> None:
         self.logger.debug(f"Opening connection to {self.host}:{self.port}")
 
         if self.port == 8022:
@@ -133,7 +133,7 @@ class TclClient:
         self.call("package req IxTclHal")
         self.call("enableEvents true")
 
-    def close(self):
+    def close(self) -> None:
         self.logger.debug("Closing connection")
         self.fd.close()
         self.fd = None

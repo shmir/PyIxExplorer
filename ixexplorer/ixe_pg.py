@@ -40,41 +40,41 @@ class IxePortGroup(IxeObject, metaclass=ixe_obj_meta):
     def _set_command(self, cmd):
         self.api.call_rc("portGroup setCommand {} {}".format(self.uri, cmd))
 
-    def start_transmit(self, blocking=False):
+    def start_transmit(self, blocking=False) -> None:
         """
         :param blocking: True - wait for transmit end, False - return immediately.
         :todo: implement blocking.
         """
         self.set_command(self.START_TRANSMIT)
 
-    def stop_transmit(self):
+    def stop_transmit(self) -> None:
         self.set_command(self.STOP_TRANSMIT)
 
-    def start_capture(self):
+    def start_capture(self) -> None:
         self.set_command(self.START_CAPTURE)
 
-    def stop_capture(self):
+    def stop_capture(self) -> None:
         self.set_command(self.STOP_CAPTURE)
 
-    def reset_statistics(self):
+    def reset_statistics(self) -> None:
         self.set_command(self.RESET_STATISTICS)
 
-    def pause_transmit(self):
+    def pause_transmit(self) -> None:
         self.set_command(self.PAUSE_TRANSMIT)
 
-    def step_transmit(self):
+    def step_transmit(self) -> None:
         self.set_command(self.STEP_TRANSMIT)
 
-    def transmit_ping(self):
+    def transmit_ping(self) -> None:
         self.set_command(self.TRANSMIT_PING)
 
-    def take_ownership(self, force=False):
+    def take_ownership(self, force: bool = False) -> None:
         if not force:
             self.set_command(self.TAKE_OWNERSHIP)
         else:
             self.set_command(self.TAKE_OWNERSHIP_FORCED)
 
-    def clear_ownership(self, force=False):
+    def clear_ownership(self, force: bool = False) -> None:
         if not force:
             self.set_command(self.CLEAR_OWNERSHIP)
         else:
