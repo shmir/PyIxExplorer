@@ -214,6 +214,10 @@ class IxeStream(IxeObject, metaclass=ixe_obj_meta):
     def get_icmpV6(self):
         return self._get_object('_icmpV6', IxeICMPv6)
     icmpV6 = property(get_icmpV6)
+    
+    def get_icmpV6Informational(self):
+        return self._get_object('_icmpV6Informational', IxeICMPv6Informational)
+    icmpV6Informational = property(get_icmpV6Informational)
 
     def get_icmpV6Multicast(self):
         return self._get_object('_icmpV6MulticastListener', IxeICMPv6Multicast)
@@ -685,6 +689,16 @@ class IxeICMPv6(IxeStreamObj, metaclass=ixe_obj_meta):
         TclMember('type'),
     ]
     __tcl_commands__ = ['setType', 'setDefault']
+    
+
+class IxeICMPv6Informational(IxeNoSetNoGet, metaclass=ixe_obj_meta):
+    __tcl_command__ = 'icmpV6Informational'
+    __tcl_members__ = [
+        TclMember('identifier'),
+        TclMember('sequenceNumber'),
+    ]
+    __tcl_commands__ = ['setDefault']
+
 
 class IxeICMPv6Multicast(IxeNoSetNoGet, metaclass=ixe_obj_meta):
     __tcl_command__ = 'icmpV6MulticastListener'
