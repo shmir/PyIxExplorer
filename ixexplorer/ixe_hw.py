@@ -1,7 +1,9 @@
 """
 Classes to manage IxExplorer HW objects - chassis, card and resource group.
+
 Port class in in ixe_port module.
 """
+import logging
 import re
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Dict
@@ -14,6 +16,8 @@ from ixexplorer.ixe_port import IxePort
 
 if TYPE_CHECKING:
     from ixexplorer.ixe_app import IxeSession
+
+logger = logging.getLogger("tgn.ixexplorer")
 
 
 class IxeCard(IxeObject, metaclass=ixe_obj_meta):
@@ -68,7 +72,7 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
                     operationMode = "1000"
                 IxeResourceGroup(self, 1, operationMode, -1, ports, ports, ports)
         except Exception:
-            print("no resource group support")
+            logger.error("no resource group support")
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
@@ -108,7 +112,6 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
         """
         :return: dictionary {resource group id: object} of all resource groups.
         """
-
         resource_groups = {int(r.index): r for r in self.get_objects_by_type("resourceGroupEx")}
         return OrderedDict(sorted(resource_groups.items()))
 
@@ -118,15 +121,13 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
         """
         :return: dictionary {index: object} of all ports.
         """
-
         if not self.resource_groups:
             return self.ports
-        else:
-            active_ports = OrderedDict()
-            for resource_group in self.resource_groups.values():
-                for active_port in resource_group.active_ports:
-                    active_ports[active_port] = self.ports[active_port]
-            return active_ports
+        active_ports = OrderedDict()
+        for resource_group in self.resource_groups.values():
+            for active_port in resource_group.active_ports:
+                active_ports[active_port] = self.ports[active_port]
+        return active_ports
 
     active_ports = property(get_active_ports)
 
@@ -277,10 +278,7 @@ class IxeCardObj(IxeObjectObj, metaclass=ixe_obj_meta):
     #
 
     def get_ports(self):
-        """
-        :return: dictionary {index: object} of all ports.
-        """
-
+        """Return dictionary {index: object} of all ports."""
         return {int(p.index): p for p in self.get_objects_by_type("port")}
 
     ports = property(get_ports)
@@ -305,14 +303,12 @@ class IxeResourceGroup(IxeCardObj, metaclass=ixe_obj_meta):
         self.resource_ports = resource_ports
 
     def enable_capture_state(self, state, writeToHw=False):
-        """
-        Enable/Disable capture on resource group
-        """
+        """Enable/Disable capture on resource group."""
         if state:
             activePorts = self.rePortInList.findall(self.activePortList)
             self.activeCapturePortList = "{{" + activePorts[0] + "}}"
         else:
-            self.activeCapturePortList = "{{" "}}"
+            self.activeCapturePortList = "{{}}"
         if writeToHw:
             self.ix_command("write")
 

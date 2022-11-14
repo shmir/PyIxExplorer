@@ -1,6 +1,5 @@
 #
 # Makefile to build and upload to local pypi servers.
-# To upload to pypi.org use plain twine upload.
 #
 
 .PHONY: clean build

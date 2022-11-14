@@ -13,17 +13,14 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this module; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-
 """
-IxTclHalApi - API of the Ixia TCL HAL server
---------------------------------------------
+IxTclHalApi - API of the Ixia TCL HAL server.
 
 There are several layers of indirections:
 
 - The hardware itself.
 - The IxHal API which controls the hardware, there seems to be a ixhal.dll
-  which is used on windows to access this API directly.
+  which is used on Windows to access this API directly.
 - The IxTclHal API which is provided by a TclServer, which in turn uses the
   IxHal API.
 - The TCL script which uses the IxTclHal API.
@@ -49,9 +46,13 @@ For example, if you like to set the port speed:
 
 Note that there is only one temporary storage for each command.
 """
+import logging
+
 from trafficgenerator import TgnError
 
 from ixexplorer.api.tclproto import TclError
+
+logger = logging.getLogger("tgn.ixexplorer")
 
 FLAG_RDONLY = 1
 FLAG_IGERR = 2
@@ -96,6 +97,10 @@ class IxTclHalApi:
 
     def call_rc(self, cmd, *args):
         rc = self.call(cmd, *args)
+        try:
+            int(rc[-1])
+        except Exception as err:
+            logger.error(err)
         if "error" in rc.lower() or int(rc[-1]) != 0:
             raise IxTclHalError(f"{cmd} {args} - rc = {rc}")
 
@@ -116,9 +121,9 @@ def ixe_obj_meta(name, bases, atts):
     """
 
     def __new__(clsname, clsbases, clsdict):
-        members = clsdict.get("__tcl_members__", list())
+        members = clsdict.get("__tcl_members__", [])
         command = clsdict.get("__tcl_command__", None)
-        commands = clsdict.get("__tcl_commands__", list())
+        commands = clsdict.get("__tcl_commands__", [])
 
         for (n, m) in enumerate(members):
             if not isinstance(m, TclMember):
@@ -133,13 +138,12 @@ def ixe_obj_meta(name, bases, atts):
                         raise e
                     val = "-1"
 
-                return_val = val.strip() if type(val) is str else val[0]
+                return_val = val.strip() if isinstance(val, str) else val[0]
                 if m.type == MacStr:
                     return str(m.type(return_val))
-                elif m.type is bool:
-                    return bool(int(return_val)) if val is not "-1" else False
-                else:
-                    return m.type(return_val)
+                if m.type is bool:
+                    return bool(int(return_val)) if val != "-1" else False
+                return m.type(return_val)
 
             def fset(self, value, cmd=command, m=m):
                 try:
@@ -179,7 +183,7 @@ def ixe_obj_meta(name, bases, atts):
     def _add_f(t, c):
         def f(self, *args, **kwargs):
             rc = self.ix_command(c, *args, **kwargs)
-            return rc if type(rc) is str else rc[0]
+            return rc if isinstance(rc, str) else rc[0]
 
         f.__doc__ = c
         f.__name__ = c

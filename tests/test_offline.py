@@ -16,6 +16,7 @@ from tests import _load_configs
 # pylint: disable=unused-argument
 def test_hello_world(ixia: IxeApp) -> None:
     """Verify setup and connectivity."""
+    assert ixia
 
 
 def test_load_config(ixia: IxeApp, locations: List[str]) -> None:

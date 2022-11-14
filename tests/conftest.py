@@ -1,3 +1,6 @@
+"""
+Pytest conftest file.
+"""
 # pylint: disable=redefined-outer-name
 from typing import Iterable, List
 

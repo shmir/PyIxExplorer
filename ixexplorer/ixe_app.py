@@ -10,7 +10,7 @@ from ixexplorer.api.ixapi import FLAG_RDONLY, IxTclHalApi, TclMember, ixe_obj_me
 from ixexplorer.api.tclproto import TclClient
 from ixexplorer.ixe_hw import IxeChassis
 from ixexplorer.ixe_object import IxeObject
-from ixexplorer.ixe_port import IxeCapture, IxeCaptureBuffer, IxePhyMode, IxePort, IxeReceiveMode
+from ixexplorer.ixe_port import IxeCapture, IxeCaptureBuffer, IxePort, IxeReceiveMode
 from ixexplorer.ixe_statistics_view import IxeCapFileFormat
 
 logger = logging.getLogger("tgn.ixexplorer")
@@ -34,8 +34,8 @@ class IxeApp(TgnApp):
         self.chassis_chain = {}
 
     @property
-    def connected(self):
-        return True if self.api._tcl_handler.fd else False
+    def connected(self) -> bool:
+        return bool(self.api._tcl_handler.fd)
 
     def connect(self, user=None):
         """Connect to host.
@@ -148,10 +148,9 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
 
         :param ports: list of ports to clear.
         """
-
         port_list = self.set_ports_list(*ports)
-        self.api.call_rc("ixClearStats {}".format(port_list))
-        self.api.call_rc("ixClearPacketGroups {}".format(port_list))
+        self.api.call_rc(f"ixClearStats {port_list}")
+        self.api.call_rc(f"ixClearPacketGroups {port_list}")
 
     def start_transmit(self, blocking=False, start_packet_groups=True, *ports):
         """Start transmit on ports.
@@ -160,14 +159,13 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         :param start_packet_groups: True - clear time stamps and start collecting packet groups stats, False - don't.
         :param ports: list of ports to start traffic on, if empty start on all ports.
         """
-
         port_list = self.set_ports_list(*ports)
         if start_packet_groups:
             port_list_for_packet_groups = self.ports.values()
             port_list_for_packet_groups = self.set_ports_list(*port_list_for_packet_groups)
-            self.api.call_rc("ixClearTimeStamp {}".format(port_list_for_packet_groups))
-            self.api.call_rc("ixStartPacketGroups {}".format(port_list_for_packet_groups))
-        self.api.call_rc("ixStartTransmit {}".format(port_list))
+            self.api.call_rc(f"ixClearTimeStamp {port_list_for_packet_groups}")
+            self.api.call_rc(f"ixStartPacketGroups {port_list_for_packet_groups}")
+        self.api.call_rc(f"ixStartTransmit {port_list}")
         time.sleep(1)
 
         if blocking:
@@ -189,7 +187,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
 
         :param ports: list of ports to stop traffic on, if empty start on all ports.
         """
-
         port_list = self.set_ports_list(*ports)
         self.api.call_rc("ixStopTransmit {}".format(port_list))
         time.sleep(0.2)
@@ -199,7 +196,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
 
         :param ports: list of ports to wait for, if empty wait for all ports.
         """
-
         port_list = self.set_ports_list(*ports)
         self.api.call_rc("ixCheckTransmitDone {}".format(port_list))
 
@@ -208,7 +204,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
 
         :param ports: list of ports to start capture on, if empty start on all ports.
         """
-
         IxeCapture.current_object = None
         IxeCaptureBuffer.current_object = None
         if not ports:
@@ -239,10 +234,11 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
                     port.captureBuffer.export(port.cap_file_name)
         return nPackets
 
-    def get_cap_files(self, *ports):
-        """
+    @staticmethod
+    def get_cap_files(*ports) -> dict:
+        """Return dictionary {port, capture file} of captures files for the requested ports.
+
         :param ports: list of ports to get capture files names for.
-        :return: dictionary (port, capture file)
         """
         cap_files = {}
         for port in ports:
@@ -276,7 +272,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         :param timestamp: True - enable timestamp checkbox, False - disable
         :param start_offset: start offset for signatures (group ID, signature, sequence)
         """
-
         if not rx_ports:
             rx_ports = self.ports.values()
 
@@ -339,7 +334,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         :param tx_ports: list of streams to set TX PRBS. If empty set for all streams.
         :type tx_ports:  dict[ixexplorer.ixe_port.IxePort, list[ixexplorer.ixe_stream.IxeStream]]
         """
-
         if not rx_ports:
             rx_ports = self.ports.values()
 
