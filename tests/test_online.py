@@ -21,7 +21,8 @@ def test_port_stats(ixia: IxeApp, locations: List[str]) -> None:
     """Test port statistics."""
     print(test_port_stats.__doc__)
 
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
     cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
     cfg2 = Path(__file__).parent.joinpath("configs/test_config_2.prt")
     _load_configs(ixia, cfg1, cfg2)
@@ -52,7 +53,8 @@ def test_stream_stats(ixia: IxeApp, locations: List[str]) -> None:
     """Test stream statistics."""
     print(test_stream_stats.__doc__)
 
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
     cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
     cfg2 = Path(__file__).parent.joinpath("configs/test_config_2.prt")
     _load_configs(ixia, cfg1, cfg2)
@@ -81,7 +83,8 @@ def test_stream_stats(ixia: IxeApp, locations: List[str]) -> None:
 
 def test_capture(ixia: IxeApp, locations: List[str]) -> None:
 
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
     cfg1 = Path(__file__).parent.joinpath("configs/cap_config.prt")
     cfg2 = Path(__file__).parent.joinpath("configs/cap_config.prt")
     _load_configs(ixia, cfg1, cfg2)
@@ -116,7 +119,8 @@ def test_capture(ixia: IxeApp, locations: List[str]) -> None:
 
 def test_capture_content(ixia: IxeApp, locations: List[str]) -> None:
 
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
 
     port1 = locations[0]
     port2 = locations[1]
@@ -144,19 +148,20 @@ def test_capture_content(ixia: IxeApp, locations: List[str]) -> None:
 
 def test_long_capture(ixia: IxeApp, locations: List[str]) -> None:
 
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
     cfg1 = Path(__file__).parent.joinpath("configs/long_frame_config.prt")
     cfg2 = Path(__file__).parent.joinpath("configs/long_frame_config.prt")
     try:
         _load_configs(ixia, cfg1, cfg2)
-    except StreamWarningsError as _:
+    except StreamWarningsError:
         pass
 
     ixia.session.start_capture()
     ixia.session.start_transmit(blocking=True)
     ixia.session.stop_capture(cap_file_name=None, cap_file_format=IxeCapFileFormat.mem)
     for p in range(1, ixia.session.ports[locations[1]].capture.nPackets + 1):
-        print("frame len = {}".format(len(ixia.session.ports[locations[1]].get_cap_frames(p)[0]) / 3 + 1))
+        print(f"frame len = {len(ixia.session.ports[locations[1]].get_cap_frames(p)[0]) / 3 + 1}")
 
 
 def test_stream_stats_abstract_layer_all_ports(ixia: IxeApp, locations: List[str]) -> None:
@@ -311,7 +316,8 @@ def test_clear_all_stats(ixia: IxeApp, locations: List[str]) -> None:
 
 def _config_and_run_stream_stats_test(ixia: IxeApp, locations: List[str], rx_ports, sc=True, di=True, ts=True):
 
-    ixia.session.reserve_ports(locations, force=True)
+    ixia.session.add_ports(*locations)
+    ixia.session.reserve_ports(force=True)
 
     iteration = 1
     for port_name in locations:

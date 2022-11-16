@@ -23,8 +23,8 @@ def test_load_config(ixia: IxeApp, locations: List[str]) -> None:
     """Load configuration and test different configuration objects."""
     ixia.session.add_ports(*locations)
     ixia.session.reserve_ports(force=True)
-    cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
-    cfg2 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
+    cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.str")
+    cfg2 = Path(__file__).parent.joinpath("configs/test_config_1.str")
     _load_configs(ixia, cfg1, cfg2)
 
     assert len(ixia.session.ports) == 2

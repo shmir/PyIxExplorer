@@ -90,14 +90,15 @@ class TclClient:
         self.logger.debug("result=%s io_output=%s", result, io_output)
         return result, io_output
 
-    def ssh_call(self, string, *args):
-        command = "puts [{}]\n\r".format(string % args)
+    def ssh_call(self, string: str, *args: str) -> str:
+        """Send command to stdin and read return value from stdout."""
+        command = f"puts [{string % args}]\n\r"
         self.logger.debug("sending %s", command.rstrip())
         self.stdin.write(command)
         self.stdin.flush()
         # Sometimes we need to wait, otherwise the command returns without return value (probably because it did not finish).
         if "ixConnectToChassis" in command:
-            time.sleep(0.5)
+            time.sleep(1)
         buf_len = len(self.stdout.channel.in_buffer)
         while not buf_len:
             time.sleep(0.25)

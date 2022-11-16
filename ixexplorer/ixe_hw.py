@@ -41,11 +41,11 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
 
     regex = r"RG([\d]+)\s*mode\s*([\d]+)\s*ppm\s*([-]*[\d]*)\s*active ports\s\{([\s\d]*)\}\s*active capture ports\s\{([\s\d]*)\}\s*resource ports\s*\{([\s\d]*)\}"  # noqa
 
-    def __init__(self, parent, uri):
+    def __init__(self, parent, uri) -> None:
         super().__init__(parent=parent, uri=uri.replace("/", " "))
 
     def discover(self) -> None:
-        self.logger.info("Discover card {}".format(self.obj_name()))
+        self.logger.info(f"Discover card {self.name}")
         for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + "/" + str(pid))
         try:
@@ -76,15 +76,11 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
 
     def add_vm_port(self, port_id, nic_id, mac, promiscuous=0, mtu=1500, speed=1000):
         card_id = self._card_id()
-        self._api.call_rc(
-            "card addVMPort {} {} {} {} {} {} {} {}".format(
-                card_id[0], card_id[1], port_id, nic_id, promiscuous, mac, mtu, speed
-            )
-        )
+        self._api.call_rc(f"card addVMPort {card_id[0]} {card_id[1]} {port_id} {nic_id} {promiscuous} {mac} {mtu} {speed}")
         return IxePort(self._api, self, port_id)
 
     def remove_vm_port(self, card):
-        self._api.call_rc("chassis removeVMCard {} {}".format(self.host, card.id))
+        self._api.call_rc(f"chassis removeVMCard {self.host} {card.id}")
 
     #
     # Card objects.
@@ -242,16 +238,16 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
             card.del_object_from_parent()
 
     def discover(self) -> None:
-        self.logger.info("Discover chassis {}".format(self.obj_name()))
+        self.logger.info(f"Discover chassis {self.obj_name()}")
         for cid in range(1, self.maxCardCount + 1):
             self.add_card(cid)
 
     def add_vm_card(self, card_ip, card_id, keep_alive=300):
-        self._api.call_rc("chassis addVirtualCard {} {} {} {}".format(self.host, card_ip, card_id, keep_alive))
+        self._api.call_rc(f"chassis addVirtualCard {self.host} {card_ip} {card_id} {keep_alive}")
         return IxeCard(self._api, self, card_id)
 
     def remove_vm_card(self, card):
-        self._api.call_rc("chassis removeVMCard {} {}".format(self.host, card.id))
+        self._api.call_rc(f"chassis removeVMCard {self.host} {card.id}")
 
     def get_cards(self) -> Dict[int, IxeCard]:
         """Get dictionary {name: object} of all cards."""
