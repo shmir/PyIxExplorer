@@ -92,10 +92,10 @@ class IxTclHalApi:
     def eval(self, cmd, *args):
         return self.call(cmd, *args)
 
-    def call(self, cmd, *args):
+    def call(self, cmd: str, *args: str) -> str:
         return self._tcl_handler.call(cmd, *args)
 
-    def call_rc(self, cmd, *args):
+    def call_rc(self, cmd: str, *args: str):
         rc = self.call(cmd, *args)
         try:
             int(rc[-1])

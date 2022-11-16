@@ -6,6 +6,7 @@ import time
 from collections import OrderedDict
 from enum import Enum
 
+import ixexplorer.api.tclproto
 import ixexplorer.ixe_port
 from ixexplorer.api.ixapi import FLAG_IGERR, FLAG_RDONLY, IxTclHalError, TclMember, ixe_obj_meta
 from ixexplorer.ixe_object import IxeObject
@@ -89,11 +90,11 @@ class IxeStat(IxeObject, metaclass=ixe_obj_meta):
     __tcl_commands__ = ["write"]
     __get_command__ = None
 
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent=parent, uri=parent.uri)
 
-    def set_attributes(self, **attributes):
-        super(IxeStat, self).set_attributes(**attributes)
+    def set_attributes(self, **attributes) -> None:
+        super().set_attributes(**attributes)
         self.write()
 
     def read_stats(self, *stats):
@@ -175,15 +176,18 @@ class IxeStreamTxStats(IxeObject, metaclass=ixe_obj_meta):
 
 
 class IxeStats:
-    pass
+    """Base class for all statistics."""
+
+    def __init__(self) -> None:
+        self.statistics = OrderedDict()
 
 
 class IxePortsStats(IxeStats):
-    def __init__(self, *ports):
+    def __init__(self, *ports) -> None:
         super().__init__()
         self.ports = ports if ports else IxeObject.session.ports.values()
 
-    def set_attributes(self, **attributes):
+    def set_attributes(self, **attributes) -> None:
         for port in self.ports:
             IxeStatTotal(port).set_attributes(**attributes)
 
@@ -193,10 +197,12 @@ class IxePortsStats(IxeStats):
         :param stats: list of requested statistics to read, if empty - read all statistics.
         """
         self.statistics = OrderedDict()
+        ixexplorer.api.tclproto.ssh_timeout = 1
         for port in self.ports:
             port_stats = IxeStatTotal(port).get_attributes(FLAG_RDONLY, *stats)
             port_stats.update({c + "_rate": v for c, v in IxeStatRate(port).get_attributes(FLAG_RDONLY, *stats).items()})
             self.statistics[str(port)] = port_stats
+        ixexplorer.api.tclproto.ssh_timeout = 60
         return self.statistics
 
 
@@ -206,8 +212,7 @@ class PgStatsDict(OrderedDict):
     def __getitem__(self, key):
         if key in self.keys():
             return OrderedDict.__getitem__(self, key)
-        else:
-            return list(self.values())[0][key]
+        return list(self.values())[0][key]
 
 
 class IxeStreamsStats(IxeStats):
@@ -239,23 +244,23 @@ class IxeStreamsStats(IxeStats):
         """
         from ixexplorer.ixe_stream import IxePacketGroupStream
 
-        sleep_time = 0.1  # in cases we only want few counters but very fast we need a smaller sleep time
+        sleep_time = 0.1  # in case we only want few counters but very fast we need a smaller sleep time
         if not stats:
             stats = [m.attrname for m in IxePgStats.__tcl_members__ if m.flags & FLAG_RDONLY]
             sleep_time = 1
 
         # Read twice to refresh rate statistics.
         for port in self.tx_ports_streams:
-            port.api.call_rc("streamTransmitStats get {} 1 4096".format(port.uri))
+            port.api.call_rc(f"streamTransmitStats get {port.uri} 1 4096")
         for rx_port in self.rx_ports:
-            rx_port.api.call_rc("packetGroupStats get {} 0 65536".format(rx_port.uri))
+            rx_port.api.call_rc(f"packetGroupStats get {rx_port.uri} 0 65536")
         time.sleep(sleep_time)
 
         self.statistics = OrderedDict()
         for tx_port, streams in self.tx_ports_streams.items():
             for stream in streams:
                 stream_stats = OrderedDict()
-                tx_port.api.call_rc("streamTransmitStats get {} 1 4096".format(tx_port.uri))
+                tx_port.api.call_rc(f"streamTransmitStats get {tx_port.uri} 1 4096")
                 stream_tx_stats = IxeStreamTxStats(tx_port, stream.index)
                 stream_stats_tx = {c: v for c, v in stream_tx_stats.get_attributes(FLAG_RDONLY).items()}
                 stream_stats["tx"] = stream_stats_tx
@@ -265,7 +270,7 @@ class IxeStreamsStats(IxeStats):
                     stream_stats_pg[str(port)] = OrderedDict(zip(stats, [-1] * len(stats)))
                 for rx_port in self.rx_ports:
                     if not stream.rx_ports or rx_port in stream.rx_ports:
-                        rx_port.api.call_rc("packetGroupStats get {} 0 65536".format(rx_port.uri))
+                        rx_port.api.call_rc(f"packetGroupStats get {rx_port.uri} 0 65536")
                         pg_stats = IxePgStats(rx_port, stream_stat_pgid)
                         stream_stats_pg[str(rx_port)] = pg_stats.read_stats(*stats)
                 stream_stats["rx"] = stream_stats_pg

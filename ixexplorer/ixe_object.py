@@ -44,13 +44,13 @@ class IxeObject(TgnObject, metaclass=ixe_obj_meta):
 
     def ix_get(self, member=None, force=False) -> None:
         if (self != self.__class__.current_object or force) and self.__get_command__:
-            self.api.call_rc("{} {} {}".format(self.__tcl_command__, self.__get_command__, self.uri))
+            self.api.call_rc(f"{self.__tcl_command__} {self.__get_command__} {self.uri}")
         self.__class__.current_object = self
 
     def ix_set(self, member=None) -> None:
-        self.api.call_rc("{} {} {}".format(self.__tcl_command__, self.__set_command__, self.uri))
+        self.api.call_rc(f"{self.__tcl_command__} {self.__set_command__} {self.uri}")
 
-    def get_attributes(self, flags=0xFF, *attributes):
+    def get_attributes(self, flags: int = 0xFF, *attributes: str) -> OrderedDict:
         attrs_values = OrderedDict()
         if not attributes:
             attributes = [m.attrname for m in self.__tcl_members__]

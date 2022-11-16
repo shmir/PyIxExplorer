@@ -25,6 +25,8 @@ import paramiko
 from trafficgenerator import TgnError
 from trafficgenerator.tgn_utils import new_log_file
 
+ssh_timeout = 60
+
 
 class TclError(Exception):
     def __init__(self, result):
@@ -99,15 +101,19 @@ class TclClient:
         # Sometimes we need to wait, otherwise the command returns without return value (probably because it did not finish).
         if "ixConnectToChassis" in command:
             time.sleep(1)
-        buf_len = len(self.stdout.channel.in_buffer)
-        while not buf_len:
-            time.sleep(0.25)
+        buf_len = 0
+        for _ in range(ssh_timeout * 4):
             buf_len = len(self.stdout.channel.in_buffer)
+            if buf_len:
+                break
+            time.sleep(0.25)
+        if not buf_len:
+            raise TgnError(f"Chassis not responding after {ssh_timeout} seconds")
         ret_value = str(self.stdout.read(buf_len).decode("utf-8").rstrip())
         self.logger.debug("received %s", ret_value)
         return ret_value
 
-    def call(self, string, *args):
+    def call(self, string: str, *args: str) -> str:
         if self.windows_server:
             result, io_output = self.socket_call(string, *args)
             if io_output and "Error:" in io_output:
