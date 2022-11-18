@@ -12,7 +12,7 @@ from ixexplorer.ixe_port import IxeLinkState, IxePortCpu
 log_level = logging.DEBUG
 
 
-chassis_ip = "192.168.65.26"
+chassis_ip = "172.30.150.123"
 host_port = f"{chassis_ip}:8022"
 port1 = f"{chassis_ip}/1/1"
 port2 = f"{chassis_ip}/1/2"
@@ -26,7 +26,7 @@ rsa_id = "C:/Program Files (x86)/Ixia/IxOS/9.10.2000.31/TclScripts/lib/ixTcl1.0/
 ixia: Optional[IxeApp] = None
 
 
-def link_state_str(link_state) -> str:
+def link_state_str(link_state: int) -> str:
     if link_state in list(map(int, [e.value for e in IxeLinkState])):
         return IxeLinkState(link_state).name
     return str(link_state)
@@ -101,12 +101,9 @@ def build_and_run() -> None:
     ixia.session.stop_transmit()
     time.sleep(2)
     port1_stats = ports[port1].read_stats()
-    port2_stats = ports[port2].read_stats()
 
     print(json.dumps(port1_stats, indent=2))
     print(json.dumps(port1_stats, indent=2))
-
-    assert (port1_stats["framesSent"], port2_stats["framesReceived"])
 
 
 def clear() -> None:

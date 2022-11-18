@@ -21,8 +21,8 @@ def test_port_stats(ixia: IxeApp, locations: List[str]) -> None:
     """Test port statistics."""
     ixia.session.add_ports(*locations)
     ixia.session.reserve_ports(force=True)
-    cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
-    cfg2 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
+    cfg1 = Path(__file__).parent.joinpath("configs/test_config.prt")
+    cfg2 = Path(__file__).parent.joinpath("configs/test_config.prt")
     _load_configs(ixia, cfg1, cfg2)
 
     port1 = locations[0]
@@ -51,8 +51,8 @@ def test_stream_stats(ixia: IxeApp, locations: List[str]) -> None:
     """Test stream statistics."""
     ixia.session.add_ports(*locations)
     ixia.session.reserve_ports(force=True)
-    cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
-    cfg2 = Path(__file__).parent.joinpath("configs/test_config_1.prt")
+    cfg1 = Path(__file__).parent.joinpath("configs/test_config.prt")
+    cfg2 = Path(__file__).parent.joinpath("configs/test_config.prt")
     _load_configs(ixia, cfg1, cfg2)
 
     port1 = locations[0]

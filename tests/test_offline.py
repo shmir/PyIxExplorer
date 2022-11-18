@@ -20,11 +20,15 @@ def test_hello_world(ixia: IxeApp) -> None:
 
 
 def test_load_config(ixia: IxeApp, locations: List[str]) -> None:
-    """Load configuration and test different configuration objects."""
+    """Load configuration and test different configuration objects.
+
+    If port config fails because the configuration does not match the port, load the str configuration manually via IxExplorer
+    GUI, then use the test_save_config utility in conftest.py to export the configuration for the requested port.
+    """
     ixia.session.add_ports(*locations)
     ixia.session.reserve_ports(force=True)
-    cfg1 = Path(__file__).parent.joinpath("configs/test_config_1.str")
-    cfg2 = Path(__file__).parent.joinpath("configs/test_config_1.str")
+    cfg1 = Path(__file__).parent.joinpath("configs/test_config.prt")
+    cfg2 = Path(__file__).parent.joinpath("configs/test_config.prt")
     _load_configs(ixia, cfg1, cfg2)
 
     assert len(ixia.session.ports) == 2

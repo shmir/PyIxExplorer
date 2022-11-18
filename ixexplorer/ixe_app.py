@@ -29,16 +29,18 @@ def init_ixe(host: str, port: Optional[int] = 4555, rsa_id: Optional[str] = None
 
 class IxeApp(TgnApp):
     def __init__(self, api_wrapper: IxTclHalApi) -> None:
+        """Initialize global Tcl interpreter and session."""
         super().__init__(logger, api_wrapper)
         trafficgenerator.tgn_tcl.tcl_interp_g = self.api
         self.session = IxeSession(self.logger, self.api)
-        self.chassis_chain = {}
+        self.chassis_chain: Dict[str, IxeChassis] = {}
 
     @property
     def connected(self) -> bool:
+        """Return whether the port is connected or not."""
         return bool(self.api._tcl_handler.fd)
 
-    def connect(self, user=None):
+    def connect(self, user: Optional[str] = None) -> None:
         """Connect to host.
 
         :param user: if user - login session.
@@ -48,6 +50,7 @@ class IxeApp(TgnApp):
             self.session.login(user)
 
     def disconnect(self) -> None:
+        """Disconnect from all chassis in the chassis chain and logout."""
         for chassis in self.chassis_chain.values():
             chassis.disconnect()
         self.session.logout()
@@ -63,10 +66,12 @@ class IxeApp(TgnApp):
             self.chassis_chain[chassis].connect()
 
     def discover(self) -> None:
+        """Get inventory from all chassis in the chassis chain."""
         for chassis in self.chassis_chain.values():
             chassis.discover()
 
     def refresh(self) -> None:
+        """Refresh (read) configuration from chassis."""
         for chassis in self.chassis_chain.values():
             chassis.refresh()
         self.session._reset_current_object()
@@ -83,8 +88,6 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
 
     __tcl_commands__ = ["login", "logout"]
 
-    port_lists = []
-
     def __init__(self, logger_: logging.Logger, api: IxTclHalApi) -> None:
         """Initialize object variables."""
         super().__init__(parent=None, uri="")
@@ -98,9 +101,9 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         :param ports_locations: list of ports ports_locations <ip, card, port> to reserve
         """
         for port_location in ports_locations:
-            ip, card, port = port_location.split("/")
-            chassis = self.get_objects_with_attribute("chassis", "ipAddress", ip)[0].id
-            uri = f"{chassis} {card} {port}"
+            chassis_ip, card_num, port_num = port_location.split("/")
+            chassis = self.get_objects_with_attribute("chassis", "ipAddress", chassis_ip)[0].id
+            uri = f"{chassis} {card_num} {port_num}"
             port = IxePort(parent=self, uri=uri)
             port._data["name"] = port_location
         return self.ports
@@ -243,8 +246,8 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
         cap_files = {}
         for port in ports:
             if port.cap_file_name:
-                with open(port.cap_file_name) as f:
-                    cap_files[port] = f.read().splitlines()
+                with open(port.cap_file_name) as cap_file:
+                    cap_files[port] = cap_file.read().splitlines()
             else:
                 cap_files[port] = None
         return cap_files
@@ -255,8 +258,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
             ports = self.ports.values()
         port_uris = [p.uri for p in ports]
         port_list = "pl_" + "_".join(port_uris).replace(" ", "_")
-        if port_list not in self.port_lists:
-            self.api.call(("set {} [ list " + len(port_uris) * "[list {}] " + "]").format(port_list, *port_uris))
+        self.api.call(("set {} [ list " + len(port_uris) * "[list {}] " + "]").format(port_list, *port_uris))
         return port_list
 
     def set_stream_stats(
@@ -346,11 +348,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
                 tx_ports[port] = port.streams.values()
 
         for port in rx_ports:
-            port.set_receive_modes(
-                IxeReceiveMode.widePacketGroup,
-                IxeReceiveMode.sequenceChecking,
-                IxeReceiveMode.prbs,
-            )
+            port.set_receive_modes(IxeReceiveMode.widePacketGroup, IxeReceiveMode.sequenceChecking, IxeReceiveMode.prbs)
             port.enableAutoDetectInstrumentation = True
             port.autoDetectInstrumentation.ix_set_default()
             port.write()
