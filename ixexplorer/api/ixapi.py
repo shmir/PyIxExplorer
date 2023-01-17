@@ -145,7 +145,8 @@ def ixe_obj_meta(name, bases, atts):
                     return bool(int(return_val)) if val != '-1' else False
                 else:
                     try:
-                        return m.type(return_val) if return_val else -1
+                        ret = m.type(return_val) if return_val else -1
+                        return ret
                     except (TclError, TgnError, Exception) as e:
                         if not m.flags & FLAG_IGERR:
                             raise e

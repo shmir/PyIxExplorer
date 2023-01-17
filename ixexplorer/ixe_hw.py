@@ -39,14 +39,16 @@ class IxeCard(IxeObject, metaclass=ixe_obj_meta):
         for pid in range(1, self.portCount + 1):
             IxePort(self, self.uri + '/' + str(pid))
         try:
-            rg_info_list = tcl_list_2_py_list(self.resourceGroupInfoList, within_tcl_str=True)
-            for entry in rg_info_list:
-                matches = re.finditer(self.regex, entry.strip())
-                for match in matches:
-                    IxeResourceGroup(self, str(int(match.group(1)) + 1), match.group(2), match.group(3),
-                                     [int(p) for p in match.group(4).strip().split()],
-                                     [int(p) for p in match.group(5).strip().split()],
-                                     [int(p) for p in match.group(6).strip().split()])
+            rg = self.resourceGroupInfoList
+            if rg and rg != -1:
+                rg_info_list = tcl_list_2_py_list(rg, within_tcl_str=True)
+                for entry in rg_info_list:
+                    matches = re.finditer(self.regex, entry.strip())
+                    for match in matches:
+                        IxeResourceGroup(self, str(int(match.group(1)) + 1), match.group(2), match.group(3),
+                                         [int(p) for p in match.group(4).strip().split()],
+                                         [int(p) for p in match.group(5).strip().split()],
+                                         [int(p) for p in match.group(6).strip().split()])
             if self.type == 110:
                 operationMode = self.operationMode
                 if operationMode == 2:

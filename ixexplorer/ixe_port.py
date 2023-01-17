@@ -136,7 +136,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
         TclMember('ieeeL1Defaults', type=int, flags=FLAG_IGERR),
         TclMember('enableFramePreemption', type=bool, flags=FLAG_IGERR),
         TclMember('enableSmdVRExchange', type=bool, flags=FLAG_IGERR),
-
+        TclMember('reedSolomonForceOn', type=bool, flags=FLAG_IGERR),
     ]
 
     __tcl_commands__ = ['export', 'getFeature', 'getStreamCount', 'reset', 'setFactoryDefaults', 'setModeDefaults',
