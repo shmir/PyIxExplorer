@@ -157,6 +157,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
     def __init__(self, parent, uri):
         super().__init__(parent=parent, uri=uri.replace('/', ' '))
         self.cap_file_name = None
+        self.cap_stop_frame = None
 
     def supported_speeds(self):
         # todo FIX  once parent is Session(by reserve_ports) - no active_ports ,only if parent is card(by discover)!!!
@@ -318,10 +319,11 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
 
         frames = []
         tmStamps = []
+        self.cap_stop_frame = max(frame_nums)
         for frame_num in frame_nums:
             if self.captureBuffer.getframe(frame_num) == '0':
                 frames.append(self.captureBuffer.frame)
-                secs =int(self.captureBuffer.timestamp)/1e9
+                secs = int(self.captureBuffer.timestamp)/1e9
                 dt = datetime.fromtimestamp(secs)
                 x = dt.strftime('%H:%M:%S.%f')
                 tmStamps.append(x)
@@ -850,7 +852,8 @@ class IxeCaptureBuffer(IxeObject, metaclass=ixe_obj_meta):
         super().__init__(parent=parent, uri=parent.uri)
         if not self.parent.capture.nPackets:
             return
-        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, self.parent.capture.nPackets))
+        packets_to_read = self.parent.capture.nPackets if not self.parent.cap_stop_frame else self.parent.cap_stop_frame
+        self.api.call_rc('captureBuffer get {} 1 {}'.format(self.uri, packets_to_read))
 
     def ix_command(self, command, *args, **kwargs):
         return self.api.call(('captureBuffer {} ' + len(args) * ' {}').format(command, *args))
