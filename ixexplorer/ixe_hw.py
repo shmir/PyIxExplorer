@@ -209,20 +209,29 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
     def __init__(self, parent: "IxeSession", host: str) -> None:
         """Create IxeChassis object with name = url == IP address."""
         super().__init__(parent=parent, uri=host, name=host)
-        self.chassis_id = 0
+        self.chassis_id = 1
 
     def connect(self) -> None:
         """Connect to chassis and get assigned chassis ID.
 
-        Note that sometimes, randomly, ixConnectToChassis fails. However, using chassis.add also fails, so it seems there is
-        no advantage for using one over the other.
+        We try both methods to connect to chassis because it is a little unclear which method works with which chassis.
         """
-        self.api.call_rc(f"ixConnectToChassis {self.uri}")
-        self.chassis_id = self.id
+        try:
+            self.add()
+            self.id = self.chassis_id
+        except IxTclHalError:
+            self.api.call_rc(f"ixConnectToChassis {self.uri}")
+            self.chassis_id = self.id
 
     def disconnect(self) -> None:
-        """Disconnect from chassis."""
-        self.api.call_rc(f"ixDisconnectFromChassis {self.uri}")
+        """Disconnect from chassis.
+
+        We try both methods to disconnect from chassis because it is a little unclear which method works with which chassis.
+        """
+        try:
+            self.ix_command("del")
+        except IxTclHalError:
+            self.api.call_rc(f"ixDisconnectFromChassis {self.uri}")
 
     def add_card(self, cid):
         """Add card.

@@ -9,8 +9,6 @@ tox
 
 # Pipeline
 pre-commit
-pylint
-pylint_pytest
 
 # Packaging
 setuptools-scm
