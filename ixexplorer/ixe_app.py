@@ -120,6 +120,7 @@ class IxeSession(IxeObject, metaclass=ixe_obj_meta):
                     chassis = self.get_objects_with_attribute('chassis', 'ipAddress', ip)[0].id
                     break
                 except Exception as e:
+                    time.sleep(1)
                     pass
             uri = f'{chassis} {card} {port}'
             port = IxePort(parent=self, uri=uri)

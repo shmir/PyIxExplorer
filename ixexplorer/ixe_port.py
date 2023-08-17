@@ -319,7 +319,7 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
 
         frames = []
         tmStamps = []
-        self.cap_stop_frame = max(frame_nums)
+        self.cap_stop_frame = max(frame_nums or [None])
         for frame_num in frame_nums:
             if self.captureBuffer.getframe(frame_num) == '0':
                 frames.append(self.captureBuffer.frame)
