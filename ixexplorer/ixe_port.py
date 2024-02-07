@@ -368,6 +368,13 @@ class IxePort(IxeObject, metaclass=ixe_obj_meta):
     #
     # Others...
     #
+    def start_error_insertion(self, mode=True):
+        """ Set phy mode to copper or fiber.
+        :param mode: requested PHY mode.
+        """
+        cmd = "startErrorInsertion" if mode else "stopErrorInsertion"
+        self.api.call_rc('linkFaultSignaling  {} {}'.format(cmd, self.uri))
+
 
     def set_phy_mode(self, mode=IxePhyMode.ignore):
         """ Set phy mode to copper or fiber.
