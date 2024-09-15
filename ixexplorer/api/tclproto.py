@@ -107,7 +107,7 @@ class TclClient:
         self.tcl_script.debug(command.rstrip())
         reply = ''
         resuls_space = '\r\r\n'
-        if 'ixCheckTransmitDone' in command:
+        if 'ixCheckTransmitDone' in command or 'chassis' in command:
             orig = self.ssh_shell.command_timeout
             self.ssh_shell.command_timeout = 300
             reply = self.ssh_shell.send_receive(command.encode('utf-8'))
@@ -118,7 +118,7 @@ class TclClient:
         self.logger.debug('received %s', reply.rstrip())
         if len(reply):
             data = reply.rsplit(resuls_space, 1)
-            if len(data) ==  2:
+            if len(data) == 2:
                 io_output, result = data
             else:
                 result = data[0]
@@ -162,6 +162,7 @@ class TclClient:
             self.fd = paramiko.SSHClient()
             self.fd.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.fd.connect(hostname=self.host, port=self.port, username='ixtcl', pkey=key)
+            self.fd.get_transport().set_keepalive(300)
             self.ssh_shell = sshWraper(self.fd)
             #self.stdin, self.stdout, _ = self.fd.exec_command('')
             self.call('source /opt/ixia/ixos/current/IxiaWish.tcl')
@@ -239,7 +240,7 @@ class sshWraper(object):
         res = bytes(line).decode() if sshWraper.PY3K else bytes(line)
         return res
 
-    def send_receive(self,cmd):
+    def send_receive(self, cmd):
         reply = ''
         self.read_all()
         self.write(cmd)

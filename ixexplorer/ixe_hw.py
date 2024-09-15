@@ -135,7 +135,8 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
         TclMember('typeName', flags=FLAG_RDONLY),
     ]
 
-    __tcl_commands__ = ['add', 'del', 'refresh']
+    __tcl_commands__ = ['del', 'refresh']  #'add',
+    #ixConnectToChassis <hostname or IPv4/IPv6 address>
 
     TYPE_1600 = 2
     TYPE_200 = 3
@@ -180,6 +181,13 @@ class IxeChassis(IxeObject, metaclass=ixe_obj_meta):
     def __init__(self, parent, host, chassis_id=1):
         super().__init__(parent=parent, uri=host, name=host)
         self.chassis_id = chassis_id
+
+
+    def add(self):
+        #self.ix_command(f'ixConnectToChassis {self.uri}')
+        self.api.call(f'ixConnectToChassis {self.uri}')
+        print("condone")
+        #set chassisID [ixGetChassisID <hostname or IPv4/IPv6 address>]
 
     def connect(self):
         self.add()
